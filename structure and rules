@@ -1,0 +1,104 @@
+Backend Folder Structure
+
+backend/
+│
+├── src/
+│
+│   ├── app.ts                     # Fastify instance & core plugins
+│   ├── server.ts                  # Server bootstrap (listen)
+│
+│   ├── config/                    # App-level configuration
+│   │   ├── env.ts                 # Environment variables
+│   │   ├── firebase.ts            # Firestore & Firebase Admin init
+│   │   └── auth.ts                # Auth config (JWT / Firebase)
+│
+│   ├── plugins/                   # Fastify plugins
+│   │   ├── firebase.plugin.ts     # Inject Firestore into Fastify
+│   │   ├── auth.plugin.ts         # Auth guard (verify token)
+│   │   ├── zod.plugin.ts          # Request validation
+│   │   └── swagger.plugin.ts      # API docs (optional)
+│
+│   ├── modules/                   # DOMAIN MODULES (CORE)
+│   │
+│   │   ├── auth/
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   └── auth.schema.ts
+│   │   │
+│   │   ├── user/
+│   │   │   ├── user.model.ts
+│   │   │   ├── user.routes.ts
+│   │   │   ├── user.controller.ts
+│   │   │   ├── user.service.ts
+│   │   │   └── user.schema.ts
+│   │   │
+│   │   ├── journal/
+│   │   │   ├── journal.model.ts
+│   │   │   ├── journal.routes.ts
+│   │   │   ├── journal.controller.ts
+│   │   │   ├── journal.service.ts
+│   │   │   └── journal.schema.ts
+│   │   │
+│   │   ├── moment/
+│   │   │   ├── moment.model.ts
+│   │   │   ├── moment.routes.ts
+│   │   │   ├── moment.controller.ts
+│   │   │   ├── moment.service.ts
+│   │   │   └── moment.schema.ts
+│   │   │
+│   │   ├── habit/
+│   │   │   ├── habit.model.ts
+│   │   │   ├── habit.routes.ts
+│   │   │   ├── habit.controller.ts
+│   │   │   ├── habit.service.ts
+│   │   │   └── habit.schema.ts
+│   │   │
+│   │   ├── goal/
+│   │   │   ├── goal.model.ts
+│   │   │   ├── goal.routes.ts
+│   │   │   ├── goal.controller.ts
+│   │   │   ├── goal.service.ts
+│   │   │   └── goal.schema.ts
+│   │
+│   ├── shared/                    # CROSS-CUTTING CONCERNS
+│   │   ├── errors/
+│   │   │   ├── app-error.ts
+│   │   │   └── error-handler.ts
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── firestore.ts       # Base Firestore helpers
+│   │   │   ├── id.ts
+│   │   │   └── date.ts
+│   │   │
+│   │   ├── constants/
+│   │   │   └── collections.ts
+│   │   │
+│   │   └── guards/
+│   │       └── ownership.guard.ts
+│
+│   ├── types/
+│   │   └── fastify.d.ts           # request.user typing
+│
+│   └── routes.ts                  # Central route registration
+│
+├── .env
+├── tsconfig.json
+├── package.json
+├── eslint.config.js
+├── README.md
+└── firebase-service-account.json  # (ignored in git)
+
+🔥 IMPORTANT RULES (ENFORCE THESE)
+
+❌ No Firestore calls in controllers
+
+❌ No cross-module DB access
+
+❌ No auth logic inside services
+
+✅ Always validate input
+
+✅ Every doc must have userId
+
+These rules keep your backend clean forever.
