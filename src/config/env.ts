@@ -7,10 +7,11 @@ dotenv.config();
  */
 function validateEnv() {
   const required = [
-    'JWT_SECRET',
+    /**'JWT_SECRET',*/
     'FIREBASE_PROJECT_ID',
     'FIREBASE_CLIENT_EMAIL',
     'FIREBASE_PRIVATE_KEY',
+    'GROQ_API_KEY',
   ];
 
   const missing = required.filter((key) => !process.env[key]);

@@ -3,6 +3,17 @@ import fp from 'fastify-plugin';
 import { auth } from '../config/firebase';
 
 /**
+ * User interface for authenticated requests
+ */
+export interface AuthenticatedRequest extends FastifyRequest {
+  user?: {
+    uid: string;
+    email?: string;
+    emailVerified?: boolean;
+  };
+}
+
+/**
  * Authentication decorator for protecting routes
  */
 const authPlugin: FastifyPluginAsync = async (fastify) => {
@@ -21,7 +32,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
 
       const decodedToken = await auth.verifyIdToken(token);
 
-      request.user = {
+      (request as AuthenticatedRequest).user = {
         uid: decodedToken.uid,
         email: decodedToken.email,
         emailVerified: decodedToken.email_verified,
