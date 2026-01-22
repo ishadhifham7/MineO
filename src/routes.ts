@@ -5,10 +5,10 @@ import { FastifyInstance } from 'fastify';
 // import authRoutes from '../modules/auth/auth.routes';
 // import userRoutes from '../modules/user/user.routes';
 import aiRoutes from './modules/ai/ai.routes';
+import goalRoutes from './modules/goal/goal.routes';
 // import journalRoutes from '../modules/journal/journal.routes';
 // import momentRoutes from '../modules/moment/moment.routes';
 // import habitRoutes from '../modules/habit/habit.routes';
-// import goalRoutes from '../modules/goal/goal.routes';
 
 /**
  * Register all application routes
@@ -25,10 +25,10 @@ export async function registerRoutes(app: FastifyInstance) {
       // await app.register(authRoutes, { prefix: '/auth' });
       // await app.register(userRoutes, { prefix: '/users' });
       await app.register(aiRoutes, { prefix: '/ai' });
+      await app.register(goalRoutes, { prefix: '/goals' });
       // await app.register(journalRoutes, { prefix: '/journals' });
       // await app.register(momentRoutes, { prefix: '/moments' });
       // await app.register(habitRoutes, { prefix: '/habits' });
-      // await app.register(goalRoutes, { prefix: '/goals' });
       // Root test / placeholder endpoint
       app.get('/', async () => ({
         message: 'MineO API v1 is running!',

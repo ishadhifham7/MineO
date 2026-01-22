@@ -1,0 +1,152 @@
+// src/modules/goal/goal.schema.ts
+
+export const generateGoalSchema = {
+  description: 'Generate a goal with stages',
+  tags: ['Goal'],
+  body: {
+    type: 'object',
+    required: ['title', 'description', 'stages'],
+    properties: {
+      title: { type: 'string', minLength: 3 },
+      description: { type: 'string', minLength: 10 },
+      stages: {
+        type: 'array',
+        minItems: 1,
+        items: {
+          type: 'object',
+          required: ['title', 'order'],
+          properties: {
+            title: { type: 'string', minLength: 3 },
+            description: { type: 'string' },
+            order: { type: 'number' },
+          },
+        },
+      },
+    },
+  },
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        goalId: { type: 'string' },
+        message: { type: 'string' },
+      },
+    },
+    401: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+        message: { type: 'string' },
+      },
+    },
+  },
+};
+
+export const getUserGoalsSchema = {
+  description: 'Get all goals for the authenticated user',
+  tags: ['Goal'],
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        goals: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              userId: { type: 'string' },
+              title: { type: 'string' },
+              description: { type: 'string' },
+              stages: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    title: { type: 'string' },
+                    description: { type: 'string' },
+                    order: { type: 'number' },
+                    completed: { type: 'boolean' },
+                  },
+                },
+              },
+              createdAt: { type: 'object' },
+            },
+          },
+        },
+        count: { type: 'number' },
+      },
+    },
+    401: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+        message: { type: 'string' },
+      },
+    },
+  },
+};
+
+export const getGoalByIdSchema = {
+  description: 'Get a specific goal by ID with ownership verification',
+  tags: ['Goal'],
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'string' },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        goal: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            userId: { type: 'string' },
+            title: { type: 'string' },
+            description: { type: 'string' },
+            stages: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  order: { type: 'number' },
+                  completed: { type: 'boolean' },
+                },
+              },
+            },
+            createdAt: { type: 'object' },
+          },
+        },
+      },
+    },
+    401: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+        message: { type: 'string' },
+      },
+    },
+    403: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+        message: { type: 'string' },
+      },
+    },
+    404: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+        message: { type: 'string' },
+      },
+    },
+  },
+};
