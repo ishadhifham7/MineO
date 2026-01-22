@@ -1,6 +1,9 @@
-import admin from "firebase-admin";
-import { env } from "./env";
+import admin from 'firebase-admin';
+import { env } from './env';
 
+/**
+ * Initialize Firebase Admin SDK
+ */
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -13,3 +16,4 @@ if (!admin.apps.length) {
 
 export const firebaseAdmin = admin;
 export const firestore = admin.firestore();
+export const auth = admin.auth();

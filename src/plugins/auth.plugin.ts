@@ -1,22 +1,43 @@
-import { FastifyPluginAsync } from "fastify";
-import { firebaseAdmin } from "../config/firbase";
+import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
+import fp from 'fastify-plugin';
+import { auth } from '../config/firebase';
 
+/**
+ * Authentication decorator for protecting routes
+ */
 const authPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.decorate("authenticate", async (request: any, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader) {
-      return reply.status(401).send({ message: "Unauthorized" });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-
+  fastify.decorate('authenticate', async function (request: FastifyRequest, reply: FastifyReply) {
     try {
-      const decoded = await firebaseAdmin.auth().verifyIdToken(token);
-      request.user = decoded;
-    } catch {
-      return reply.status(401).send({ message: "Invalid token" });
+      const authHeader = request.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return reply.status(401).send({
+          error: 'Unauthorized',
+          message: 'Missing or invalid authorization header',
+        });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+
+      const decodedToken = await auth.verifyIdToken(token);
+
+      request.user = {
+        uid: decodedToken.uid,
+        email: decodedToken.email,
+        emailVerified: decodedToken.email_verified,
+      };
+    } catch (error) {
+      fastify.log.error(error, 'Authentication failed');
+      return reply.status(401).send({
+        error: 'Unauthorized',
+        message: 'Invalid or expired token',
+      });
     }
   });
+
+  fastify.log.info('✅ Auth plugin registered');
 };
 
-export default authPlugin;
+export default fp(authPlugin, {
+  name: 'auth-plugin',
+});

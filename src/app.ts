@@ -1,26 +1,63 @@
-import Fastify from "fastify";
-import cors from "@fastify/cors";
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
 
-import firebasePlugin from "./plugins/firebase.plugin";
-import authPlugin from "./plugins/auth.plugin";
-import zodPlugin from "./plugins/zod.plugin";
-import swaggerPlugin from "./plugins/swagger.plugin";
+import firebasePlugin from './plugins/firebase.plugin';
+import authPlugin from './plugins/auth.plugin';
+import zodPlugin from './plugins/zod.plugin';
+import swaggerPlugin from './plugins/swagger.plugin';
 
-import { errorHandler } from "./shared/errors/error-handler";
-import { registerRoutes } from "./routes";
+import { errorHandler } from './shared/errors/error-handler';
+import { registerRoutes } from './routes';
+import { env } from './config/env';
 
-export function buildApp() {
-  const app = Fastify({ logger: true });
+/**
+ * Build and configure the Fastify application
+ */
+export async function buildApp() {
+  const app = Fastify({
+    logger: {
+      level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+      transport:
+        env.NODE_ENV === 'development'
+          ? {
+              target: 'pino-pretty',
+              options: {
+                translateTime: 'HH:MM:ss Z',
+                ignore: 'pid,hostname',
+              },
+            }
+          : undefined,
+    },
+  });
 
-  app.register(cors);
-  app.register(firebasePlugin);
-  app.register(authPlugin);
-  app.register(zodPlugin);
-  app.register(swaggerPlugin);
+  // Register CORS
+  await app.register(cors, {
+    origin: env.NODE_ENV === 'production' ? false : true,
+    credentials: true,
+  });
 
+  // Register core plugins
+  await app.register(firebasePlugin);
+  await app.register(authPlugin);
+  await app.register(zodPlugin);
+
+  // Register Swagger (only in development)
+  if (env.NODE_ENV === 'development') {
+    await app.register(swaggerPlugin);
+  }
+
+  // Health check route
+  app.get('/health', async () => ({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: env.NODE_ENV,
+  }));
+
+  // Register application routes
+  await registerRoutes(app);
+
+  // Set error handler (must be after routes)
   app.setErrorHandler(errorHandler);
-
-  registerRoutes(app);
 
   return app;
 }
