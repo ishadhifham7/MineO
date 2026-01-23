@@ -38,6 +38,7 @@ export async function generateGoal(data: GenerateGoalInput) {
   return goalId;
 }
 
+// ...existing code...
 export async function getGoals(): Promise<Goal[]> {
   const snapshot = await firestore.collection('goals').orderBy('createdAt', 'desc').get();
 
@@ -45,8 +46,28 @@ export async function getGoals(): Promise<Goal[]> {
     return [];
   }
 
-  return snapshot.docs.map((doc) => doc.data() as Goal);
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+
+    // Build the goal object with explicit ID from Firestore document ID
+    const goal: Goal = {
+      id: doc.id, // Use Firestore document ID as the goal ID
+      title: data.title,
+      description: data.description,
+      createdAt: data.createdAt,
+      stages: (data.stages || []).map((stage: any) => ({
+        id: stage.id, // Preserve stage ID from stored data
+        title: stage.title,
+        description: stage.description,
+        order: stage.order,
+        completed: stage.completed,
+      })),
+    };
+
+    return goal;
+  });
 }
+// ...existing code...
 
 /**
  * Get a specific goal by ID
