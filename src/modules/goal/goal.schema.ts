@@ -89,7 +89,7 @@ export const getUserGoalsSchema = {
 };
 
 export const getGoalByIdSchema = {
-  description: 'Get a specific goal by ID with ownership verification',
+  description: 'Get a specific goal by ID',
   tags: ['Goal'],
   params: {
     type: 'object',
@@ -106,9 +106,9 @@ export const getGoalByIdSchema = {
           type: 'object',
           properties: {
             id: { type: 'string' },
-            userId: { type: 'string' },
             title: { type: 'string' },
             description: { type: 'string' },
+            createdAt: { type: 'object' },
             stages: {
               type: 'array',
               items: {
@@ -122,23 +122,47 @@ export const getGoalByIdSchema = {
                 },
               },
             },
-            createdAt: { type: 'object' },
           },
         },
       },
     },
-    401: {
+    404: {
       type: 'object',
       properties: {
         error: { type: 'string' },
         message: { type: 'string' },
       },
     },
-    403: {
+  },
+};
+
+export const completeStageParamsSchema = {
+  params: {
+    type: 'object',
+    required: ['goalId', 'stageId'],
+    properties: {
+      goalId: { type: 'string' },
+      stageId: { type: 'string' },
+    },
+  },
+};
+
+export const deleteGoalSchema = {
+  description: 'Delete a goal by ID',
+  tags: ['Goal'],
+  params: {
+    type: 'object',
+    required: ['goalId'],
+    properties: {
+      goalId: { type: 'string' },
+    },
+  },
+  response: {
+    200: {
       type: 'object',
       properties: {
-        error: { type: 'string' },
         message: { type: 'string' },
+        goalId: { type: 'string' },
       },
     },
     404: {

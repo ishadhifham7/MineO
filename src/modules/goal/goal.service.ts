@@ -67,19 +67,84 @@ export async function getGoals(): Promise<Goal[]> {
     return goal;
   });
 }
-// ...existing code...
-
 /**
  * Get a specific goal by ID
- * @param goalId - The goal ID
- * @returns The goal if found, null otherwise
  */
-/**export async function getGoalById(goalId: string): Promise<Goal | null> {
+export async function getGoalById(goalId: string): Promise<Goal | null> {
   const doc = await firestore.collection('goals').doc(goalId).get();
 
   if (!doc.exists) {
+    return null; // Goal not found
+  }
+
+  const data = doc.data();
+
+  if (!data) return null;
+
+  // Build the goal object with explicit ID and mapped stages
+  const goal: Goal = {
+    id: doc.id,
+    title: data.title,
+    description: data.description ?? null,
+    createdAt: data.createdAt ?? null,
+    stages: (data.stages || []).map((stage: any) => ({
+      id: stage.id,
+      title: stage.title,
+      description: stage.description ?? null,
+      order: stage.order,
+      completed: stage.completed ?? false,
+    })),
+  };
+
+  return goal;
+}
+
+export async function completeGoalStage(goalId: string, stageId: string): Promise<Goal | null> {
+  const goalRef = firestore.collection('goals').doc(goalId);
+  const goalSnap = await goalRef.get();
+
+  if (!goalSnap.exists) {
     return null;
   }
 
-  return doc.data() as Goal;
-}*/
+  const goal = goalSnap.data() as Goal;
+
+  let stageFound = false;
+
+  const updatedStages: GoalStage[] = goal.stages.map((stage) => {
+    if (stage.id === stageId) {
+      stageFound = true;
+      return {
+        ...stage,
+        completed: true,
+      };
+    }
+    return stage;
+  });
+
+  if (!stageFound) {
+    return null;
+  }
+
+  await goalRef.update({
+    stages: updatedStages,
+  });
+
+  return {
+    ...goal,
+    stages: updatedStages,
+  };
+}
+
+export async function deleteGoal(goalId: string) {
+  const goalRef = firestore.collection('goals').doc(goalId);
+  const snapshot = await goalRef.get();
+
+  if (!snapshot.exists) {
+    throw new Error('GOAL_NOT_FOUND');
+  }
+
+  await goalRef.delete();
+
+  return goalId;
+}
