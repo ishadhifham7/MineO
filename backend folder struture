@@ -1,0 +1,36 @@
+## 📁 Project Structure
+
+```
+src/
+├── app.ts                    # Fastify app configuration
+├── server.ts                 # Server bootstrap
+├── routes.ts                 # Central route registration
+│
+├── config/                   # Configuration files
+│   ├── env.ts               # Environment variables
+│   ├── firebase.ts          # Firebase initialization
+│   └── auth.ts              # Auth configuration
+│
+├── plugins/                  # Fastify plugins
+│   ├── firebase.plugin.ts   # Firebase integration
+│   ├── auth.plugin.ts       # Authentication middleware
+│   ├── zod.plugin.ts        # Validation plugin
+│   └── swagger.plugin.ts    # API documentation
+│
+├── modules/                  # Feature modules
+│   ├── auth/                # Authentication module
+│   ├── user/                # User management
+│   ├── journal/             # Journal entries
+│   ├── moment/              # Daily moments
+│   ├── habit/               # Habit tracking
+│   └── goal/                # Goal setting
+│
+├── shared/                   # Shared utilities
+│   ├── errors/              # Error classes & handlers
+│   ├── guards/              # Authorization guards
+│   ├── utils/               # Helper functions
+│   └── constants/           # App constants
+│
+└── types/                    # TypeScript declarations
+    └── fastify.d.ts         # Fastify type extensions
+```

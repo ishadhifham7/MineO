@@ -1,0 +1,128 @@
+📁 Root Structure
+
+mineo-app/
+│
+├── app/                    # ROUTES (Expo Router)
+├── src/                    # ALL NON-ROUTE CODE
+├── assets/                 # Images, fonts, icons
+├── store/                  # Redux store
+├── constants/              # App-wide constants
+├── types/                  # Global TypeScript types
+│
+├── app.config.ts
+├── tailwind.config.js
+├── babel.config.js
+├── tsconfig.json
+└── package.json
+
+📁 app/ — ROUTING ONLY (Expo Router)
+
+app/
+│
+├── _layout.tsx             # Root layout (providers, auth guard)
+├── index.tsx               # App entry (redirect logic)
+│
+├── (auth)/                 # AUTH FLOW (grouped)
+│   ├── login.tsx
+│   └── register.tsx
+│
+├── (tabs)/                 # MAIN APP (after login)
+│   ├── _layout.tsx         # Bottom tabs layout
+│   │
+│   ├── home.tsx
+│   ├── journal/
+│   │   ├── index.tsx       # Journal list / today
+│   │   └── [id].tsx        # Single journal page
+│   │
+│   ├── journey.tsx         # Journey map
+│   │
+│   ├── habits.tsx
+│   ├── goals.tsx
+│   └── profile.tsx
+
+📁 src/ — REAL APP CODE
+
+src/
+│
+├── components/             # Reusable UI components
+│   ├── ui/                 # Buttons, Text, Card, Modal
+│   ├── journal/
+│   ├── habit/
+│   ├── goal/
+│   └── journey/
+│
+├── features/               # DOMAIN FEATURES (IMPORTANT)
+│   ├── auth/
+│   ├── user/
+│   ├── journal/
+│   ├── moment/
+│   ├── habit/
+│   └── goal/
+│
+├── services/               # API layer (backend calls)
+│   ├── api.ts
+│   ├── auth.service.ts
+│   ├── journal.service.ts
+│   ├── habit.service.ts
+│   └── goal.service.ts
+│
+├── hooks/                  # Custom hooks
+│   ├── useAuth.ts
+│   ├── useJournal.ts
+│   └── useAppDispatch.ts
+│
+├── lib/                    # App utilities
+│   ├── http.ts             # Fetch wrapper
+│   ├── storage.ts          # SecureStore / AsyncStorage
+│   └── auth.ts             # Token helpers
+│
+├── styles/                 # Global styles (NativeWind)
+│   └── global.css
+│
+└── providers/              # App-level providers
+    ├── ReduxProvider.tsx
+    └── AuthProvider.tsx
+
+📁 features/ is the HEART of your frontend
+
+features/journal/
+├── journal.slice.ts        # Redux slice
+├── journal.types.ts
+├── journal.selectors.ts
+└── journal.logic.ts        # Business logic
+
+📁 store/ — REDUX TOOLKIT
+
+store/
+├── index.ts                # configureStore
+├── rootReducer.ts
+└── middleware.ts
+
+📁 constants/
+
+constants/
+├── colors.ts
+├── routes.ts
+└── env.ts
+
+📁 types/
+
+types/
+├── api.ts
+├── user.ts
+├── journal.ts
+└── navigation.ts
+
+🔥 RULES (NON-NEGOTIABLE)
+
+❌ No business logic inside app/
+
+❌ No API calls inside screens
+
+❌ No Redux logic outside features/
+
+✅ Screens only compose components + hooks
+
+✅ One feature = one folder
+
+This is how real products stay sane.
