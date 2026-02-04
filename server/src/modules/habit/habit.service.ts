@@ -8,6 +8,7 @@ import {
 const collection = firestore.collection("dailyStates");
 
 export class HabitService {
+  // CREATE OR UPDATE DAILY HABIT (UPSERT)
   static async upsertDailyHabit(date: string, payload: any) {
     const docRef = collection.doc(date);
 
@@ -22,6 +23,7 @@ export class HabitService {
     );
   }
 
+  // GET MONTHLY CALENDAR DATA
   static async getMonthlyCalendar(month: string): Promise<HabitDailyResponse[]> {
     const [year, monthIndex] = month.split("-").map(Number);
 
@@ -48,6 +50,7 @@ export class HabitService {
     });
   }
 
+  // GET WEEKLY RADAR DATA (PERCENTAGE BASED)
   static async getRadarData(
     startDate: string,
     endDate: string
@@ -60,20 +63,25 @@ export class HabitService {
       .where("date", "<=", end)
       .get();
 
-    let mental = 0, physical = 0, spiritual = 0;
-    let mCount = 0, pCount = 0, sCount = 0;
+    let mental = 0;
+    let physical = 0;
+    let spiritual = 0;
 
     snapshot.docs.forEach(doc => {
       const d = doc.data();
-      if (d.mental != null) { mental += d.mental; mCount++; }
-      if (d.physical != null) { physical += d.physical; pCount++; }
-      if (d.spiritual != null) { spiritual += d.spiritual; sCount++; }
+      mental += d.mental ?? 0;
+      physical += d.physical ?? 0;
+      spiritual += d.spiritual ?? 0;
     });
 
+    const MAX_DAYS = 7; // weekly normalization
+    const toPercentage = (value: number) =>
+      Math.round((value / MAX_DAYS) * 100 * 100) / 100;
+
     return {
-      mental: mCount ? mental / mCount : 0,
-      physical: pCount ? physical / pCount : 0,
-      spiritual: sCount ? spiritual / sCount : 0
+      mental: toPercentage(mental),
+      physical: toPercentage(physical),
+      spiritual: toPercentage(spiritual)
     };
   }
 }
