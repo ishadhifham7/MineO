@@ -37,15 +37,11 @@ export default function JournalScreen() {
   };
 
   const moveBlock = (id: string, x: number, y: number) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, x, y } : b))
-    );
+    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, x, y } : b)));
   };
 
   const changeText = (id: string, text: string) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, text } : b))
-    );
+    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, text } : b)));
   };
 
   const resizeBlock = (
@@ -53,20 +49,16 @@ export default function JournalScreen() {
     width: number,
     height: number,
     x: number,
-    y: number
+    y: number,
   ) => {
     setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === id ? { ...b, width, height, x, y } : b
-      )
+      prev.map((b) => (b.id === id ? { ...b, width, height, x, y } : b)),
     );
   };
 
   const rotateBlock = (id: string, rotation: number) => {
     setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === id ? { ...b, rotation } : b
-      )
+      prev.map((b) => (b.id === id ? { ...b, rotation } : b)),
     );
   };
 
