@@ -6,10 +6,12 @@ import Animated, {
   useAnimatedStyle,
   runOnJS,
 } from "react-native-reanimated";
+import { MaterialIcons } from "@expo/vector-icons";
+
 
 const MIN_WIDTH = 80;
 const MIN_HEIGHT = 40;
-const HANDLE_SIZE = 12;
+const HANDLE_SIZE = 10;
 
 type TextBlockProps = {
   id: string;
@@ -18,6 +20,7 @@ type TextBlockProps = {
   y: number;
   width: number;
   height: number;
+  rotation: number; // already present
   isSelected: boolean;
   onSelect: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
@@ -29,6 +32,7 @@ type TextBlockProps = {
     x: number,
     y: number
   ) => void;
+  onRotate: (id: string, rotation: number) => void; // already present
 };
 
 export function TextBlock({
@@ -38,23 +42,28 @@ export function TextBlock({
   y,
   width,
   height,
+  rotation,
   isSelected,
   onSelect,
   onMove,
   onTextChange,
   onResize,
+  onRotate,
 }: TextBlockProps) {
   const posX = useSharedValue(x);
   const posY = useSharedValue(y);
   const blockWidth = useSharedValue(width);
   const blockHeight = useSharedValue(height);
+
+  const rotate = useSharedValue(rotation); // ✅ NEW
+
   const isResizing = useSharedValue(false);
 
-  // Track initial values for resize calculations
   const startPosX = useSharedValue(0);
   const startPosY = useSharedValue(0);
   const startWidth = useSharedValue(0);
   const startHeight = useSharedValue(0);
+  const startRotation = useSharedValue(0); // ✅ NEW
 
   const [isEditing, setIsEditing] = useState(false);
   const [localText, setLocalText] = useState(text);
@@ -66,7 +75,8 @@ export function TextBlock({
     posY.value = y;
     blockWidth.value = width;
     blockHeight.value = height;
-  }, [x, y, width, height]);
+    rotate.value = rotation; // ✅ NEW
+  }, [x, y, width, height, rotation]);
 
   useEffect(() => setLocalText(text), [text]);
 
@@ -81,9 +91,10 @@ export function TextBlock({
     top: posY.value,
     width: blockWidth.value,
     height: blockHeight.value,
+    transform: [{ rotate: `${rotate.value}deg` }], // ✅ NEW
   }));
 
-  /* ---- move ---- */
+  /* ---- move (UNCHANGED) ---- */
   const panGesture = Gesture.Pan()
     .enabled(!isEditing && !isResizing.value)
     .onBegin(() => runOnJS(onSelect)(id))
@@ -95,7 +106,7 @@ export function TextBlock({
       runOnJS(onMove)(id, posX.value, posY.value);
     });
 
-  /* ---- edit ---- */
+  /* ---- edit (UNCHANGED) ---- */
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
     .onEnd(() => {
@@ -103,7 +114,7 @@ export function TextBlock({
       runOnJS(setIsEditing)(true);
     });
 
-  /* ---- resize helpers ---- */
+  /* ---- resize helpers (UNCHANGED) ---- */
   const startResize = () => {
     isResizing.value = true;
     startPosX.value = posX.value;
@@ -124,50 +135,84 @@ export function TextBlock({
     );
   };
 
-  /* ---- resize gestures ---- */
+  /* ---- resize gestures (UNCHANGED) ---- */
   const resizeBR = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
       blockWidth.value = Math.max(MIN_WIDTH, startWidth.value + e.translationX);
-      blockHeight.value = Math.max(MIN_HEIGHT, startHeight.value + e.translationY);
+      blockHeight.value = Math.max(
+        MIN_HEIGHT,
+        startHeight.value + e.translationY
+      );
     })
     .onEnd(finishResize);
 
   const resizeBL = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
-      const newWidth = Math.max(MIN_WIDTH, startWidth.value - e.translationX);
-      const widthDiff = startWidth.value - newWidth;
+      const newWidth = Math.max(
+        MIN_WIDTH,
+        startWidth.value - e.translationX
+      );
+      const diff = startWidth.value - newWidth;
       blockWidth.value = newWidth;
-      posX.value = startPosX.value + widthDiff;
-      blockHeight.value = Math.max(MIN_HEIGHT, startHeight.value + e.translationY);
+      posX.value = startPosX.value + diff;
+      blockHeight.value = Math.max(
+        MIN_HEIGHT,
+        startHeight.value + e.translationY
+      );
     })
     .onEnd(finishResize);
 
   const resizeTR = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
-      const newHeight = Math.max(MIN_HEIGHT, startHeight.value - e.translationY);
-      const heightDiff = startHeight.value - newHeight;
+      const newHeight = Math.max(
+        MIN_HEIGHT,
+        startHeight.value - e.translationY
+      );
+      const diff = startHeight.value - newHeight;
       blockHeight.value = newHeight;
-      posY.value = startPosY.value + heightDiff;
-      blockWidth.value = Math.max(MIN_WIDTH, startWidth.value + e.translationX);
+      posY.value = startPosY.value + diff;
+      blockWidth.value = Math.max(
+        MIN_WIDTH,
+        startWidth.value + e.translationX
+      );
     })
     .onEnd(finishResize);
 
   const resizeTL = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
-      const newWidth = Math.max(MIN_WIDTH, startWidth.value - e.translationX);
-      const newHeight = Math.max(MIN_HEIGHT, startHeight.value - e.translationY);
-      const widthDiff = startWidth.value - newWidth;
-      const heightDiff = startHeight.value - newHeight;
+      const newWidth = Math.max(
+        MIN_WIDTH,
+        startWidth.value - e.translationX
+      );
+      const newHeight = Math.max(
+        MIN_HEIGHT,
+        startHeight.value - e.translationY
+      );
+      const wDiff = startWidth.value - newWidth;
+      const hDiff = startHeight.value - newHeight;
       blockWidth.value = newWidth;
       blockHeight.value = newHeight;
-      posX.value = startPosX.value + widthDiff;
-      posY.value = startPosY.value + heightDiff;
+      posX.value = startPosX.value + wDiff;
+      posY.value = startPosY.value + hDiff;
     })
     .onEnd(finishResize);
+
+  /* ---- rotation gesture (NEW, isolated) ---- */
+  const rotateGesture = Gesture.Pan()
+    .onBegin(() => {
+      startRotation.value = rotate.value;
+      runOnJS(onSelect)(id);
+    })
+    .onUpdate((e) => {
+      rotate.value = startRotation.value + e.translationX * 0.4;
+    })
+    .onEnd(() => {
+      runOnJS(onRotate)(id, rotate.value);
+    });
 
   const composedGesture = Gesture.Race(doubleTapGesture, panGesture);
 
@@ -196,6 +241,7 @@ export function TextBlock({
 
         {isSelected && (
           <>
+            {/* resize handles (UNCHANGED) */}
             <GestureDetector gesture={resizeTL}>
               <View style={[styles.handle, styles.tl]} />
             </GestureDetector>
@@ -208,6 +254,13 @@ export function TextBlock({
             <GestureDetector gesture={resizeBR}>
               <View style={[styles.handle, styles.br]} />
             </GestureDetector>
+
+            {/* rotation handle (NEW) */}
+            <GestureDetector gesture={rotateGesture}>
+  <View style={styles.rotateHandle}>
+    <MaterialIcons name="sync" size={18} color="#4A90E2" />
+  </View>
+</GestureDetector>
           </>
         )}
       </Animated.View>
@@ -233,8 +286,8 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 16,
-    color: "#111",
     padding: 0,
+    color: "#111",
   },
   handle: {
     position: "absolute",
@@ -247,4 +300,21 @@ const styles = StyleSheet.create({
   tr: { top: -6, right: -6 },
   bl: { bottom: -6, left: -6 },
   br: { bottom: -6, right: -6 },
+
+  /* NEW */
+  rotateHandle: {
+    position: "absolute",
+    top: -30, // move further above the block
+    left: "50%",
+    marginLeft: -9, // half of new width
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+
+    // No overflow hidden here
+  },
 });

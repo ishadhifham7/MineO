@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Pressable, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Canvas } from "../../../src/components/journal/Canvas";
@@ -12,6 +12,7 @@ type TextBlockModel = {
   y: number;
   width: number;
   height: number;
+  rotation: number;
 };
 
 export default function JournalScreen() {
@@ -20,7 +21,6 @@ export default function JournalScreen() {
 
   const addTextBlock = () => {
     const id = Date.now().toString();
-
     setBlocks((prev) => [
       ...prev,
       {
@@ -30,9 +30,9 @@ export default function JournalScreen() {
         y: 2000,
         width: 200,
         height: 80,
+        rotation: 0,
       },
     ]);
-
     setSelectedBlockId(id);
   };
 
@@ -48,53 +48,46 @@ export default function JournalScreen() {
     );
   };
 
-  const resizeBlock = (id: string, width: number, height: number, x: number, y: number) => {
+  const resizeBlock = (
+    id: string,
+    width: number,
+    height: number,
+    x: number,
+    y: number
+  ) => {
     setBlocks((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, width, height, x, y } : b))
+      prev.map((b) =>
+        b.id === id ? { ...b, width, height, x, y } : b
+      )
+    );
+  };
+
+  const rotateBlock = (id: string, rotation: number) => {
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === id ? { ...b, rotation } : b
+      )
     );
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        {/* Header */}
-        <View
-          style={{
-            padding: 16,
-            backgroundColor: "#f8f9fa",
-            borderBottomWidth: 1,
-            borderBottomColor: "#e9ecef",
-          }}
-        >
-          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#212529" }}>
-            Journal
-          </Text>
-          <Text style={{ fontSize: 14, color: "#6c757d", marginTop: 4 }}>
-            Tap + to add • Drag to move • Double tap to edit
-          </Text>
-        </View>
-
-        {/* Canvas */}
         <Canvas>
           {blocks.map((block) => (
             <TextBlock
               key={block.id}
-              id={block.id}
-              text={block.text}
-              x={block.x}
-              y={block.y}
-              width={block.width}
-              height={block.height}
+              {...block}
               isSelected={block.id === selectedBlockId}
               onSelect={setSelectedBlockId}
               onMove={moveBlock}
               onTextChange={changeText}
               onResize={resizeBlock}
+              onRotate={rotateBlock}
             />
           ))}
         </Canvas>
 
-        {/* Add Block Button */}
         <Pressable
           onPress={addTextBlock}
           style={{
@@ -107,11 +100,6 @@ export default function JournalScreen() {
             backgroundColor: "#000",
             alignItems: "center",
             justifyContent: "center",
-            elevation: 5,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
           }}
         >
           <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
