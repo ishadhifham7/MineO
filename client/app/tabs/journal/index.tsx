@@ -5,6 +5,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock } from "../../../src/components/journal/blocks/TextBlock";
 import { ContextMenu } from "../../../src/components/journal/ContextMenu";
+import { Toolbar } from "../../../src/components/journal/Toolbar";
+
+/* ---------------- TYPES ---------------- */
 
 type TextBlockModel = {
   id: string;
@@ -15,16 +18,33 @@ type TextBlockModel = {
   height: number;
   rotation: number;
   zIndex: number;
+
+  // text formatting
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  textColor: string;
+  textAlign: "left" | "center" | "right";
+
+  // NEW text metrics
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
 };
+
+/* ---------------- SCREEN ---------------- */
 
 export default function JournalScreen() {
   const [blocks, setBlocks] = useState<TextBlockModel[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
+  /* ---------- CREATE BLOCK ---------- */
   const addTextBlock = () => {
     const id = Date.now().toString();
+
     setBlocks((prev) => {
       const maxZ = prev.length > 0 ? Math.max(...prev.map((b) => b.zIndex)) : 0;
+
       return [
         ...prev,
         {
@@ -36,11 +56,24 @@ export default function JournalScreen() {
           height: 80,
           rotation: 0,
           zIndex: maxZ + 1,
+
+          isBold: false,
+          isItalic: false,
+          isUnderline: false,
+          textColor: "#111",
+          textAlign: "left",
+
+          fontSize: 16,
+          lineHeight: 22,
+          letterSpacing: 0,
         },
       ];
     });
+
     setSelectedBlockId(id);
   };
+
+  /* ---------- BLOCK ACTIONS ---------- */
 
   const moveBlock = (id: string, x: number, y: number) => {
     setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, x, y } : b)));
@@ -72,11 +105,12 @@ export default function JournalScreen() {
     setSelectedBlockId(id);
 
     setBlocks((prev) => {
-      if (prev.length === 0) return prev;
       const maxZ = Math.max(...prev.map((b) => b.zIndex));
       return prev.map((b) => (b.id === id ? { ...b, zIndex: maxZ + 1 } : b));
     });
   };
+
+  /* ---------- CONTEXT MENU ---------- */
 
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
@@ -93,21 +127,11 @@ export default function JournalScreen() {
   const [copiedBlock, setCopiedBlock] = useState<TextBlockModel | null>(null);
 
   const openContextMenu = (id: string, x: number, y: number) => {
-    setContextMenu({
-      visible: true,
-      blockId: id,
-      x,
-      y,
-    });
+    setContextMenu({ visible: true, blockId: id, x, y });
   };
 
   const closeContextMenu = () => {
-    setContextMenu({
-      visible: false,
-      blockId: null,
-      x: 0,
-      y: 0,
-    });
+    setContextMenu({ visible: false, blockId: null, x: 0, y: 0 });
   };
 
   const handleCopy = () => {
@@ -120,6 +144,7 @@ export default function JournalScreen() {
     if (!copiedBlock) return;
 
     const newId = Date.now().toString();
+
     setBlocks((prev) => [
       ...prev,
       {
@@ -140,17 +165,109 @@ export default function JournalScreen() {
     closeContextMenu();
   };
 
-  //const handleLongPress = (id: string, x: number, y: number) => {
-  //console.log("Long pressed block:", id, x, y);
-  //};
+  /* ---------- TOOLBAR ACTIONS ---------- */
 
-  // Sort blocks by zIndex so the highest appears on top
+  const toggleBold = () => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, isBold: !b.isBold } : b,
+      ),
+    );
+  };
+
+  const toggleItalic = () => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, isItalic: !b.isItalic } : b,
+      ),
+    );
+  };
+
+  const toggleUnderline = () => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, isUnderline: !b.isUnderline } : b,
+      ),
+    );
+  };
+
+  const changeColor = (color: string) => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, textColor: color } : b,
+      ),
+    );
+  };
+
+  const alignText = (align: "left" | "center" | "right") => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, textAlign: align } : b,
+      ),
+    );
+  };
+
+  const handleChangeFontSize = (size: number) => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, fontSize: size } : b,
+      ),
+    );
+  };
+
+  const handleChangeLineHeight = (lh: number) => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, lineHeight: lh } : b,
+      ),
+    );
+  };
+
+  const handleChangeLetterSpacing = (ls: number) => {
+    if (!selectedBlockId) return;
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === selectedBlockId ? { ...b, letterSpacing: ls } : b,
+      ),
+    );
+  };
+
+  /* ---------- RENDER ---------- */
+
   const sortedBlocks = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
+
+  const handleCanvasPress = () => {
+    setSelectedBlockId(null);
+  };
+
+  const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        <Canvas>
+        <Toolbar
+          visible={!!selectedBlockId}
+          onToggleBold={toggleBold}
+          onToggleItalic={toggleItalic}
+          onToggleUnderline={toggleUnderline}
+          onChangeColor={changeColor}
+          onAlign={alignText}
+          fontSize={selectedBlock?.fontSize || 16}
+          lineHeight={selectedBlock?.lineHeight || 22}
+          letterSpacing={selectedBlock?.letterSpacing || 0}
+          onChangeFontSize={handleChangeFontSize}
+          onChangeLineHeight={handleChangeLineHeight}
+          onChangeLetterSpacing={handleChangeLetterSpacing}
+        />
+
+        <Canvas onCanvasPress={handleCanvasPress}>
           {sortedBlocks.map((block) => (
             <TextBlock
               key={block.id}

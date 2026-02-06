@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, TextStyle, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -19,9 +19,17 @@ type TextBlockProps = {
   y: number;
   width: number;
   height: number;
-  rotation: number; // already present
+  rotation: number;
   isSelected: boolean;
   zIndex: number;
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  textColor: string;
+  textAlign: "left" | "center" | "right";
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
   onSelect: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
   onTextChange: (id: string, text: string) => void;
@@ -44,8 +52,16 @@ export function TextBlock({
   width,
   height,
   rotation,
+  fontSize,
+  lineHeight,
+  letterSpacing,
   isSelected,
   zIndex,
+  isBold,
+  isItalic,
+  isUnderline,
+  textColor,
+  textAlign,
   onSelect,
   onMove,
   onTextChange,
@@ -71,6 +87,14 @@ export function TextBlock({
   const [isEditing, setIsEditing] = useState(false);
   const [localText, setLocalText] = useState(text);
   const inputRef = useRef<TextInput>(null);
+
+  /*const textStyle = {
+    fontSize: style.fontSize,
+    fontWeight: style.fontWeight,
+    fontStyle: style.fontStyle,
+    color: style.color,
+    textAlign: style.textAlign,
+  };*/
 
   /* ---- sync from parent ---- */
   useEffect(() => {
@@ -234,6 +258,17 @@ export function TextBlock({
     if (localText !== text) onTextChange(id, localText);
   };
 
+  const computedTextStyle: TextStyle = {
+    fontSize,
+    lineHeight,
+    letterSpacing,
+    fontWeight: isBold ? "bold" : "normal",
+    fontStyle: isItalic ? "italic" : "normal",
+    textDecorationLine: isUnderline ? "underline" : "none",
+    color: textColor,
+    textAlign,
+  };
+
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View
@@ -246,10 +281,10 @@ export function TextBlock({
             onChangeText={setLocalText}
             onBlur={finishEditing}
             multiline
-            style={styles.input}
+            style={[styles.input, computedTextStyle]}
           />
         ) : (
-          <Text style={styles.text}>{text}</Text>
+          <Text style={[styles.text, computedTextStyle]}>{text}</Text>
         )}
 
         {isSelected && (
@@ -285,7 +320,7 @@ const styles = StyleSheet.create({
   block: {
     position: "absolute",
     padding: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     borderRadius: 8,
   },
   selected: {
@@ -294,11 +329,9 @@ const styles = StyleSheet.create({
     borderColor: "#4A90E2",
   },
   text: {
-    fontSize: 16,
     color: "#111",
   },
   input: {
-    fontSize: 16,
     padding: 0,
     color: "#221010",
   },

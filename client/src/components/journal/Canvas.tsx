@@ -1,16 +1,51 @@
 import React, { ReactNode, useEffect, useRef } from "react";
-import { ScrollView, View, Dimensions, StyleSheet } from "react-native";
+import {
+  ScrollView,
+  View,
+  Dimensions,
+  StyleSheet,
+  Pressable,
+} from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 const CANVAS_SIZE = 4000;
 
 type CanvasProps = {
   children?: ReactNode;
+  onCanvasPress?: () => void;
 };
 
-export function Canvas({ children }: CanvasProps) {
+export function Canvas({ children, onCanvasPress }: CanvasProps) {
   const horizontalScrollRef = useRef<ScrollView>(null);
   const verticalScrollRef = useRef<ScrollView>(null);
+
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+
+  const MIN_SCALE = 0.5;
+  const MAX_SCALE = 3;
+
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      let nextScale = savedScale.value * e.scale;
+
+      if (nextScale < MIN_SCALE) nextScale = MIN_SCALE;
+      if (nextScale > MAX_SCALE) nextScale = MAX_SCALE;
+
+      scale.value = nextScale;
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value;
+    });
+
+  const animatedCanvasStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   useEffect(() => {
     // Center canvas on first mount
@@ -50,29 +85,42 @@ export function Canvas({ children }: CanvasProps) {
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="none"
         >
-          <View style={styles.canvas}>
-            {/* Grid (visual reference only) */}
-            {Array.from({ length: 20 }).map((_, i) => (
-              <View
-                key={`h-${i}`}
-                style={[
-                  styles.gridLine,
-                  { top: i * 200, left: 0, width: CANVAS_SIZE, height: 1 },
-                ]}
-              />
-            ))}
-            {Array.from({ length: 20 }).map((_, i) => (
-              <View
-                key={`v-${i}`}
-                style={[
-                  styles.gridLine,
-                  { left: i * 200, top: 0, width: 1, height: CANVAS_SIZE },
-                ]}
-              />
-            ))}
-            {/* Blocks live here */}
-            {children}
-          </View>
+          <GestureDetector gesture={pinchGesture}>
+            <Animated.View style={[styles.canvas, animatedCanvasStyle]}>
+              {/* Overlay Pressable to detect empty canvas clicks */}
+              {onCanvasPress && (
+                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                  <Pressable
+                    style={{ flex: 1 }}
+                    onPress={onCanvasPress}
+                    android_ripple={{ color: "#00000010" }}
+                    hitSlop={8}
+                  />
+                </View>
+              )}
+              {/* Grid (visual reference only)
+              {Array.from({ length: 20 }).map((_, i) => (
+                <View
+                  key={`h-${i}`}
+                  style={[
+                    styles.gridLine,
+                    { top: i * 200, left: 0, width: CANVAS_SIZE, height: 1 },
+                  ]}
+                />
+              ))}
+              {Array.from({ length: 20 }).map((_, i) => (
+                <View
+                  key={`v-${i}`}
+                  style={[
+                    styles.gridLine,
+                    { left: i * 200, top: 0, width: 1, height: CANVAS_SIZE },
+                  ]}
+                />
+              ))} */}
+              {/* Blocks live here */}
+              {children}
+            </Animated.View>
+          </GestureDetector>
         </ScrollView>
       </ScrollView>
     </View>
