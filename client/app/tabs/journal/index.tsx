@@ -3,7 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
-import { ImageBlock as ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
+import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
 import { ContextMenu } from "../../../src/components/journal/ContextMenu";
 import { Toolbar } from "../../../src/components/journal/Toolbar";
 import { FloatingAddMenu } from "../../../src/components/journal/FlootingAddMenu";
@@ -93,21 +93,23 @@ export default function JournalScreen() {
 
     const id = Date.now().toString();
 
+    // Center the image in the canvas (4000x4000)
     setBlocks((prev) => {
       const maxZ = prev.length > 0 ? Math.max(...prev.map((b) => b.zIndex)) : 0;
-
+      const CANVAS_SIZE = 4000;
+      const imageWidth = 200;
+      const imageHeight = 200;
       const newBlock: ImageBlockType = {
         id,
         type: "image",
         imageUri,
-        x: 200,
-        y: 200,
-        width: 200,
-        height: 200,
-        rotation: 0, // ✅ REQUIRED
-        zIndex: maxZ + 1, // ✅ REQUIRED
+        x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
+        y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
+        width: imageWidth,
+        height: imageHeight,
+        rotation: 0,
+        zIndex: maxZ + 1,
       };
-
       return [...prev, newBlock];
     });
 
@@ -116,9 +118,7 @@ export default function JournalScreen() {
 
   // BLOCK ACTIONS
   const moveBlock = (id: string, x: number, y: number) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === id && isTextBlock(b) ? { ...b, x, y } : b)),
-    );
+    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, x, y } : b)));
   };
   const changeText = (id: string, text: string) => {
     setBlocks((prev) =>
@@ -133,26 +133,19 @@ export default function JournalScreen() {
     y: number,
   ) => {
     setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === id && isTextBlock(b) ? { ...b, width, height, x, y } : b,
-      ),
+      prev.map((b) => (b.id === id ? { ...b, width, height, x, y } : b)),
     );
   };
   const rotateBlock = (id: string, rotation: number) => {
     setBlocks((prev) =>
-      prev.map((b) => (b.id === id && isTextBlock(b) ? { ...b, rotation } : b)),
+      prev.map((b) => (b.id === id ? { ...b, rotation } : b)),
     );
   };
   const selectBlock = (id: string) => {
     setSelectedBlockId(id);
     setBlocks((prev) => {
-      const maxZ =
-        prev.length > 0
-          ? Math.max(...prev.filter(isTextBlock).map((b) => b.zIndex))
-          : 0;
-      return prev.map((b) =>
-        b.id === id && isTextBlock(b) ? { ...b, zIndex: maxZ + 1 } : b,
-      );
+      const maxZ = prev.length > 0 ? Math.max(...prev.map((b) => b.zIndex)) : 0;
+      return prev.map((b) => (b.id === id ? { ...b, zIndex: maxZ + 1 } : b));
     });
   };
 
@@ -171,18 +164,19 @@ export default function JournalScreen() {
   const handlePaste = () => {
     if (!copiedBlock) return;
     const newId = Date.now().toString();
-    if (isTextBlock(copiedBlock)) {
-      setBlocks((prev) => [
-        ...prev,
-        {
-          ...copiedBlock,
-          id: newId,
-          x: copiedBlock.x + 30,
-          y: copiedBlock.y + 30,
-        },
-      ]);
-      setSelectedBlockId(newId);
-    }
+    const maxZ =
+      blocks.length > 0 ? Math.max(...blocks.map((b) => b.zIndex)) : 0;
+    setBlocks((prev) => [
+      ...prev,
+      {
+        ...copiedBlock,
+        id: newId,
+        x: copiedBlock.x + 30,
+        y: copiedBlock.y + 30,
+        zIndex: maxZ + 1,
+      },
+    ]);
+    setSelectedBlockId(newId);
     closeContextMenu();
   };
   const handleDelete = () => {
@@ -274,12 +268,7 @@ export default function JournalScreen() {
 
   /* ---------- RENDER ---------- */
 
-  const sortedBlocks = [...blocks].sort((a, b) => {
-    if (isTextBlock(a) && isTextBlock(b)) return a.zIndex - b.zIndex;
-    if (isTextBlock(a)) return -1;
-    if (isTextBlock(b)) return 1;
-    return 0;
-  });
+  const sortedBlocks = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
 
   const handleCanvasPress = () => {
     setSelectedBlockId(null);
@@ -289,11 +278,14 @@ export default function JournalScreen() {
     (b) => b.id === selectedBlockId && isTextBlock(b),
   ) as TextBlockType | undefined;
 
+  // Show toolbar only for selected text blocks
+  const showToolbar = selectedBlock !== undefined;
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
         <Toolbar
-          visible={!!selectedBlockId}
+          visible={showToolbar}
           onToggleBold={toggleBold}
           onToggleItalic={toggleItalic}
           onToggleUnderline={toggleUnderline}
@@ -324,9 +316,29 @@ export default function JournalScreen() {
                 />
               );
             }
+
             if (isImageBlock(block)) {
-              return <ImageBlockComponent key={block.id} block={block} />;
+              return (
+                <ImageBlockComponent
+                  key={block.id}
+                  id={block.id}
+                  imageUri={block.imageUri}
+                  x={block.x}
+                  y={block.y}
+                  width={block.width}
+                  height={block.height}
+                  rotation={block.rotation}
+                  zIndex={block.zIndex}
+                  isSelected={block.id === selectedBlockId}
+                  onSelect={selectBlock}
+                  onMove={moveBlock}
+                  onResize={resizeBlock}
+                  onRotate={rotateBlock}
+                  onLongPress={openContextMenu}
+                />
+              );
             }
+
             return null;
           })}
         </Canvas>
