@@ -5,6 +5,7 @@ import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
 import { ContextMenu } from "../../../src/components/journal/ContextMenu";
+import { ChapterSlider } from "../../../src/components/journal/ChapterSlider";
 import { Toolbar } from "../../../src/components/journal/Toolbar";
 import { FloatingAddMenu } from "../../../src/components/journal/FlootingAddMenu";
 import type {
@@ -40,6 +41,15 @@ export default function JournalScreen() {
     y: 0,
   });
   const [copiedBlock, setCopiedBlock] = useState<JournalBlock | null>(null);
+  const [chapterSliderVisible, setChapterSliderVisible] = useState(false);
+
+  const chapters = [
+    { id: "1", title: "Life" },
+    { id: "2", title: "Health" },
+    { id: "3", title: "Mind" },
+    { id: "4", title: "Career" },
+    { id: "5", title: "Relationships" },
+  ];
 
   // CREATE BLOCK
   const addTextBlock = () => {
@@ -374,6 +384,46 @@ export default function JournalScreen() {
         >
           <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
         </Pressable>
+
+        {/* Save Button - Bottom Left */}
+        <Pressable
+          onPress={() => setChapterSliderVisible(true)}
+          style={{
+            position: "absolute",
+            bottom: 24,
+            left: 24,
+            paddingHorizontal: 28,
+            height: 44,
+            borderRadius: 24,
+            backgroundColor: "#000", // green-400
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: "bold",
+              letterSpacing: 1,
+            }}
+          >
+            Save
+          </Text>
+        </Pressable>
+
+        <ChapterSlider
+          visible={chapterSliderVisible}
+          chapters={chapters}
+          onClose={() => setChapterSliderVisible(false)}
+        />
+
         {/*
         <Pressable
           onPress={addTextBlock}
