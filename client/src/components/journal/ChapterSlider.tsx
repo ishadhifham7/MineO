@@ -12,7 +12,7 @@ import { BlurView } from "expo-blur";
 import Checkbox from "expo-checkbox";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-const SLIDER_HEIGHT = SCREEN_HEIGHT * 0.55;
+const SLIDER_HEIGHT = SCREEN_HEIGHT * 0.4;
 
 type Chapter = {
   id: string;
@@ -52,6 +52,12 @@ export function ChapterSlider({ visible, chapters, onClose }: Props) {
     );
   };
 
+  const handleSave = () => {
+    console.log("Saving:", { subject, selectedChapters, addToTimeline });
+    // TODO: Implement API call or state management to save the data
+    onClose();
+  };
+
   /* ---------------- render ---------------- */
 
   return (
@@ -63,20 +69,20 @@ export function ChapterSlider({ visible, chapters, onClose }: Props) {
 
       {/* Slider */}
       <Animated.View style={[styles.slider, { transform: [{ translateY }] }]}>
+        {/* Subject label */}
+        <Text style={styles.sectionLabel}>Subject</Text>
+
         {/* Subject Input */}
         <TextInput
-          placeholder="Subject"
+          placeholder="Enter subject"
           value={subject}
           onChangeText={setSubject}
           style={styles.input}
           placeholderTextColor="#999"
         />
 
-        {/* Add to timeline */}
-        <View style={styles.checkboxRow}>
-          <Checkbox value={addToTimeline} onValueChange={setAddToTimeline} />
-          <Text style={styles.checkboxText}>Add to timeline</Text>
-        </View>
+        {/* Chapters label */}
+        <Text style={styles.sectionLabel}>Select chapters</Text>
 
         {/* Chapters */}
         <View
@@ -104,6 +110,17 @@ export function ChapterSlider({ visible, chapters, onClose }: Props) {
             );
           })}
         </View>
+
+        {/* Add to timeline (right aligned) */}
+        <View style={styles.checkboxRow}>
+          <Text style={styles.checkboxText}>Add to timeline</Text>
+          <Checkbox value={addToTimeline} onValueChange={setAddToTimeline} />
+        </View>
+
+        {/* Save button */}
+        <Pressable style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </Pressable>
       </Animated.View>
     </View>
   );
@@ -118,37 +135,33 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: SLIDER_HEIGHT,
-    backgroundColor: "#111",
+    backgroundColor: "#fff",
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     padding: 16,
+  },
+
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#444",
+    marginBottom: 6,
   },
 
   input: {
     height: 44,
     borderRadius: 10,
     paddingHorizontal: 12,
-    backgroundColor: "#1c1c1e",
-    color: "#fff",
-    marginBottom: 14,
-  },
-
-  checkboxRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-
-  checkboxText: {
-    marginLeft: 10,
-    color: "#fff",
-    fontSize: 14,
+    backgroundColor: "#f2f2f4",
+    color: "#000",
+    marginBottom: 18,
   },
 
   chapterGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
+    marginBottom: 20,
   },
 
   disabledGrid: {
@@ -159,7 +172,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#2a2a2c",
+    backgroundColor: "#e6e6ea",
   },
 
   chapterSelected: {
@@ -167,12 +180,39 @@ const styles = StyleSheet.create({
   },
 
   chapterText: {
-    color: "#ccc",
+    color: "#555",
     fontSize: 13,
   },
 
   chapterTextSelected: {
     color: "#fff",
+    fontWeight: "600",
+  },
+
+  checkboxRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginBottom: 20,
+    gap: 8,
+  },
+
+  checkboxText: {
+    color: "#333",
+    fontSize: 14,
+  },
+
+  saveButton: {
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: "#4A90E2",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "600",
   },
 });
