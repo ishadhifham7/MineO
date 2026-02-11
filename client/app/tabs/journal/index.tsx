@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Canvas } from "../../../src/components/journal/Canvas";
@@ -8,6 +7,11 @@ import { ContextMenu } from "../../../src/components/journal/ContextMenu";
 import { ChapterSlider } from "../../../src/components/journal/ChapterSlider";
 import { Toolbar } from "../../../src/components/journal/Toolbar";
 import { FloatingAddMenu } from "../../../src/components/journal/FlootingAddMenu";
+import {
+  useJournal,
+  isTextBlock,
+  isImageBlock,
+} from "../../../src/features/journal/journal.context";
 import type {
   JournalBlock,
   TextBlock as TextBlockType,
@@ -15,33 +19,42 @@ import type {
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
 
-// Type guards for discriminated union
-function isTextBlock(block: JournalBlock): block is TextBlockType {
-  return block.type === "text";
-}
-function isImageBlock(block: JournalBlock): block is ImageBlockType {
-  return block.type === "image";
-}
-
 /* ---------------- SCREEN ---------------- */
 
 export default function JournalScreen() {
-  const [blocks, setBlocks] = useState<JournalBlock[]>([]);
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [addMenuVisible, setAddMenuVisible] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{
-    visible: boolean;
-    blockId: string | null;
-    x: number;
-    y: number;
-  }>({
-    visible: false,
-    blockId: null,
-    x: 0,
-    y: 0,
-  });
-  const [copiedBlock, setCopiedBlock] = useState<JournalBlock | null>(null);
-  const [chapterSliderVisible, setChapterSliderVisible] = useState(false);
+  const {
+    state,
+    addBlock,
+    moveBlock,
+    changeText,
+    resizeBlock,
+    rotateBlock,
+    selectBlock,
+    deselectBlock,
+    toggleBold,
+    toggleItalic,
+    toggleUnderline,
+    changeColor,
+    alignText,
+    changeFontSize,
+    changeLineHeight,
+    changeLetterSpacing,
+    setAddMenuVisible,
+    openContextMenu,
+    closeContextMenu,
+    copyBlock,
+    pasteBlock,
+    deleteBlock,
+    setChapterSliderVisible,
+  } = useJournal();
+
+  const {
+    blocks,
+    selectedBlockId,
+    addMenuVisible,
+    contextMenu,
+    chapterSliderVisible,
+  } = state;
 
   const chapters = [
     { id: "1", title: "Life" },
@@ -54,33 +67,32 @@ export default function JournalScreen() {
   // CREATE BLOCK
   const addTextBlock = () => {
     const id = Date.now().toString();
-    setBlocks((prev) => {
-      const maxZ =
-        prev.length > 0
-          ? Math.max(...prev.filter(isTextBlock).map((b) => b.zIndex))
-          : 0;
-      const newBlock: TextBlockType = {
-        id,
-        type: "text",
-        text: "New thought ✨",
-        x: 2000,
-        y: 2000,
-        width: 200,
-        height: 80,
-        rotation: 0,
-        zIndex: maxZ + 1,
-        isBold: false,
-        isItalic: false,
-        isUnderline: false,
-        textColor: "#111",
-        textAlign: "left",
-        fontSize: 16,
-        lineHeight: 22,
-        letterSpacing: 0,
-      };
-      return [...prev, newBlock];
-    });
-    setSelectedBlockId(id);
+    const maxZ =
+      blocks.length > 0
+        ? Math.max(
+            ...blocks.filter(isTextBlock).map((b: JournalBlock) => b.zIndex),
+          )
+        : 0;
+    const newBlock: TextBlockType = {
+      id,
+      type: "text",
+      text: "New thought ✨",
+      x: 2000,
+      y: 2000,
+      width: 200,
+      height: 80,
+      rotation: 0,
+      zIndex: maxZ + 1,
+      isBold: false,
+      isItalic: false,
+      isUnderline: false,
+      textColor: "#111",
+      textAlign: "left",
+      fontSize: 16,
+      lineHeight: 22,
+      letterSpacing: 0,
+    };
+    addBlock(newBlock);
   };
 
   const addImageBlock = async () => {
@@ -104,176 +116,108 @@ export default function JournalScreen() {
     const id = Date.now().toString();
 
     // Center the image in the canvas (4000x4000)
-    setBlocks((prev) => {
-      const maxZ = prev.length > 0 ? Math.max(...prev.map((b) => b.zIndex)) : 0;
-      const CANVAS_SIZE = 4000;
-      const imageWidth = 200;
-      const imageHeight = 200;
-      const newBlock: ImageBlockType = {
-        id,
-        type: "image",
-        imageUri,
-        x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
-        y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
-        width: imageWidth,
-        height: imageHeight,
-        rotation: 0,
-        zIndex: maxZ + 1,
-      };
-      return [...prev, newBlock];
-    });
-
-    setSelectedBlockId(id);
+    const maxZ =
+      blocks.length > 0
+        ? Math.max(...blocks.map((b: JournalBlock) => b.zIndex))
+        : 0;
+    const CANVAS_SIZE = 4000;
+    const imageWidth = 200;
+    const imageHeight = 200;
+    const newBlock: ImageBlockType = {
+      id,
+      type: "image",
+      imageUri,
+      x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
+      y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
+      width: imageWidth,
+      height: imageHeight,
+      rotation: 0,
+      zIndex: maxZ + 1,
+    };
+    addBlock(newBlock);
   };
 
   // BLOCK ACTIONS
-  const moveBlock = (id: string, x: number, y: number) => {
-    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, x, y } : b)));
+  const handleMoveBlock = (id: string, x: number, y: number) => {
+    moveBlock(id, x, y);
   };
-  const changeText = (id: string, text: string) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === id && isTextBlock(b) ? { ...b, text } : b)),
-    );
+  const handleChangeText = (id: string, text: string) => {
+    changeText(id, text);
   };
-  const resizeBlock = (
+  const handleResizeBlock = (
     id: string,
     width: number,
     height: number,
     x: number,
     y: number,
   ) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, width, height, x, y } : b)),
-    );
+    resizeBlock(id, width, height, x, y);
   };
-  const rotateBlock = (id: string, rotation: number) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, rotation } : b)),
-    );
+  const handleRotateBlock = (id: string, rotation: number) => {
+    rotateBlock(id, rotation);
   };
-  const selectBlock = (id: string) => {
-    setSelectedBlockId(id);
-    setBlocks((prev) => {
-      const maxZ = prev.length > 0 ? Math.max(...prev.map((b) => b.zIndex)) : 0;
-      return prev.map((b) => (b.id === id ? { ...b, zIndex: maxZ + 1 } : b));
-    });
+  const handleSelectBlock = (id: string) => {
+    selectBlock(id);
   };
 
   // CONTEXT MENU
-  const openContextMenu = (id: string, x: number, y: number) => {
-    setContextMenu({ visible: true, blockId: id, x, y });
+  const handleOpenContextMenu = (id: string, x: number, y: number) => {
+    openContextMenu(id, x, y);
   };
-  const closeContextMenu = () => {
-    setContextMenu({ visible: false, blockId: null, x: 0, y: 0 });
+  const handleCloseContextMenu = () => {
+    closeContextMenu();
   };
   const handleCopy = () => {
-    const block = blocks.find((b) => b.id === contextMenu.blockId);
-    if (block) setCopiedBlock(block);
-    closeContextMenu();
+    if (contextMenu.blockId) {
+      copyBlock(contextMenu.blockId);
+    }
   };
   const handlePaste = () => {
-    if (!copiedBlock) return;
-    const newId = Date.now().toString();
-    const maxZ =
-      blocks.length > 0 ? Math.max(...blocks.map((b) => b.zIndex)) : 0;
-    setBlocks((prev) => [
-      ...prev,
-      {
-        ...copiedBlock,
-        id: newId,
-        x: copiedBlock.x + 30,
-        y: copiedBlock.y + 30,
-        zIndex: maxZ + 1,
-      },
-    ]);
-    setSelectedBlockId(newId);
-    closeContextMenu();
+    pasteBlock();
   };
   const handleDelete = () => {
-    setBlocks((prev) => prev.filter((b) => b.id !== contextMenu.blockId));
-    setSelectedBlockId(null);
-    closeContextMenu();
+    if (contextMenu.blockId) {
+      deleteBlock(contextMenu.blockId);
+    }
   };
 
   // TOOLBAR ACTIONS
-  const toggleBold = () => {
+  const handleToggleBold = () => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId && isTextBlock(b)
-          ? { ...b, isBold: !b.isBold }
-          : b,
-      ),
-    );
+    toggleBold(selectedBlockId);
   };
-  const toggleItalic = () => {
+  const handleToggleItalic = () => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId && isTextBlock(b)
-          ? { ...b, isItalic: !b.isItalic }
-          : b,
-      ),
-    );
+    toggleItalic(selectedBlockId);
   };
-  // (Removed duplicate handler definitions)
-
-  /* ---------- CREATE BLOCK ---------- */
-
-  const toggleUnderline = () => {
+  const handleToggleUnderline = () => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId && isTextBlock(b)
-          ? { ...b, isUnderline: !b.isUnderline }
-          : b,
-      ),
-    );
+    toggleUnderline(selectedBlockId);
   };
 
-  const changeColor = (color: string) => {
+  const handleChangeColor = (color: string) => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId ? { ...b, textColor: color } : b,
-      ),
-    );
+    changeColor(selectedBlockId, color);
   };
 
-  const alignText = (align: "left" | "center" | "right") => {
+  const handleAlignText = (align: "left" | "center" | "right") => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId ? { ...b, textAlign: align } : b,
-      ),
-    );
+    alignText(selectedBlockId, align);
   };
 
   const handleChangeFontSize = (size: number) => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId ? { ...b, fontSize: size } : b,
-      ),
-    );
+    changeFontSize(selectedBlockId, size);
   };
 
   const handleChangeLineHeight = (lh: number) => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId ? { ...b, lineHeight: lh } : b,
-      ),
-    );
+    changeLineHeight(selectedBlockId, lh);
   };
 
   const handleChangeLetterSpacing = (ls: number) => {
     if (!selectedBlockId) return;
-    setBlocks((prev) =>
-      prev.map((b) =>
-        b.id === selectedBlockId ? { ...b, letterSpacing: ls } : b,
-      ),
-    );
+    changeLetterSpacing(selectedBlockId, ls);
   };
 
   /* ---------- RENDER ---------- */
@@ -281,11 +225,11 @@ export default function JournalScreen() {
   const sortedBlocks = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
 
   const handleCanvasPress = () => {
-    setSelectedBlockId(null);
+    deselectBlock();
   };
 
   const selectedBlock = blocks.find(
-    (b) => b.id === selectedBlockId && isTextBlock(b),
+    (b: JournalBlock) => b.id === selectedBlockId && isTextBlock(b),
   ) as TextBlockType | undefined;
 
   // Show toolbar only for selected text blocks
@@ -296,11 +240,11 @@ export default function JournalScreen() {
       <View style={{ flex: 1 }}>
         <Toolbar
           visible={showToolbar}
-          onToggleBold={toggleBold}
-          onToggleItalic={toggleItalic}
-          onToggleUnderline={toggleUnderline}
-          onChangeColor={changeColor}
-          onAlign={alignText}
+          onToggleBold={handleToggleBold}
+          onToggleItalic={handleToggleItalic}
+          onToggleUnderline={handleToggleUnderline}
+          onChangeColor={handleChangeColor}
+          onAlign={handleAlignText}
           fontSize={selectedBlock?.fontSize || 16}
           lineHeight={selectedBlock?.lineHeight || 22}
           letterSpacing={selectedBlock?.letterSpacing || 0}
@@ -317,12 +261,12 @@ export default function JournalScreen() {
                   key={block.id}
                   {...block}
                   isSelected={block.id === selectedBlockId}
-                  onSelect={selectBlock}
-                  onMove={moveBlock}
-                  onTextChange={changeText}
-                  onResize={resizeBlock}
-                  onRotate={rotateBlock}
-                  onLongPress={openContextMenu}
+                  onSelect={handleSelectBlock}
+                  onMove={handleMoveBlock}
+                  onTextChange={handleChangeText}
+                  onResize={handleResizeBlock}
+                  onRotate={handleRotateBlock}
+                  onLongPress={handleOpenContextMenu}
                 />
               );
             }
@@ -340,11 +284,11 @@ export default function JournalScreen() {
                   rotation={block.rotation}
                   zIndex={block.zIndex}
                   isSelected={block.id === selectedBlockId}
-                  onSelect={selectBlock}
-                  onMove={moveBlock}
-                  onResize={resizeBlock}
-                  onRotate={rotateBlock}
-                  onLongPress={openContextMenu}
+                  onSelect={handleSelectBlock}
+                  onMove={handleMoveBlock}
+                  onResize={handleResizeBlock}
+                  onRotate={handleRotateBlock}
+                  onLongPress={handleOpenContextMenu}
                 />
               );
             }
@@ -360,16 +304,13 @@ export default function JournalScreen() {
             setAddMenuVisible(false);
           }}
           onAddImage={async () => {
-            const selectedBlock = blocks.find(
-              (b) => b.id === selectedBlockId && isTextBlock(b),
-            ) as TextBlockType | undefined;
             await addImageBlock();
             setAddMenuVisible(false);
           }}
         />
 
         <Pressable
-          onPress={() => setAddMenuVisible((v) => !v)}
+          onPress={() => setAddMenuVisible(!addMenuVisible)}
           style={{
             position: "absolute",
             bottom: 24,
@@ -424,24 +365,6 @@ export default function JournalScreen() {
           onClose={() => setChapterSliderVisible(false)}
         />
 
-        {/*
-        <Pressable
-          onPress={addTextBlock}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            right: 24,
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            backgroundColor: "#000",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
-        </Pressable>*/}
-
         {contextMenu.visible && (
           <ContextMenu
             x={contextMenu.x}
@@ -449,7 +372,7 @@ export default function JournalScreen() {
             onCopy={handleCopy}
             onPaste={handlePaste}
             onDelete={handleDelete}
-            onClose={closeContextMenu}
+            onClose={handleCloseContextMenu}
           />
         )}
       </View>
