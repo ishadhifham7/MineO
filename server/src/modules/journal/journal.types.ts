@@ -1,23 +1,36 @@
-// journal.types.ts
-
-export type CanvasBlockType = 'text' | 'image' | 'sticker';
-
-export interface CanvasTransform {
+export type ImageBlock = {
+  id: string;
+  type: 'image';
+  imageUri: string;
   x: number;
   y: number;
-  scale: number;
+  width: number;
+  height: number;
   rotation: number;
-}
-
-export interface CanvasBlock {
-  id: string;
-  type: CanvasBlockType;
-  content: string;
-  transform: CanvasTransform;
   zIndex: number;
-  createdAt: number;
-  updatedAt: number;
-}
+};
+
+export type TextBlock = {
+  id: string;
+  type: 'text';
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  zIndex: number;
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  textColor: string;
+  textAlign: 'left' | 'center' | 'right';
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+};
+
+export type JournalBlock = TextBlock | ImageBlock;
 
 export interface JournalEntry {
   id: string;
@@ -26,4 +39,8 @@ export interface JournalEntry {
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface DayJournal extends JournalEntry {
+  blocks: JournalBlock[];
 }

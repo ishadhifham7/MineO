@@ -1,5 +1,3 @@
-// journal.repository.ts
-
 import { firestore } from '../../config/firebase';
 
 const JOURNAL_COLLECTION = 'journalEntries';
