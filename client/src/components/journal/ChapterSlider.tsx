@@ -23,9 +23,10 @@ type Props = {
   visible: boolean;
   chapters: Chapter[];
   onClose: () => void;
+  onSave?: (metadata: { title: string; isPinnedToTimeline: boolean }) => void;
 };
 
-export function ChapterSlider({ visible, chapters, onClose }: Props) {
+export function ChapterSlider({ visible, chapters, onClose, onSave }: Props) {
   const translateY = useRef(new Animated.Value(SLIDER_HEIGHT)).current;
 
   const [subject, setSubject] = useState("");
@@ -52,9 +53,13 @@ export function ChapterSlider({ visible, chapters, onClose }: Props) {
     );
   };
 
-  const handleSave = () => {
-    console.log("Saving:", { subject, selectedChapters, addToTimeline });
-    // TODO: Implement API call or state management to save the data
+  const handleSave = async () => {
+    if (onSave) {
+      await onSave({
+        title: subject,
+        isPinnedToTimeline: addToTimeline,
+      });
+    }
     onClose();
   };
 

@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect } from "react";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
@@ -23,7 +24,11 @@ import * as ImagePicker from "expo-image-picker";
 
 export default function JournalScreen() {
   const {
-    state,
+    blocks,
+    selectedBlockId,
+    addMenuVisible,
+    contextMenu,
+    chapterSliderVisible,
     addBlock,
     moveBlock,
     changeText,
@@ -46,15 +51,23 @@ export default function JournalScreen() {
     pasteBlock,
     deleteBlock,
     setChapterSliderVisible,
+    saveJournal,
+    loadJournal,
   } = useJournal();
 
-  const {
-    blocks,
-    selectedBlockId,
-    addMenuVisible,
-    contextMenu,
-    chapterSliderVisible,
-  } = state;
+  // Initialize today's journal on mount
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    loadJournal(today);
+  }, []);
+
+  // Handle save with metadata from ChapterSlider
+  const handleSaveWithMetadata = async (metadata: {
+    title: string;
+    isPinnedToTimeline: boolean;
+  }) => {
+    await saveJournal(metadata);
+  };
 
   const chapters = [
     { id: "1", title: "Life" },
@@ -363,6 +376,7 @@ export default function JournalScreen() {
           visible={chapterSliderVisible}
           chapters={chapters}
           onClose={() => setChapterSliderVisible(false)}
+          onSave={handleSaveWithMetadata}
         />
 
         {contextMenu.visible && (

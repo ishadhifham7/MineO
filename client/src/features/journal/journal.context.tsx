@@ -1,20 +1,26 @@
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useEffect,
+} from "react";
 import type {
   JournalBlock,
   TextBlock,
   ImageBlock,
 } from "../../../types/journal";
+import * as journalApi from "./journal.api"; // <-- new API layer
 
 // Type guards for discriminated union
 export function isTextBlock(block: JournalBlock): block is TextBlock {
   return block.type === "text";
 }
-
 export function isImageBlock(block: JournalBlock): block is ImageBlock {
   return block.type === "image";
 }
 
-// Context State Interface
+// -------------------- Context State --------------------
 export interface JournalState {
   blocks: JournalBlock[];
   selectedBlockId: string | null;
@@ -27,11 +33,21 @@ export interface JournalState {
   };
   copiedBlock: JournalBlock | null;
   chapterSliderVisible: boolean;
+
+  // New metadata for backend
+  entryId: string | null;
+  date: string | null;
+  title: string;
+  isPinnedToTimeline: boolean;
+  createdAt: number | null;
+  updatedAt: number | null;
+  isNew: boolean;
+  isLoading: boolean;
+  error: string | null;
 }
 
-// Action Types
+// -------------------- Action Types --------------------
 export type JournalAction =
-  // Block CRUD
   | { type: "ADD_BLOCK"; payload: JournalBlock }
   | {
       type: "UPDATE_BLOCK";
@@ -39,8 +55,6 @@ export type JournalAction =
     }
   | { type: "DELETE_BLOCK"; payload: string }
   | { type: "SET_BLOCKS"; payload: JournalBlock[] }
-
-  // Block manipulation
   | { type: "MOVE_BLOCK"; payload: { id: string; x: number; y: number } }
   | {
       type: "RESIZE_BLOCK";
@@ -55,8 +69,6 @@ export type JournalAction =
   | { type: "ROTATE_BLOCK"; payload: { id: string; rotation: number } }
   | { type: "SELECT_BLOCK"; payload: string }
   | { type: "DESELECT_BLOCK" }
-
-  // Text block specific
   | { type: "CHANGE_TEXT"; payload: { id: string; text: string } }
   | { type: "TOGGLE_BOLD"; payload: string }
   | { type: "TOGGLE_ITALIC"; payload: string }
@@ -72,8 +84,6 @@ export type JournalAction =
       type: "CHANGE_LETTER_SPACING";
       payload: { id: string; letterSpacing: number };
     }
-
-  // UI State
   | { type: "SET_ADD_MENU_VISIBLE"; payload: boolean }
   | {
       type: "OPEN_CONTEXT_MENU";
@@ -81,27 +91,40 @@ export type JournalAction =
     }
   | { type: "CLOSE_CONTEXT_MENU" }
   | { type: "SET_CHAPTER_SLIDER_VISIBLE"; payload: boolean }
-
-  // Clipboard
   | { type: "COPY_BLOCK"; payload: string }
-  | { type: "PASTE_BLOCK" };
+  | { type: "PASTE_BLOCK" }
 
-// Initial State
+  // -------------------- New Actions --------------------
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null }
+  | { type: "SET_JOURNAL"; payload: Partial<JournalState> }
+  | {
+      type: "SET_META";
+      payload: { title?: string; isPinnedToTimeline?: boolean };
+    };
+
+// -------------------- Initial State --------------------
 const initialState: JournalState = {
   blocks: [],
   selectedBlockId: null,
   addMenuVisible: false,
-  contextMenu: {
-    visible: false,
-    blockId: null,
-    x: 0,
-    y: 0,
-  },
+  contextMenu: { visible: false, blockId: null, x: 0, y: 0 },
   copiedBlock: null,
   chapterSliderVisible: false,
+
+  // backend metadata
+  entryId: null,
+  date: null,
+  title: "",
+  isPinnedToTimeline: false,
+  createdAt: null,
+  updatedAt: null,
+  isNew: true,
+  isLoading: false,
+  error: null,
 };
 
-// Reducer Function
+// -------------------- Reducer --------------------
 export function journalReducer(
   state: JournalState,
   action: JournalAction,
@@ -113,8 +136,7 @@ export function journalReducer(
         blocks: [...state.blocks, action.payload],
         selectedBlockId: action.payload.id,
       };
-
-    case "UPDATE_BLOCK": {
+    case "UPDATE_BLOCK":
       return {
         ...state,
         blocks: state.blocks.map((block) =>
@@ -123,8 +145,6 @@ export function journalReducer(
             : block,
         ),
       };
-    }
-
     case "DELETE_BLOCK":
       return {
         ...state,
@@ -134,13 +154,11 @@ export function journalReducer(
             ? null
             : state.selectedBlockId,
       };
-
     case "SET_BLOCKS":
       return {
         ...state,
         blocks: action.payload,
       };
-
     case "MOVE_BLOCK":
       return {
         ...state,
@@ -150,7 +168,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "RESIZE_BLOCK":
       return {
         ...state,
@@ -166,7 +183,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "ROTATE_BLOCK":
       return {
         ...state,
@@ -176,7 +192,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "SELECT_BLOCK": {
       const maxZ =
         state.blocks.length > 0
@@ -190,13 +205,11 @@ export function journalReducer(
         ),
       };
     }
-
     case "DESELECT_BLOCK":
       return {
         ...state,
         selectedBlockId: null,
       };
-
     case "CHANGE_TEXT":
       return {
         ...state,
@@ -206,7 +219,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "TOGGLE_BOLD":
       return {
         ...state,
@@ -216,7 +228,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "TOGGLE_ITALIC":
       return {
         ...state,
@@ -226,7 +237,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "TOGGLE_UNDERLINE":
       return {
         ...state,
@@ -236,7 +246,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "CHANGE_COLOR":
       return {
         ...state,
@@ -246,7 +255,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "ALIGN_TEXT":
       return {
         ...state,
@@ -256,7 +264,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "CHANGE_FONT_SIZE":
       return {
         ...state,
@@ -266,7 +273,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "CHANGE_LINE_HEIGHT":
       return {
         ...state,
@@ -276,7 +282,6 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "CHANGE_LETTER_SPACING":
       return {
         ...state,
@@ -286,13 +291,11 @@ export function journalReducer(
             : block,
         ),
       };
-
     case "SET_ADD_MENU_VISIBLE":
       return {
         ...state,
         addMenuVisible: action.payload,
       };
-
     case "OPEN_CONTEXT_MENU":
       return {
         ...state,
@@ -303,7 +306,6 @@ export function journalReducer(
           y: action.payload.y,
         },
       };
-
     case "CLOSE_CONTEXT_MENU":
       return {
         ...state,
@@ -314,13 +316,11 @@ export function journalReducer(
           y: 0,
         },
       };
-
     case "SET_CHAPTER_SLIDER_VISIBLE":
       return {
         ...state,
         chapterSliderVisible: action.payload,
       };
-
     case "COPY_BLOCK": {
       const block = state.blocks.find((b) => b.id === action.payload);
       return {
@@ -334,10 +334,8 @@ export function journalReducer(
         },
       };
     }
-
     case "PASTE_BLOCK": {
       if (!state.copiedBlock) return state;
-
       const newId = Date.now().toString();
       const maxZ =
         state.blocks.length > 0
@@ -350,7 +348,6 @@ export function journalReducer(
         y: state.copiedBlock.y + 30,
         zIndex: maxZ + 1,
       };
-
       return {
         ...state,
         blocks: [...state.blocks, newBlock],
@@ -363,17 +360,23 @@ export function journalReducer(
         },
       };
     }
-
+    // -------------------- New actions --------------------
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
+    case "SET_ERROR":
+      return { ...state, error: action.payload };
+    case "SET_JOURNAL":
+      return { ...state, ...action.payload };
+    case "SET_META":
+      return { ...state, ...action.payload };
     default:
       return state;
   }
 }
 
-// Context Interface
-interface JournalContextValue {
-  state: JournalState;
+// -------------------- Context Interface --------------------
+interface JournalContextValue extends JournalState {
   dispatch: React.Dispatch<JournalAction>;
-  // Helper actions
   addBlock: (block: JournalBlock) => void;
   updateBlock: (id: string, updates: Partial<JournalBlock>) => void;
   deleteBlock: (id: string) => void;
@@ -404,23 +407,135 @@ interface JournalContextValue {
   setChapterSliderVisible: (visible: boolean) => void;
   copyBlock: (id: string) => void;
   pasteBlock: () => void;
+
+  // -------------------- New helpers --------------------
+  setMeta: (meta: { title?: string; isPinnedToTimeline?: boolean }) => void;
+  loadJournal: (date: string) => Promise<void>;
+  saveJournal: (metadata?: {
+    title?: string;
+    isPinnedToTimeline?: boolean;
+  }) => Promise<void>;
 }
 
-// Create Context
+// -------------------- Create Context --------------------
 const JournalContext = createContext<JournalContextValue | undefined>(
   undefined,
 );
 
-// Provider Component
+// -------------------- Provider --------------------
 export const JournalProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(journalReducer, initialState);
 
+  // -------------------- Load journal --------------------
+  const loadJournal = async (date: string) => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      const data = await journalApi.getJournalByDate(date);
+      if (data) {
+        dispatch({
+          type: "SET_JOURNAL",
+          payload: {
+            entryId: data.id,
+            date: data.date,
+            title: data.title,
+            isPinnedToTimeline: data.isPinnedToTimeline,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            blocks: data.blocks || [],
+            isNew: false,
+          },
+        });
+      } else {
+        dispatch({
+          type: "SET_JOURNAL",
+          payload: { date, blocks: [], isNew: true, entryId: null },
+        });
+      }
+      dispatch({ type: "SET_ERROR", payload: null });
+    } catch (err: any) {
+      dispatch({ type: "SET_ERROR", payload: err.message });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
+
+  // -------------------- Manual Save --------------------
+  const saveJournal = async (metadata?: {
+    title?: string;
+    isPinnedToTimeline?: boolean;
+  }) => {
+    // Use current date if no date is set
+    const journalDate = state.date || new Date().toISOString().split("T")[0];
+
+    // Set date if it wasn't set before
+    if (!state.date) {
+      dispatch({
+        type: "SET_JOURNAL",
+        payload: { date: journalDate },
+      });
+    }
+
+    // Update metadata if provided
+    if (metadata) {
+      dispatch({ type: "SET_META", payload: metadata });
+    }
+
+    try {
+      if (!state.entryId || state.isNew) {
+        // First save - CREATE new journal
+        console.log("📝 Creating new journal (POST)...");
+        const res = await journalApi.createJournal({
+          date: journalDate,
+          title: metadata?.title || state.title,
+          isPinnedToTimeline:
+            metadata?.isPinnedToTimeline ?? state.isPinnedToTimeline,
+          blocks: state.blocks,
+        });
+        dispatch({
+          type: "SET_JOURNAL",
+          payload: {
+            entryId: res.id,
+            isNew: false,
+            createdAt: res.createdAt,
+            updatedAt: res.updatedAt,
+          },
+        });
+        console.log("✅ Journal created successfully. ID:", res.id);
+      } else {
+        // Subsequent saves - UPDATE existing journal
+        console.log("📝 Updating existing journal (PUT)...", state.entryId);
+        await journalApi.updateCanvas(state.entryId, state.blocks);
+        if (metadata) {
+          await journalApi.updateMeta(state.entryId, metadata);
+        }
+        console.log("✅ Journal updated successfully");
+      }
+      dispatch({ type: "SET_ERROR", payload: null });
+    } catch (err: any) {
+      console.error("❌ Save failed:", err.message);
+      dispatch({ type: "SET_ERROR", payload: err.message });
+    }
+  };
+
+  const setMeta = async (meta: {
+    title?: string;
+    isPinnedToTimeline?: boolean;
+  }) => {
+    dispatch({ type: "SET_META", payload: meta });
+    if (state.entryId) {
+      try {
+        await journalApi.updateMeta(state.entryId, meta);
+      } catch (err) {
+        console.error("Meta update failed", err);
+      }
+    }
+  };
+
   const value: JournalContextValue = {
-    state,
+    ...state,
     dispatch,
-    // Helper functions
     addBlock: (block) => dispatch({ type: "ADD_BLOCK", payload: block }),
     updateBlock: (id, updates) =>
       dispatch({ type: "UPDATE_BLOCK", payload: { id, updates } }),
@@ -462,6 +577,9 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
       dispatch({ type: "SET_CHAPTER_SLIDER_VISIBLE", payload: visible }),
     copyBlock: (id) => dispatch({ type: "COPY_BLOCK", payload: id }),
     pasteBlock: () => dispatch({ type: "PASTE_BLOCK" }),
+    loadJournal,
+    setMeta,
+    saveJournal,
   };
 
   return (
@@ -469,11 +587,10 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-// Custom Hook
+// -------------------- Hook --------------------
 export const useJournal = () => {
   const context = useContext(JournalContext);
-  if (!context) {
+  if (!context)
     throw new Error("useJournal must be used within JournalProvider");
-  }
   return context;
 };
