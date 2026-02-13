@@ -1,7 +1,7 @@
 export const getTimelineSchema = {
   tags: ['Journey Map'],
-  summary: 'Get timeline entries',
-  description: 'Returns all journal entries added to the journey map timeline',
+  summary: 'Get journey map timeline',
+  description: 'Returns all pinned journal entries ordered by date',
   security: [{ bearerAuth: [] }],
 
   response: {
