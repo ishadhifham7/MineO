@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { View, Text } from "react-native";
 
 export default function TabsLayout() {
   return (
@@ -8,18 +9,28 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#0f0f0f",
-          borderTopColor: "#1f1f1f",
+          backgroundColor: "#ffffff",
+          borderTopWidth: 1,
+          borderTopColor: "#e5e7eb",
+          height: 80,
+          paddingBottom: 12,
+          paddingTop: 10,
+          elevation: 12,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
         },
-        tabBarActiveTintColor: "#ffffff",
-        tabBarInactiveTintColor: "#666666",
+        tabBarActiveTintColor: "#3b82f6",
+        tabBarInactiveTintColor: "#d1d5db",
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="home" size={26} color={color} />
           ),
         }}
       />
@@ -27,8 +38,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="journal"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
+          title: "Journal",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="book" size={26} color={color} />
           ),
         }}
       />
@@ -36,8 +48,19 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="journey"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map-outline" size={size} color={color} />
+          title: "Add",
+          tabBarIcon: ({ color }) => (
+            <View className="bg-blue-500 rounded-full w-14 h-14 items-center justify-center -top-4 shadow-lg"
+              style={{
+                shadowColor: "#3b82f6",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 12,
+              }}
+            >
+              <Ionicons name="add" size={32} color="white" />
+            </View>
           ),
         }}
       />
@@ -45,8 +68,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="goals"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="flag-outline" size={size} color={color} />
+          title: "Goals",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person" size={26} color={color} />
           ),
         }}
       />
@@ -54,8 +78,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="habit"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="repeat-outline" size={size} color={color} />
+          title: "Stats",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="bar-chart" size={26} color={color} />
           ),
         }}
       />
