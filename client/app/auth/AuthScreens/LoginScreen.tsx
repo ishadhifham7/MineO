@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { useRouter } from "expo-router";
 
 import {
 View,
@@ -11,23 +11,22 @@ SafeAreaView,
 Alert,
 } from "react-native";
 
-type Props = {
-  onBack: () => void;
-};
 
-const LoginScreen: React.FC<Props> = ({ onBack }) => {
+const LoginScreen: React.FC = () => {
+const router = useRouter();
 const [email, setEmail] = useState<string>("");
 const [password, setPassword] = useState<string>("");
 
+const handleLogin = async () => {
 
-
+};
 
 return(
     <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
             <View style={styles.card}>
 
-            <TouchableOpacity onPress={onBack}>
+            <TouchableOpacity onPress={() => router.back()}>
                 <Text style={styles.backText}>← Go Back</Text>
             </TouchableOpacity>
 
@@ -52,7 +51,7 @@ return(
                 onChangeText={setPassword}
             />
 
-            <TouchableOpacity style={styles.button} onPress={onBack}>
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
