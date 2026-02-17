@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TextInput, TextStyle, View } from "react-native";
+import React, { useEffect } from "react";
+import { Image, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -7,32 +7,24 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ImageBlock as ImageBlockType } from "../../../../types/journal";
 
 const MIN_WIDTH = 80;
-const MIN_HEIGHT = 40;
-const HANDLE_SIZE = 10;
+const MIN_HEIGHT = 80;
+const HANDLE_SIZE = 15;
 
-type TextBlockProps = {
+type ImageBlockProps = {
   id: string;
-  text: string;
+  imageUri: string;
   x: number;
   y: number;
   width: number;
   height: number;
   rotation: number;
-  isSelected: boolean;
   zIndex: number;
-  isBold: boolean;
-  isItalic: boolean;
-  isUnderline: boolean;
-  textColor: string;
-  textAlign: "left" | "center" | "right";
-  fontSize: number;
-  lineHeight: number;
-  letterSpacing: number;
+  isSelected: boolean;
   onSelect: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
-  onTextChange: (id: string, text: string) => void;
   onResize: (
     id: string,
     width: number,
@@ -40,41 +32,31 @@ type TextBlockProps = {
     x: number,
     y: number,
   ) => void;
-  onRotate: (id: string, rotation: number) => void; // already present
+  onRotate: (id: string, rotation: number) => void;
   onLongPress: (id: string, x: number, y: number) => void;
 };
 
-export function TextBlock({
+export function ImageBlockComponent({
   id,
-  text,
+  imageUri,
   x,
   y,
   width,
   height,
   rotation,
-  fontSize,
-  lineHeight,
-  letterSpacing,
-  isSelected,
   zIndex,
-  isBold,
-  isItalic,
-  isUnderline,
-  textColor,
-  textAlign,
+  isSelected,
   onSelect,
   onMove,
-  onTextChange,
   onResize,
   onRotate,
   onLongPress,
-}: TextBlockProps) {
+}: ImageBlockProps) {
   const posX = useSharedValue(x);
   const posY = useSharedValue(y);
   const blockWidth = useSharedValue(width);
   const blockHeight = useSharedValue(height);
-
-  const rotate = useSharedValue(rotation); // ✅ NEW
+  const rotate = useSharedValue(rotation);
 
   const isResizing = useSharedValue(false);
 
@@ -82,36 +64,16 @@ export function TextBlock({
   const startPosY = useSharedValue(0);
   const startWidth = useSharedValue(0);
   const startHeight = useSharedValue(0);
-  const startRotation = useSharedValue(0); // ✅ NEW
+  const startRotation = useSharedValue(0);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [localText, setLocalText] = useState(text);
-  const inputRef = useRef<TextInput>(null);
-
-  /*const textStyle = {
-    fontSize: style.fontSize,
-    fontWeight: style.fontWeight,
-    fontStyle: style.fontStyle,
-    color: style.color,
-    textAlign: style.textAlign,
-  };*/
-
-  /* ---- sync from parent ---- */
+  // Sync from parent
   useEffect(() => {
     posX.value = x;
     posY.value = y;
     blockWidth.value = width;
     blockHeight.value = height;
-    rotate.value = rotation; // ✅ NEW
+    rotate.value = rotation;
   }, [x, y, width, height, rotation]);
-
-  useEffect(() => setLocalText(text), [text]);
-
-  useEffect(() => {
-    if (isEditing) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [isEditing]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     left: posX.value,
@@ -119,12 +81,12 @@ export function TextBlock({
     width: blockWidth.value,
     height: blockHeight.value,
     zIndex: zIndex,
-    transform: [{ rotate: `${rotate.value}deg` }], // ✅ NEW
+    transform: [{ rotate: `${rotate.value}deg` }],
   }));
 
-  /* ---- move ---- */
+  // Move gesture
   const panGesture = Gesture.Pan()
-    .enabled(!isEditing && !isResizing.value)
+    .enabled(!isResizing.value)
     .minDistance(10)
     .onBegin(() => runOnJS(onSelect)(id))
     .onUpdate((e) => {
@@ -135,28 +97,24 @@ export function TextBlock({
       runOnJS(onMove)(id, posX.value, posY.value);
     });
 
-  /* ---- edit ---- */
-  const doubleTapGesture = Gesture.Tap()
-    .numberOfTaps(2)
-    .onEnd(() => {
-      runOnJS(onSelect)(id);
-      runOnJS(setIsEditing)(true);
-    });
-
-  /* ---- long press for context menu ---- */
+  // Long press for context menu
   const longPressGesture = Gesture.LongPress()
     .minDuration(250)
     .maxDistance(10)
-    .enabled(!isEditing && !isResizing.value)
+    .enabled(!isResizing.value)
     .onStart((e) => {
       runOnJS(onSelect)(id);
       runOnJS(onLongPress)(id, e.absoluteX, e.absoluteY);
     });
 
-  // Pan should wait for long press to fail
+  // Single tap for selection
+  const tapGesture = Gesture.Tap().onEnd(() => {
+    runOnJS(onSelect)(id);
+  });
+
   panGesture.requireExternalGestureToFail(longPressGesture);
 
-  /* ---- resize helpers (UNCHANGED) ---- */
+  // Resize helpers
   const startResize = () => {
     isResizing.value = true;
     startPosX.value = posX.value;
@@ -177,7 +135,7 @@ export function TextBlock({
     );
   };
 
-  /* ---- resize gestures (UNCHANGED) ---- */
+  // Resize gestures
   const resizeBR = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
@@ -234,7 +192,7 @@ export function TextBlock({
     })
     .onEnd(finishResize);
 
-  /* ---- rotation gesture (NEW, isolated) ---- */
+  // Rotation gesture
   const rotateGesture = Gesture.Pan()
     .onBegin(() => {
       startRotation.value = rotate.value;
@@ -248,48 +206,26 @@ export function TextBlock({
     });
 
   const composedGesture = Gesture.Race(
-    doubleTapGesture,
     longPressGesture,
+    tapGesture,
     panGesture,
   );
-
-  const finishEditing = () => {
-    setIsEditing(false);
-    if (localText !== text) onTextChange(id, localText);
-  };
-
-  const computedTextStyle: TextStyle = {
-    fontSize,
-    lineHeight,
-    letterSpacing,
-    fontWeight: isBold ? "bold" : "normal",
-    fontStyle: isItalic ? "italic" : "normal",
-    textDecorationLine: isUnderline ? "underline" : "none",
-    color: textColor,
-    textAlign,
-  };
 
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View
         style={[styles.block, animatedStyle, isSelected && styles.selected]}
       >
-        {isEditing ? (
-          <TextInput
-            ref={inputRef}
-            value={localText}
-            onChangeText={setLocalText}
-            onBlur={finishEditing}
-            multiline
-            style={[styles.input, computedTextStyle]}
-          />
-        ) : (
-          <Text style={[styles.text, computedTextStyle]}>{text}</Text>
-        )}
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.image}
+          resizeMode="cover"
+        />
 
+        {/* Selection handles */}
         {isSelected && (
           <>
-            {/* resize handles (UNCHANGED) */}
+            {/* Resize handles */}
             <GestureDetector gesture={resizeTL}>
               <View style={[styles.handle, styles.tl]} />
             </GestureDetector>
@@ -303,10 +239,10 @@ export function TextBlock({
               <View style={[styles.handle, styles.br]} />
             </GestureDetector>
 
-            {/* rotation handle (NEW) */}
+            {/* Rotation handle */}
             <GestureDetector gesture={rotateGesture}>
               <View style={styles.rotateHandle}>
-                <MaterialIcons name="sync" size={18} color="#4A90E2" />
+                <MaterialIcons name="rotate-right" size={18} color="#4A90E2" />
               </View>
             </GestureDetector>
           </>
@@ -319,21 +255,17 @@ export function TextBlock({
 const styles = StyleSheet.create({
   block: {
     position: "absolute",
-    padding: 12,
-    backgroundColor: "transparent",
-    borderRadius: 8,
+    overflow: "hidden",
   },
   selected: {
-    borderWidth: 2,
-    borderStyle: "dashed",
+    borderWidth: 1,
     borderColor: "#4A90E2",
+    borderStyle: "dashed",
   },
-  text: {
-    color: "#111",
-  },
-  input: {
-    padding: 0,
-    color: "#221010",
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
   },
   handle: {
     position: "absolute",
@@ -346,13 +278,11 @@ const styles = StyleSheet.create({
   tr: { top: -6, right: -6 },
   bl: { bottom: -6, left: -6 },
   br: { bottom: -6, right: -6 },
-
-  /* NEW */
   rotateHandle: {
     position: "absolute",
-    top: -30, // move further above the block
+    top: -30,
     left: "50%",
-    marginLeft: -9, // half of new width
+    marginLeft: -9,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -360,7 +290,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     zIndex: 10,
-
-    // No overflow hidden here
   },
 });
