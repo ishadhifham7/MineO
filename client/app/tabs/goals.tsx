@@ -12,9 +12,9 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import CreateGoal from "../../src/components/CreateGoal";
-import DailyCheckIn from "../../src/components/DailyCheckIn";
-import ProgressView from "../../src/components/ProgressView";
+import CreateGoal from "../../src/components/goal/CreateGoal";
+import DailyCheckIn from "../../src/components/goal/DailyCheckIn";
+import ProgressView from "../../src/components/goal/ProgressView";
 
 type Goal = {
   id: string;
@@ -65,11 +65,13 @@ export default function GoalsRoute() {
         sub: "Knowledge & Growth",
       },
     ],
-    []
+    [],
   );
 
   // State to control which sub-screen is shown
-  const [screen, setScreen] = React.useState<"home" | "create" | "checkin" | "progress">("home");
+  const [screen, setScreen] = React.useState<
+    "home" | "create" | "checkin" | "progress"
+  >("home");
 
   // Navigation handlers
   const handleCreateGoal = () => setScreen("create");
@@ -83,10 +85,12 @@ export default function GoalsRoute() {
   const handleBack = () => setScreen("home");
 
   if (screen === "create") {
-    return <CreateGoal onContinue={handleGoalContinue} onBack={handleBack} />;
+    return <CreateGoal onBack={handleBack} />;
   }
   if (screen === "checkin") {
-    return <DailyCheckIn goals={goals} onComplete={handleBack} onBack={handleBack} />;
+    return (
+      <DailyCheckIn goals={goals} onComplete={handleBack} onBack={handleBack} />
+    );
   }
   if (screen === "progress") {
     return <ProgressView goals={goals} onBack={handleBack} />;
@@ -284,7 +288,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 14,
     shadowColor: "#000",
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
     elevation: 5,
@@ -311,7 +315,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
     shadowColor: "#000",
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 6,
@@ -329,7 +333,12 @@ const styles = StyleSheet.create({
 
   goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
 
-  metaRow: { marginTop: 6, flexDirection: "row", alignItems: "center", gap: 10 },
+  metaRow: {
+    marginTop: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
   pill: {
     backgroundColor: "#9BE0B0",
     paddingHorizontal: 10,
@@ -339,7 +348,12 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 11, fontWeight: "900", color: "#1F4D2B" },
   metaText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
 
-  statusRow: { marginTop: 8, flexDirection: "row", alignItems: "center", gap: 8 },
+  statusRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#7ACD8C" },
   statusText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
 

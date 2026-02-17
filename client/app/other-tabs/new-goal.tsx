@@ -12,7 +12,7 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-import GradientSparkle from "../../src/components/journal/GradientSparkle";
+import GradientSparkle from "../../src/components/goal/GradientSparkle";
 
 export default function NewGoal() {
   const [goalText, setGoalText] = useState("");
