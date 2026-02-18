@@ -14,10 +14,10 @@ export const generateGoalSchema = {
         minItems: 1,
         items: {
           type: 'object',
-          required: ['title', 'order'],
+          required: ['title', 'description', 'order'],
           properties: {
             title: { type: 'string', minLength: 3 },
-            description: { type: 'string' },
+            description: { type: 'string', minLength: 5 },
             order: { type: 'number' },
           },
         },
@@ -28,8 +28,23 @@ export const generateGoalSchema = {
     201: {
       type: 'object',
       properties: {
-        goalId: { type: 'string' },
-        message: { type: 'string' },
+        id: { type: 'string' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+        createdAt: { type: 'string' },
+        stages: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              title: { type: 'string' },
+              description: { type: 'string' },
+              order: { type: 'number' },
+              completed: { type: 'boolean' },
+            },
+          },
+        },
       },
     },
     401: {

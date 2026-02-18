@@ -9,7 +9,7 @@ interface GenerateGoalInput {
   description: string;
   stages: {
     title: string;
-    description?: string;
+    description: string;
     order: number;
   }[];
 }
@@ -28,14 +28,22 @@ export async function generateGoal(data: GenerateGoalInput) {
   const goal: Goal = {
     id: goalId,
     title: data.title,
-    description: data.description ?? null,
+    description: data.description,
     stages,
     createdAt: Timestamp.now(),
   };
 
   await firestore.collection('goals').doc(goalId).set(goal);
 
-  return goalId;
+  // Return the created goal with createdAt as ISO string for frontend
+  return {
+    id: goal.id,
+    title: goal.title,
+    description: goal.description,
+    createdAt:
+      typeof goal.createdAt === 'string' ? goal.createdAt : goal.createdAt.toDate().toISOString(),
+    stages: goal.stages,
+  };
 }
 
 // ...existing code...

@@ -10,8 +10,19 @@ export interface ChatRequestBody {
   message: string;
 }
 
-export interface AIStage {
+export interface DraftStage {
   title: string;
   description: string;
   order: number;
+}
+
+export interface DraftGoal {
+  title: string;
+  description: string;
+  stages: DraftStage[];
+}
+
+export interface ChatResponse {
+  message: string;
+  draftGoal: DraftGoal | null;
 }

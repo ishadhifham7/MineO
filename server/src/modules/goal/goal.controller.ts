@@ -11,7 +11,7 @@ interface GenerateGoalBody {
   description: string;
   stages: {
     title: string;
-    description?: string;
+    description: string;
     order: number;
   }[];
 }
@@ -28,16 +28,39 @@ export async function generateGoalController(
 ) {
   const { title, description, stages } = req.body;
 
-  const goalId = await generateGoal({
+  // Validate input
+  if (!title || title.trim().length === 0) {
+    throw new AppError('Title cannot be empty', 400);
+  }
+
+  if (!description || description.trim().length === 0) {
+    throw new AppError('Description cannot be empty', 400);
+  }
+
+  if (!stages || stages.length === 0) {
+    throw new AppError('At least one stage is required', 400);
+  }
+
+  // Validate each stage
+  stages.forEach((stage, index) => {
+    if (!stage.title || stage.title.trim().length === 0) {
+      throw new AppError(`Stage ${index + 1} title cannot be empty`, 400);
+    }
+    if (!stage.description || stage.description.trim().length === 0) {
+      throw new AppError(`Stage ${index + 1} description cannot be empty`, 400);
+    }
+    if (typeof stage.order !== 'number') {
+      throw new AppError(`Stage ${index + 1} order must be a number`, 400);
+    }
+  });
+
+  const createdGoal = await generateGoal({
     title,
     description,
     stages,
   });
 
-  return reply.code(201).send({
-    goalId,
-    message: 'Goal created successfully',
-  });
+  return reply.code(201).send(createdGoal);
 }
 
 export async function getGoalsController(req: FastifyRequest, reply: FastifyReply) {

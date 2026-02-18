@@ -9,9 +9,11 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { useGoal, DraftGoal } from "../../../src/features/goal/goal.context";
+import { generateGoalApi } from "../../../src/features/goal/goal.api";
 import httpClient from "../../../src/lib/http";
 
 // ================= Types =================
@@ -56,18 +58,41 @@ const sendMessageToAI = async (
 
 // ================= Chat Screen =================
 const GoalChatScreen = () => {
-  const { setDraftGoal } = useGoal();
+  const { setDraftGoal, setCurrentGoal, setGoals } = useGoal();
 
   const [conversation, setConversation] = useState<Message[]>([
     {
       id: "1",
-      text: "Hi 👋 Let’s design your next big goal. What are you working toward?",
+      text: "Hi 👋 Let's design your next big goal. What are you working toward?",
       sender: "ai",
     },
   ]);
 
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentDraft, setCurrentDraft] = useState<DraftGoal | null>(null);
+  const [savingGoal, setSavingGoal] = useState(false);
+
+  // Render formatted goal plan
+  const renderGoalPlan = (draft: DraftGoal) => {
+    return (
+      <View style={styles.planContainer}>
+        <Text style={styles.planTitle}>📋 {draft.title}</Text>
+        <Text style={styles.planDescription}>{draft.description}</Text>
+
+        <Text style={styles.stagesHeader}>Stages:</Text>
+        {draft.stages.map((stage, index) => (
+          <View key={index} style={styles.stageItem}>
+            <Text style={styles.stageNumber}>{stage.order}.</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.stageTitle}>{stage.title}</Text>
+              <Text style={styles.stageDescription}>{stage.description}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   // Render chat bubble
   const renderMessage = ({ item }: { item: Message }) => {
@@ -108,6 +133,12 @@ const GoalChatScreen = () => {
         userMessage.text,
       );
 
+      console.log("=== Frontend Response Debug ===");
+      console.log("AI Message:", aiText);
+      console.log("DraftGoal received:", newDraft);
+      console.log("DraftGoal is null?", newDraft === null);
+      console.log("DraftGoal is undefined?", newDraft === undefined);
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: aiText,
@@ -116,15 +147,40 @@ const GoalChatScreen = () => {
 
       setConversation((prev) => [...prev, aiMessage]);
 
-      // ✅ If backend explicitly returns draftGoal, store it and navigate
+      // If backend returns a draftGoal, store it (but don't navigate yet)
       if (newDraft) {
+        console.log("✅ Setting currentDraft:", newDraft);
+        setCurrentDraft(newDraft);
         setDraftGoal(newDraft);
-        router.push("/src/features/goal/screens/GoalRoadmapScreen");
+      } else {
+        console.log("❌ No draftGoal to set");
       }
     } catch (error) {
       Alert.alert("Error", "Failed to get AI response. Try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Save goal and navigate to roadmap
+  const handleSendToRoadmap = async () => {
+    if (!currentDraft) return;
+
+    setSavingGoal(true);
+    try {
+      const createdGoal = await generateGoalApi(currentDraft);
+      setCurrentGoal(createdGoal);
+      setGoals((prev) => [...prev, createdGoal]);
+      setDraftGoal(null);
+      setCurrentDraft(null);
+
+      Alert.alert("Success", "Goal saved successfully!");
+      router.push("/tabs/goal/roadmap");
+    } catch (error) {
+      console.error("Failed to save goal:", error);
+      Alert.alert("Error", "Could not save goal. Please try again.");
+    } finally {
+      setSavingGoal(false);
     }
   };
 
@@ -147,9 +203,31 @@ const GoalChatScreen = () => {
         data={conversation}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 20 }}
+        contentContainerStyle={{
+          padding: 20,
+          paddingBottom: currentDraft ? 10 : 20,
+        }}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Show formatted plan if draftGoal exists */}
+      {currentDraft && (
+        <View style={styles.planWrapper}>
+          {renderGoalPlan(currentDraft)}
+
+          <Pressable
+            style={[styles.roadmapButton, savingGoal && { opacity: 0.7 }]}
+            onPress={handleSendToRoadmap}
+            disabled={savingGoal}
+          >
+            {savingGoal ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.roadmapButtonText}>✓ Send to Roadmap</Text>
+            )}
+          </Pressable>
+        </View>
+      )}
 
       {/* Input */}
       <View style={styles.inputWrapper}>
@@ -159,14 +237,17 @@ const GoalChatScreen = () => {
           style={styles.input}
           value={inputText}
           onChangeText={setInputText}
-          editable={!loading}
+          editable={!loading && !currentDraft}
         />
         <Pressable
-          style={[styles.sendButton, loading && { opacity: 0.7 }]}
+          style={[
+            styles.sendButton,
+            (loading || currentDraft) && { opacity: 0.5 },
+          ]}
           onPress={handleSend}
-          disabled={loading}
+          disabled={loading || !!currentDraft}
         >
-          <Text style={styles.sendText}>{loading ? "Sending..." : "Send"}</Text>
+          <Text style={styles.sendText}>{loading ? "..." : "Send"}</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -203,6 +284,77 @@ const styles = StyleSheet.create({
   userBubble: { backgroundColor: "#63D1E6", borderBottomRightRadius: 6 },
   aiBubble: { backgroundColor: "#E5E7EB", borderBottomLeftRadius: 6 },
   messageText: { fontSize: 15, lineHeight: 20, color: "#111827" },
+
+  // Goal plan styles
+  planWrapper: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+  },
+  planContainer: {
+    backgroundColor: "#F0F9FF",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#63D1E6",
+    marginBottom: 12,
+  },
+  planTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 8,
+  },
+  planDescription: {
+    fontSize: 14,
+    color: "#4B5563",
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  stagesHeader: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 8,
+  },
+  stageItem: {
+    flexDirection: "row",
+    marginBottom: 12,
+    paddingLeft: 8,
+  },
+  stageNumber: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#63D1E6",
+    marginRight: 8,
+    width: 20,
+  },
+  stageTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  stageDescription: {
+    fontSize: 13,
+    color: "#6B7280",
+    lineHeight: 18,
+  },
+  roadmapButton: {
+    backgroundColor: "#63D1E6",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 52,
+  },
+  roadmapButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",

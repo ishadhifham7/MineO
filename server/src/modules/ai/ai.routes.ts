@@ -29,8 +29,29 @@ const aiRoutes: FastifyPluginAsync = async (fastify) => {
       response: {
         200: {
           type: 'object',
+          required: ['message'],
           properties: {
             message: { type: 'string' },
+            draftGoal: {
+              type: 'object',
+              nullable: true,
+              properties: {
+                title: { type: 'string' },
+                description: { type: 'string' },
+                stages: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    required: ['title', 'description', 'order'],
+                    properties: {
+                      title: { type: 'string' },
+                      description: { type: 'string' },
+                      order: { type: 'number' },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
