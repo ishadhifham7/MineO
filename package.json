@@ -1,1 +1,5 @@
-{}
+{
+  "dependencies": {
+    "ansi-escapes": "^4.3.2"
+  }
+}
