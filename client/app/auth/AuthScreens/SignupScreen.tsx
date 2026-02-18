@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
+import { signupUser } from "../../../src/services/auth.service";
 
 import {
   View,
@@ -22,6 +23,18 @@ const SignupScreen: React.FC = () => {
 
 
     const handleSignup = async () => {
+      
+      try{
+        await signupUser({ name, email, password, dob });
+
+        Alert.alert("Success", "Account created. Please login.");
+
+        router.replace("/login");
+
+
+      }catch (error: any){
+        Alert.alert("Signup Failed", error.message);
+      }
     
     };
 
