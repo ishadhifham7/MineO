@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from "expo-router";
+import { loginUser } from "../../../src/services/auth.service";
 
 import {
 View,
@@ -18,6 +19,25 @@ const [email, setEmail] = useState<string>("");
 const [password, setPassword] = useState<string>("");
 
 const handleLogin = async () => {
+
+    try {
+
+        if (!email || !password) {
+        Alert.alert("Error", "Please enter email and password");
+        return;
+        }
+
+        await loginUser(email, password);
+
+        Alert.alert("Success", "Logged in successfully");
+
+    // navigate to main app (tabs/home)
+    router.replace("/tabs/home");
+
+    
+    } catch (error: any) {
+        Alert.alert("Login Failed", error.message);
+    }
 
 };
 
