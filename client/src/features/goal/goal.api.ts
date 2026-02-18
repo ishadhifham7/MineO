@@ -1,5 +1,5 @@
 import httpClient from "../../lib/http";
-import { Goal } from "./goal.context";
+import { DraftGoal, Goal } from "./goal.context";
 
 /**
  * Fetch all goals for the authenticated user
@@ -10,15 +10,11 @@ export const fetchGoalsApi = async (): Promise<Goal[]> => {
 };
 
 /**
- * Generate a new goal using AI
+ * Generate a new goal using the current draft
  */
-export const generateGoalApi = async (
-  goalDescription: string,
-): Promise<Goal> => {
-  const response = await httpClient.post("/goals/generate", {
-    goalDescription,
-  });
-  return response.data;
+export const generateGoalApi = async (draft: DraftGoal): Promise<Goal> => {
+  const response = await httpClient.post("/goals/generate", draft);
+  return response.data; // Backend returns the created Goal object
 };
 
 /**
