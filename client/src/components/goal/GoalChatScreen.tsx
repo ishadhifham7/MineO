@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { router } from "expo-router";
 import { useGoal, DraftGoal } from "../../../src/features/goal/goal.context";
@@ -194,62 +195,69 @@ const GoalChatScreen = () => {
         <Pressable onPress={() => router.back()}>
           <Text style={styles.backText}>Back</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Create New Goal</Text>
+        <Text style={styles.headerTitle}>
+          {currentDraft ? "Review Your Goal" : "Create New Goal"}
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Chat */}
-      <FlatList
-        data={conversation}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{
-          padding: 20,
-          paddingBottom: currentDraft ? 10 : 20,
-        }}
-        showsVerticalScrollIndicator={false}
-      />
-
-      {/* Show formatted plan if draftGoal exists */}
-      {currentDraft && (
-        <View style={styles.planWrapper}>
-          {renderGoalPlan(currentDraft)}
+      {/* Show full-screen plan when draft exists */}
+      {currentDraft ? (
+        <View style={styles.fullScreenPlanContainer}>
+          <ScrollView
+            style={styles.fullScreenScrollView}
+            contentContainerStyle={styles.fullScreenScrollContent}
+            showsVerticalScrollIndicator={true}
+          >
+            {renderGoalPlan(currentDraft)}
+          </ScrollView>
 
           <Pressable
-            style={[styles.roadmapButton, savingGoal && { opacity: 0.7 }]}
+            style={[styles.saveButton, savingGoal && { opacity: 0.7 }]}
             onPress={handleSendToRoadmap}
             disabled={savingGoal}
           >
             {savingGoal ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.roadmapButtonText}>✓ Send to Roadmap</Text>
+              <Text style={styles.saveButtonText}>💾 Save Plan</Text>
             )}
           </Pressable>
         </View>
-      )}
+      ) : (
+        <>
+          {/* Chat */}
+          <FlatList
+            data={conversation}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{
+              padding: 20,
+              paddingBottom: 20,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
 
-      {/* Input */}
-      <View style={styles.inputWrapper}>
-        <TextInput
-          placeholder="Type your message..."
-          placeholderTextColor="#9CA3AF"
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          editable={!loading && !currentDraft}
-        />
-        <Pressable
-          style={[
-            styles.sendButton,
-            (loading || currentDraft) && { opacity: 0.5 },
-          ]}
-          onPress={handleSend}
-          disabled={loading || !!currentDraft}
-        >
-          <Text style={styles.sendText}>{loading ? "..." : "Send"}</Text>
-        </Pressable>
-      </View>
+          {/* Input */}
+          <View style={styles.inputWrapper}>
+            <TextInput
+              placeholder="Type your message..."
+              placeholderTextColor="#9CA3AF"
+              style={styles.input}
+              value={inputText}
+              onChangeText={setInputText}
+              editable={!loading}
+            />
+            <Pressable
+              style={[styles.sendButton, loading && { opacity: 0.5 }]}
+              onPress={handleSend}
+              disabled={loading}
+            >
+              <Text style={styles.sendText}>{loading ? "..." : "Send"}</Text>
+            </Pressable>
+          </View>
+        </>
+      )}
     </KeyboardAvoidingView>
   );
 };
@@ -285,20 +293,24 @@ const styles = StyleSheet.create({
   aiBubble: { backgroundColor: "#E5E7EB", borderBottomLeftRadius: 6 },
   messageText: { fontSize: 15, lineHeight: 20, color: "#111827" },
 
-  // Goal plan styles
-  planWrapper: {
+  // Full-screen goal plan styles
+  fullScreenPlanContainer: {
+    flex: 1,
+    backgroundColor: "#F8FAFC",
     padding: 16,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+  },
+  fullScreenScrollView: {
+    flex: 1,
+  },
+  fullScreenScrollContent: {
+    paddingBottom: 16,
   },
   planContainer: {
     backgroundColor: "#F0F9FF",
-    padding: 16,
+    padding: 20,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: "#63D1E6",
-    marginBottom: 12,
   },
   planTitle: {
     fontSize: 18,
@@ -341,15 +353,17 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     lineHeight: 18,
   },
-  roadmapButton: {
+  saveButton: {
     backgroundColor: "#63D1E6",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     minHeight: 52,
+    marginTop: 16,
+    marginHorizontal: 0,
   },
-  roadmapButtonText: {
+  saveButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "700",

@@ -13,7 +13,7 @@
 
 // Get your machine's IP address by running: ipconfig (Windows) or ifconfig (Mac/Linux)
 // Replace this with your actual IP address
-const MACHINE_IP = "192.168.1.101"; // Update this if your IP changes
+const MACHINE_IP = "192.168.1.103"; // Update this if your IP changes
 
 export const env = {
   API_BASE_URL: `http://${MACHINE_IP}:3001/api/v1`,
