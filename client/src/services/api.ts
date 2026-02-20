@@ -1,17 +1,10 @@
 // src/services/api.ts
 import axios from "axios";
-import { Platform } from "react-native";
+import { env } from "../../constants/env";
 
-// Backend URL configuration
-// For Android emulator: use 10.0.2.2
-// For physical device: use your computer's IP address (e.g., 192.168.1.103)
+// Using API URL from .env file (EXPO_PUBLIC_API_URL)
 const getBaseURL = () => {
-  // Using your computer's actual IP address for physical devices
-  // Change this to 10.0.2.2 if using Android emulator
-  const BACKEND_IP = "192.168.1.103"; // Your computer's IP
-  const BACKEND_PORT = "3001";
-
-  return `http://${BACKEND_IP}:${BACKEND_PORT}/api/v1/journal`;
+  return `${env.API_BASE_URL}/journal`;
 };
 
 export const api = axios.create({
@@ -52,7 +45,7 @@ api.interceptors.response.use(
     } else if (error.request) {
       // Request made but no response
       console.error(
-        "❌ No Response - Is backend running on http://localhost:3001?",
+        `❌ No Response - Is backend running on ${env.API_BASE_URL}?`,
       );
       console.error("Request:", error.request);
     } else {

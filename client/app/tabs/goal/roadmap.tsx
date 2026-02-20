@@ -1,20 +1,19 @@
-import React from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import React, { useState } from "react";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
-import { useGoal, Goal } from "../../../src/features/goal/goal.context";
+import { useGoal } from "../../../src/features/goal/goal.context";
+import Checkbox from "expo-checkbox";
+import { BlurView } from "expo-blur";
 
 const GoalRoadmapScreen: React.FC = () => {
-  const { currentGoal, goals, fetchGoals } = useGoal();
-
+  const { currentGoal, goals } = useGoal();
   // If no current goal, try to get the most recent one
   const displayGoal = currentGoal || goals[0];
+
+  // Local state for optimistic UI (optional, fallback to context if needed)
+  const [localStages, setLocalStages] = useState(
+    displayGoal ? displayGoal.stages.map((s) => ({ ...s })) : [],
+  );
 
   if (!displayGoal) {
     return (
@@ -30,8 +29,22 @@ const GoalRoadmapScreen: React.FC = () => {
     );
   }
 
+  // Sync local stages if goal changes
+  React.useEffect(() => {
+    setLocalStages(displayGoal.stages.map((s) => ({ ...s })));
+  }, [displayGoal]);
+
   const handleBackToGoals = () => {
     router.push("/tabs/goals");
+  };
+
+  const handleToggleStage = (stageId: string) => {
+    setLocalStages((prev) =>
+      prev.map((s) =>
+        s.id === stageId ? { ...s, completed: !s.completed } : s,
+      ),
+    );
+    // Optionally update in context/backend
   };
 
   return (
@@ -44,34 +57,45 @@ const GoalRoadmapScreen: React.FC = () => {
         <View style={{ width: 40 }} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>{displayGoal.title}</Text>
         <Text style={styles.description}>{displayGoal.description}</Text>
 
         <Text style={styles.stagesHeader}>Your Journey:</Text>
 
-        <FlatList
-          data={displayGoal.stages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.stageCard}>
-              <View style={styles.stagesHeader}>
-                <Text style={styles.stageNumber}>Stage {item.order}</Text>
-                {item.completed && (
-                  <Text style={styles.completedBadge}>✓ Completed</Text>
-                )}
+        <View style={{ gap: 12 }}>
+          {localStages.map((item) => (
+            <View key={item.id} style={styles.stageCard}>
+              {/* Blur overlay if completed */}
+              {item.completed && (
+                <BlurView
+                  intensity={30}
+                  tint="light"
+                  style={StyleSheet.absoluteFill}
+                />
+              )}
+              <View style={styles.stageRow}>
+                <Checkbox
+                  value={item.completed}
+                  onValueChange={() => handleToggleStage(item.id)}
+                  color={item.completed ? "#44BBD4" : undefined}
+                  style={styles.stageCheckbox}
+                />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.stageTitle}>{item.title}</Text>
+                  <Text style={styles.stageDescription}>
+                    {item.description}
+                  </Text>
+                </View>
               </View>
-              <Text style={styles.stageTitle}>{item.title}</Text>
-              <Text style={styles.stageDescription}>{item.description}</Text>
             </View>
-          )}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
+          ))}
+        </View>
 
         <Pressable style={styles.doneButton} onPress={handleBackToGoals}>
           <Text style={styles.doneText}>View All Goals</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -117,17 +141,38 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 14,
     borderRadius: 12,
-    marginBottom: 12,
+    overflow: "hidden",
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 4,
     elevation: 2,
   },
-  stageNumber: { fontSize: 14, fontWeight: "700", color: "#63D1E6" },
-  completedBadge: { fontSize: 14, fontWeight: "600", color: "#10B981" },
-  stageTitle: { fontSize: 16, fontWeight: "600", marginBottom: 4 },
+  stageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  stageCheckbox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "#44BBD4",
+    marginRight: 10,
+    backgroundColor: "#F0F9FA",
+  },
+  stageTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
+    color: "#111",
+  },
   stageDescription: { fontSize: 14, color: "#4B5563" },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
   generateButton: {
     backgroundColor: "#44BBD4",
     paddingVertical: 16,
