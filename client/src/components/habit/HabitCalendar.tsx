@@ -1,10 +1,11 @@
-import { View, Text, ImageBackground } from "react-native";
+import { View, Text } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../constants/colors";
 
 const backgrounds = {
-  spiritual: require("@/assets/calendar-spiritual.png"),
-  mental: require("@/assets/calendar-mental.png"),
-  physical: require("@/assets/calendar-physical.png"),
+  spiritual: ["#8B5CF6", "#6366F1"] as const,
+  mental: ["#3B82F6", "#06B6D4"] as const,
+  physical: ["#F59E0B", "#EF4444"] as const,
 };
 
 export default function HabitCalendar({
@@ -16,10 +17,14 @@ export default function HabitCalendar({
 }) {
   return (
     <View className="px-4 mt-4">
-      <ImageBackground
-        source={backgrounds[category as keyof typeof backgrounds]}
-        imageStyle={{ borderRadius: 20 }}
-        className="rounded-2xl p-4"
+      <LinearGradient
+        colors={
+          backgrounds[category as keyof typeof backgrounds] ||
+          backgrounds.spiritual
+        }
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ borderRadius: 20, padding: 16 }}
       >
         <Text className="text-white mb-3 font-semibold">February 2026</Text>
 
@@ -29,8 +34,8 @@ export default function HabitCalendar({
               score === 1
                 ? colors.good
                 : score === 0.5
-                ? colors.average
-                : colors.bad;
+                  ? colors.average
+                  : colors.bad;
 
             return (
               <View
@@ -43,7 +48,7 @@ export default function HabitCalendar({
             );
           })}
         </View>
-      </ImageBackground>
+      </LinearGradient>
     </View>
   );
 }
