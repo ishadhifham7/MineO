@@ -5,13 +5,15 @@ import { Platform } from "react-native";
 // Backend URL configuration
 // For Android emulator: use 10.0.2.2
 // For physical device: use your computer's IP address (e.g., 192.168.1.103)
-const getBaseURL = () => {
-  // Using your computer's actual IP address for physical devices
-  // Change this to 10.0.2.2 if using Android emulator
-  const BACKEND_IP = "192.168.1.103"; // Your computer's IP
-  const BACKEND_PORT = "3001";
+const BACKEND_IP = "192.168.1.103"; // Your computer's IP
+const BACKEND_PORT = "3001";
 
-  return `http://${BACKEND_IP}:${BACKEND_PORT}/api/v1/journal`;
+// Base URL for API (without specific module path)
+export const API_BASE_URL = `http://${BACKEND_IP}:${BACKEND_PORT}`;
+
+// Base URL for journal API
+const getBaseURL = () => {
+  return `${API_BASE_URL}/api/v1/journal`;
 };
 
 export const api = axios.create({
