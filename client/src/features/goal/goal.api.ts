@@ -31,3 +31,18 @@ export const getGoalByIdApi = async (id: string): Promise<Goal> => {
 export const deleteGoalApi = async (goalId: string): Promise<void> => {
   await httpClient.delete(`/goals/${goalId}`);
 };
+
+/**
+ * Toggle a stage's completion status
+ */
+export const toggleStageCompletionApi = async (
+  goalId: string,
+  stageId: string,
+  completed: boolean,
+): Promise<Goal> => {
+  const response = await httpClient.patch(
+    `/goals/${goalId}/stages/${stageId}`,
+    { completed },
+  );
+  return response.data.goal;
+};

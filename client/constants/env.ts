@@ -7,7 +7,7 @@
  * - Set EXPO_PUBLIC_API_URL in .env file
  */
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://10.31.3.209:3001";
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.103:3001";
 
 export const env = {
   API_BASE_URL: `${API_URL}/api/v1`,

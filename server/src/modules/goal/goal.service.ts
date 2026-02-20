@@ -137,7 +137,17 @@ export async function getGoalById(goalId: string): Promise<any | null> {
   return JSON.parse(JSON.stringify(goal));
 }
 
-export async function completeGoalStage(goalId: string, stageId: string): Promise<Goal | null> {
+/**
+ * Toggle a stage's completion status
+ * @param goalId - The goal ID
+ * @param stageId - The stage ID
+ * @param completed - The new completion status (true/false)
+ */
+export async function toggleGoalStageCompletion(
+  goalId: string,
+  stageId: string,
+  completed: boolean
+): Promise<any | null> {
   const goalRef = firestore.collection('goals').doc(goalId);
   const goalSnap = await goalRef.get();
 
@@ -145,16 +155,17 @@ export async function completeGoalStage(goalId: string, stageId: string): Promis
     return null;
   }
 
-  const goal = goalSnap.data() as Goal;
+  const data = goalSnap.data();
+  if (!data) return null;
 
   let stageFound = false;
 
-  const updatedStages: GoalStage[] = goal.stages.map((stage) => {
+  const updatedStages: GoalStage[] = data.stages.map((stage: GoalStage) => {
     if (stage.id === stageId) {
       stageFound = true;
       return {
         ...stage,
-        completed: true,
+        completed,
       };
     }
     return stage;
@@ -164,14 +175,35 @@ export async function completeGoalStage(goalId: string, stageId: string): Promis
     return null;
   }
 
+  // Update in Firestore
   await goalRef.update({
     stages: updatedStages,
   });
 
-  return {
-    ...goal,
+  // Convert Firestore Timestamp to ISO string for response
+  let createdAtString: string;
+  if (!data.createdAt) {
+    createdAtString = new Date().toISOString();
+  } else if (typeof data.createdAt === 'object' && data.createdAt._seconds) {
+    createdAtString = new Date(data.createdAt._seconds * 1000).toISOString();
+  } else if (typeof data.createdAt.toDate === 'function') {
+    createdAtString = data.createdAt.toDate().toISOString();
+  } else if (typeof data.createdAt === 'string') {
+    createdAtString = data.createdAt;
+  } else {
+    createdAtString = new Date().toISOString();
+  }
+
+  // Return updated goal
+  const updatedGoal = {
+    id: goalSnap.id,
+    title: data.title,
+    description: data.description ?? null,
+    createdAt: createdAtString,
     stages: updatedStages,
   };
+
+  return JSON.parse(JSON.stringify(updatedGoal));
 }
 
 export async function deleteGoal(goalId: string) {

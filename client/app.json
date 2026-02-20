@@ -2,6 +2,7 @@
   "expo": {
     "name": "client",
     "slug": "client",
+    "scheme": "mineo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,9 +29,6 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-secure-store",
-      "expo-router"
-    ]
+    "plugins": ["expo-secure-store", "expo-router"]
   }
 }

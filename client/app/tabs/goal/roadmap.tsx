@@ -1,50 +1,106 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useGoal } from "../../../src/features/goal/goal.context";
 import Checkbox from "expo-checkbox";
 import { BlurView } from "expo-blur";
+import { toggleStageCompletionApi } from "../../../src/features/goal/goal.api";
 
 const GoalRoadmapScreen: React.FC = () => {
   const { currentGoal, goals } = useGoal();
-  // If no current goal, try to get the most recent one
-  const displayGoal = currentGoal || goals[0];
+  const params = useLocalSearchParams();
+
+  // Get the goal by ID from URL params, fallback to currentGoal or most recent
+  const goalId = params.id as string | undefined;
+  const displayGoal = goalId
+    ? goals.find((g) => g.id === goalId)
+    : currentGoal || goals[0];
 
   // Local state for optimistic UI (optional, fallback to context if needed)
   const [localStages, setLocalStages] = useState(
     displayGoal ? displayGoal.stages.map((s) => ({ ...s })) : [],
   );
 
+  // Sync local stages if goal changes - MUST be before early return
+  React.useEffect(() => {
+    if (displayGoal) {
+      setLocalStages(displayGoal.stages.map((s) => ({ ...s })));
+    }
+  }, [displayGoal]);
+
   if (!displayGoal) {
     return (
       <View style={styles.container}>
-        <Text style={styles.noDraftText}>No goal available.</Text>
-        <Pressable
-          style={styles.generateButton}
-          onPress={() => router.push("/tabs/goal/chat")}
+        <View style={styles.header}>
+          <Pressable onPress={() => router.push("/tabs/goal/")}>
+            <Text style={styles.backText}>Back</Text>
+          </Pressable>
+          <Text style={styles.headerTitle}>Goal Roadmap</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}
         >
-          <Text style={styles.generateText}>Create New Goal</Text>
-        </Pressable>
+          <Text style={styles.noDraftText}>
+            {goalId ? "Goal not found." : "No goal available."}
+          </Text>
+          <Pressable
+            style={styles.generateButton}
+            onPress={() => router.push("/tabs/goal/chat")}
+          >
+            <Text style={styles.generateText}>Create New Goal</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
 
-  // Sync local stages if goal changes
-  React.useEffect(() => {
-    setLocalStages(displayGoal.stages.map((s) => ({ ...s })));
-  }, [displayGoal]);
-
   const handleBackToGoals = () => {
-    router.push("/tabs/goals");
+    // Navigate back to the goals list in the goal tab
+    router.push("/tabs/goal/");
   };
 
-  const handleToggleStage = (stageId: string) => {
+  const handleToggleStage = async (stageId: string) => {
+    if (!displayGoal) return;
+
+    // Find the current stage to get its current completion status
+    const stage = localStages.find((s) => s.id === stageId);
+    if (!stage) return;
+
+    const newCompletedStatus = !stage.completed;
+
+    // Optimistic update - update UI immediately
     setLocalStages((prev) =>
       prev.map((s) =>
-        s.id === stageId ? { ...s, completed: !s.completed } : s,
+        s.id === stageId ? { ...s, completed: newCompletedStatus } : s,
       ),
     );
-    // Optionally update in context/backend
+
+    try {
+      // Call backend API to persist the change
+      await toggleStageCompletionApi(
+        displayGoal.id,
+        stageId,
+        newCompletedStatus,
+      );
+
+      // Optionally refresh goals from context to ensure sync
+      // fetchGoals(); // Uncomment if you want to refresh all goals
+    } catch (error) {
+      console.error("Failed to toggle stage completion:", error);
+
+      // Revert optimistic update on error
+      setLocalStages((prev) =>
+        prev.map((s) =>
+          s.id === stageId ? { ...s, completed: stage.completed } : s,
+        ),
+      );
+    }
   };
 
   return (

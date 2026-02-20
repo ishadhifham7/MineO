@@ -3,7 +3,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { generateGoal, getGoals, deleteGoal, getGoalById } from './goal.service';
 import { AppError } from '../../shared/errors/app-error';
-import { completeGoalStage } from './goal.service';
 import { firestore } from '../../config/firebase';
 
 interface GenerateGoalBody {
@@ -90,25 +89,35 @@ export async function getGoalByIdController(
   return reply.code(200).send({ goal });
 }
 
-export async function completeGoalStageController(
+export async function toggleGoalStageController(
   req: FastifyRequest<{
     Params: {
       goalId: string;
       stageId: string;
     };
+    Body: {
+      completed: boolean;
+    };
   }>,
   reply: FastifyReply
 ) {
   const { goalId, stageId } = req.params;
+  const { completed } = req.body;
 
-  const updatedGoal = await completeGoalStage(goalId, stageId);
+  // Validate the completed field
+  if (typeof completed !== 'boolean') {
+    throw new AppError('Field "completed" must be a boolean', 400);
+  }
+
+  const { toggleGoalStageCompletion } = await import('./goal.service');
+  const updatedGoal = await toggleGoalStageCompletion(goalId, stageId, completed);
 
   if (!updatedGoal) {
     throw new AppError('Goal or stage not found', 404);
   }
 
   return reply.code(200).send({
-    message: 'Stage marked as completed',
+    message: `Stage marked as ${completed ? 'completed' : 'incomplete'}`,
     goal: updatedGoal,
   });
 }

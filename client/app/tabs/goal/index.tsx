@@ -63,7 +63,7 @@ export default function GoalsHome() {
               <GoalListCard
                 key={g.id}
                 goal={g}
-                onPress={() => router.push(`roadmap?id=${g.id}`)}
+                onPress={() => router.push(`/tabs/goal/roadmap?id=${g.id}`)}
               />
             ))}
           </View>

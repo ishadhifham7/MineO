@@ -59,6 +59,14 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* Hide goals.tsx from tab bar - accessible via navigation only */}
+      <Tabs.Screen
+        name="goals"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
