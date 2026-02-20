@@ -1,7 +1,9 @@
-// constants/env.ts
-// Reads API URL from .env or defaults to local network
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://10.31.3.209:3001";
+// Environment configuration
+// This file reads from .env variables set by Expo
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.103:3001";
 
 export const env = {
-  API_BASE_URL: API_URL,
-} as const;
+  API_BASE_URL: `${API_URL}/api/v1`,
+  API_URL: API_URL,
+};

@@ -3,7 +3,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { generateGoal, getGoals, deleteGoal, getGoalById } from './goal.service';
 import { AppError } from '../../shared/errors/app-error';
-import { completeGoalStage } from './goal.service';
 import { firestore } from '../../config/firebase';
 
 interface GenerateGoalBody {
@@ -11,7 +10,7 @@ interface GenerateGoalBody {
   description: string;
   stages: {
     title: string;
-    description?: string;
+    description: string;
     order: number;
   }[];
 }
@@ -28,16 +27,39 @@ export async function generateGoalController(
 ) {
   const { title, description, stages } = req.body;
 
-  const goalId = await generateGoal({
+  // Validate input
+  if (!title || title.trim().length === 0) {
+    throw new AppError('Title cannot be empty', 400);
+  }
+
+  if (!description || description.trim().length === 0) {
+    throw new AppError('Description cannot be empty', 400);
+  }
+
+  if (!stages || stages.length === 0) {
+    throw new AppError('At least one stage is required', 400);
+  }
+
+  // Validate each stage
+  stages.forEach((stage, index) => {
+    if (!stage.title || stage.title.trim().length === 0) {
+      throw new AppError(`Stage ${index + 1} title cannot be empty`, 400);
+    }
+    if (!stage.description || stage.description.trim().length === 0) {
+      throw new AppError(`Stage ${index + 1} description cannot be empty`, 400);
+    }
+    if (typeof stage.order !== 'number') {
+      throw new AppError(`Stage ${index + 1} order must be a number`, 400);
+    }
+  });
+
+  const createdGoal = await generateGoal({
     title,
     description,
     stages,
   });
 
-  return reply.code(201).send({
-    goalId,
-    message: 'Goal created successfully',
-  });
+  return reply.code(201).send(createdGoal);
 }
 
 export async function getGoalsController(req: FastifyRequest, reply: FastifyReply) {
@@ -67,25 +89,35 @@ export async function getGoalByIdController(
   return reply.code(200).send({ goal });
 }
 
-export async function completeGoalStageController(
+export async function toggleGoalStageController(
   req: FastifyRequest<{
     Params: {
       goalId: string;
       stageId: string;
     };
+    Body: {
+      completed: boolean;
+    };
   }>,
   reply: FastifyReply
 ) {
   const { goalId, stageId } = req.params;
+  const { completed } = req.body;
 
-  const updatedGoal = await completeGoalStage(goalId, stageId);
+  // Validate the completed field
+  if (typeof completed !== 'boolean') {
+    throw new AppError('Field "completed" must be a boolean', 400);
+  }
+
+  const { toggleGoalStageCompletion } = await import('./goal.service');
+  const updatedGoal = await toggleGoalStageCompletion(goalId, stageId, completed);
 
   if (!updatedGoal) {
     throw new AppError('Goal or stage not found', 404);
   }
 
   return reply.code(200).send({
-    message: 'Stage marked as completed',
+    message: `Stage marked as ${completed ? 'completed' : 'incomplete'}`,
     goal: updatedGoal,
   });
 }

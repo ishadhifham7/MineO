@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,91 +12,15 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import CreateGoal from "../../src/components/goal/CreateGoal";
-import DailyCheckIn from "../../src/components/goal/DailyCheckIn";
-import ProgressView from "../../src/components/goal/ProgressView";
+import { useGoal } from "../../../src/features/goal/goal.context";
 
-type Goal = {
-  id: string;
-  title: string;
-  category: string;
-  stageName: string;
-  progressPct: number;
-  statusText: string;
-  stagesTotal?: number;
-  stagesDone?: number;
-  sub?: string;
-};
+export default function GoalsHome() {
+  const { goals, fetchGoals, loading } = useGoal();
 
-export default function GoalsRoute() {
-  const goals: Goal[] = useMemo(
-    () => [
-      {
-        id: "1",
-        title: "dsc",
-        category: "Physical",
-        stageName: "Foundation & Awareness",
-        progressPct: 0,
-        statusText: "Just started",
-        stagesTotal: 4,
-        stagesDone: 0,
-        sub: "Foundation & Awareness",
-      },
-      {
-        id: "2",
-        title: "Gym",
-        category: "Physical",
-        stageName: "Fitness & Health",
-        progressPct: 0,
-        statusText: "Just started",
-        stagesTotal: 3,
-        stagesDone: 0,
-        sub: "Fitness & Health",
-      },
-      {
-        id: "3",
-        title: "Reading",
-        category: "Personal",
-        stageName: "Knowledge & Growth",
-        progressPct: 0,
-        statusText: "Just started",
-        stagesTotal: 2,
-        stagesDone: 0,
-        sub: "Knowledge & Growth",
-      },
-    ],
-    [],
-  );
+  useEffect(() => {
+    fetchGoals();
+  }, []);
 
-  // State to control which sub-screen is shown
-  const [screen, setScreen] = React.useState<
-    "home" | "create" | "checkin" | "progress"
-  >("home");
-
-  // Navigation handlers
-  const handleCreateGoal = () => setScreen("create");
-  const handleGoalContinue = (goal: string) => {
-    // Here you could add the goal to state or backend
-    alert(`Your goal: ${goal}`);
-    setScreen("home");
-  };
-  const handleDailyCheckIn = () => setScreen("checkin");
-  const handleProgressView = () => setScreen("progress");
-  const handleBack = () => setScreen("home");
-
-  if (screen === "create") {
-    return <CreateGoal onBack={handleBack} />;
-  }
-  if (screen === "checkin") {
-    return (
-      <DailyCheckIn goals={goals} onComplete={handleBack} onBack={handleBack} />
-    );
-  }
-  if (screen === "progress") {
-    return <ProgressView goals={goals} onBack={handleBack} />;
-  }
-
-  // Home screen (default)
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.screen}>
@@ -122,14 +46,14 @@ export default function GoalsRoute() {
               big="Check-in"
               icon="heart-outline"
               gradientColors={["#63D1E6", "#44BBD4"]}
-              onPress={handleDailyCheckIn}
+              onPress={() => router.push("/other-tabs/daily-check-in")}
             />
             <ActionCard
               small="Your"
               big="Progress"
               icon="trending-up-outline"
               gradientColors={["#B39DDB", "#F7B7A3"]}
-              onPress={handleProgressView}
+              onPress={() => router.push("/other-tabs/progress")}
             />
           </View>
 
@@ -139,7 +63,7 @@ export default function GoalsRoute() {
               <GoalListCard
                 key={g.id}
                 goal={g}
-                onPress={() => router.push(`/goal/${g.id}`)}
+                onPress={() => router.push(`/tabs/goal/roadmap?id=${g.id}`)}
               />
             ))}
           </View>
@@ -151,7 +75,7 @@ export default function GoalsRoute() {
         {/* Bottom Create Button */}
         <View style={styles.bottomBar}>
           <Pressable
-            onPress={handleCreateGoal}
+            onPress={() => router.push("/tabs/goal/chat")}
             style={({ pressed }) => [pressed && { opacity: 0.92 }]}
           >
             <LinearGradient
@@ -169,6 +93,10 @@ export default function GoalsRoute() {
     </SafeAreaView>
   );
 }
+
+/* ========================= */
+/*       ACTION CARD         */
+/* ========================= */
 
 function ActionCard({
   small,
@@ -202,6 +130,10 @@ function ActionCard({
   );
 }
 
+/* ========================= */
+/*     GOAL LIST CARD        */
+/* ========================= */
+
 function GoalListCard({
   goal,
   onPress,
@@ -209,18 +141,28 @@ function GoalListCard({
   goal: {
     id: string;
     title: string;
-    category: string;
-    stageName: string;
-    progressPct: number;
-    statusText: string;
+    description?: string;
+    stages: Array<{ completed: boolean }>;
   };
   onPress: () => void;
 }) {
+  // Calculate progress
+  const totalStages = goal.stages.length;
+  const completedStages = goal.stages.filter((s) => s.completed).length;
+  const progressPct =
+    totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
+  // Determine status
+  let statusText = "Just started";
+  if (progressPct === 100) statusText = "Completed";
+  else if (progressPct > 60) statusText = "Almost there";
+  else if (progressPct > 30) statusText = "In progress";
+
   return (
     <Pressable onPress={onPress} style={styles.goalCard}>
       {/* left progress ring */}
       <View style={styles.ring}>
-        <Text style={styles.ringText}>{goal.progressPct}%</Text>
+        <Text style={styles.ringText}>{progressPct}%</Text>
       </View>
 
       {/* right info */}
@@ -229,19 +171,24 @@ function GoalListCard({
 
         <View style={styles.metaRow}>
           <View style={styles.pill}>
-            <Text style={styles.pillText}>{goal.category}</Text>
+            <Text style={styles.pillText}>
+              {completedStages}/{totalStages} stages
+            </Text>
           </View>
-          <Text style={styles.metaText}>{goal.stageName}</Text>
         </View>
 
         <View style={styles.statusRow}>
           <View style={styles.dot} />
-          <Text style={styles.statusText}>{goal.statusText}</Text>
+          <Text style={styles.statusText}>{statusText}</Text>
         </View>
       </View>
     </Pressable>
   );
 }
+
+/* ========================= */
+/*          STYLES           */
+/* ========================= */
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#EFEFEF" },
@@ -346,7 +293,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   pillText: { fontSize: 11, fontWeight: "900", color: "#1F4D2B" },
-  metaText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
 
   statusRow: {
     marginTop: 8,
