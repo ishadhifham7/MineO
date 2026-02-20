@@ -6,12 +6,21 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "mineo",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "nativeVersion"
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "enabled": false,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "never"
     },
     "ios": {
       "supportsTablet": true
