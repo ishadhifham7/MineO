@@ -220,7 +220,7 @@ const GoalChatScreen = () => {
             {savingGoal ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.saveButtonText}>💾 Save Plan</Text>
+              <Text style={styles.saveButtonText}>Save Plan</Text>
             )}
           </Pressable>
         </View>

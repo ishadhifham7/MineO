@@ -158,6 +158,14 @@ function GoalListCard({
   else if (progressPct > 60) statusText = "Almost there";
   else if (progressPct > 30) statusText = "In progress";
 
+  // Determine status color
+  let statusColor = "#A78BFA"; // Just started - Soft Purple
+  if (progressPct === 100)
+    statusColor = "#10B981"; // Completed - Success Green
+  else if (progressPct > 60)
+    statusColor = "#3B82F6"; // Almost there - Confident Blue
+  else if (progressPct > 30) statusColor = "#F59E0B"; // In progress - Motivational Amber
+
   return (
     <Pressable onPress={onPress} style={styles.goalCard}>
       {/* left progress ring */}
@@ -170,7 +178,7 @@ function GoalListCard({
         <Text style={styles.goalTitle}>{goal.title}</Text>
 
         <View style={styles.metaRow}>
-          <View style={styles.pill}>
+          <View style={[styles.pill, { backgroundColor: statusColor }]}>
             <Text style={styles.pillText}>
               {completedStages}/{totalStages} stages
             </Text>
@@ -178,8 +186,10 @@ function GoalListCard({
         </View>
 
         <View style={styles.statusRow}>
-          <View style={styles.dot} />
-          <Text style={styles.statusText}>{statusText}</Text>
+          <View style={[styles.dot, { backgroundColor: statusColor }]} />
+          <Text style={[styles.statusText, { color: statusColor }]}>
+            {statusText}
+          </Text>
         </View>
       </View>
     </Pressable>

@@ -149,7 +149,7 @@ const GoalRoadmapScreen: React.FC = () => {
         </View>
 
         <Pressable style={styles.doneButton} onPress={handleBackToGoals}>
-          <Text style={styles.doneText}>View All Goals</Text>
+          <Text style={styles.doneText}>Save and View All Goals</Text>
         </Pressable>
       </ScrollView>
     </View>
@@ -159,97 +159,159 @@ const GoalRoadmapScreen: React.FC = () => {
 export default GoalRoadmapScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FAFC" },
+  container: {
+    flex: 1,
+    backgroundColor: "#F4F7FB",
+  },
+
   header: {
     paddingTop: 60,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
+    paddingBottom: 18,
+    paddingHorizontal: 24,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: "#EEF2F7",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  backText: { color: "#63D1E6", fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontSize: 18, fontWeight: "600", color: "#111827" },
-  content: { flex: 1, padding: 20 },
+
+  backText: {
+    color: "#44BBD4",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0F172A",
+    letterSpacing: 0.3,
+  },
+
   noDraftText: {
     fontSize: 16,
     textAlign: "center",
     marginTop: 100,
     marginBottom: 20,
+    color: "#64748B",
   },
-  title: { fontSize: 24, fontWeight: "700", marginBottom: 8, color: "#111827" },
+
+  title: {
+    fontSize: 26,
+    fontWeight: "800",
+    marginBottom: 10,
+    color: "#0F172A",
+  },
+
   description: {
-    fontSize: 16,
-    marginBottom: 24,
-    color: "#4B5563",
-    lineHeight: 22,
+    fontSize: 15,
+    marginBottom: 32,
+    color: "#475569",
+    lineHeight: 24,
   },
+
   stagesHeader: {
     fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-    color: "#111827",
+    fontWeight: "700",
+    marginBottom: 20,
+    color: "#0F172A",
   },
+
+  /* ===================== */
+  /* Stage Card Redesign   */
+  /* ===================== */
+
   stageCard: {
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 20,
+    paddingHorizontal: 18,
+    borderRadius: 20,
     overflow: "hidden",
+    marginBottom: 18,
+
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 4,
   },
+
   stageRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
+    alignItems: "flex-start",
   },
+
   stageCheckbox: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 2,
     borderColor: "#44BBD4",
-    marginRight: 10,
-    backgroundColor: "#F0F9FA",
+    marginRight: 16,
+    marginTop: 4,
+    backgroundColor: "#ECFEFF",
   },
+
   stageTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-    color: "#111",
+    fontSize: 17,
+    fontWeight: "700",
+    marginBottom: 8,
+    color: "#0F172A",
+    lineHeight: 22,
   },
-  stageDescription: { fontSize: 14, color: "#4B5563" },
+
+  stageDescription: {
+    fontSize: 14.5,
+    color: "#64748B",
+    lineHeight: 22, // ← better line spacing
+    paddingRight: 4,
+  },
+
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 50,
   },
+
   generateButton: {
     backgroundColor: "#44BBD4",
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 18,
     alignItems: "center",
     marginBottom: 12,
   },
-  generateText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+
+  generateText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
   continueButton: {
     backgroundColor: "#E5E7EB",
     paddingVertical: 14,
     borderRadius: 16,
     alignItems: "center",
   },
-  continueText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+
+  continueText: {
+    color: "#111827",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
   doneButton: {
     backgroundColor: "#44BBD4",
-    paddingVertical: 14,
-    borderRadius: 16,
+    paddingVertical: 16,
+    borderRadius: 20,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 28,
   },
-  doneText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+  doneText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
 });
