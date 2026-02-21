@@ -1,195 +1,308 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  Dimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import Svg, { Circle, G } from "react-native-svg";
 
+// ---------- Types ----------
 interface DailyWin {
   id: string;
   emoji: string;
   title: string;
-  icon?: string;
+  bgColor: string;
 }
 
 interface WinCategory {
   name: string;
   percentage: number;
   color: string;
-  emoji: string;
 }
 
+// ---------- Donut Chart Component ----------
+function DonutChart({
+  data,
+  size = 140,
+  strokeWidth = 18,
+  centerLabel,
+  centerSub,
+}: {
+  data: { percentage: number; color: string }[];
+  size?: number;
+  strokeWidth?: number;
+  centerLabel: string;
+  centerSub: string;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const center = size / 2;
+
+  let cumulativePercent = 0;
+
+  return (
+    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+      <Svg width={size} height={size}>
+        {/* Background circle */}
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke="#f0f0f0"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <G rotation="-90" origin={`${center}, ${center}`}>
+          {data.map((segment, i) => {
+            const segmentLength = (segment.percentage / 100) * circumference;
+            const offset = circumference - segmentLength;
+            const rotation = (cumulativePercent / 100) * 360;
+            cumulativePercent += segment.percentage;
+            return (
+              <Circle
+                key={i}
+                cx={center}
+                cy={center}
+                r={radius}
+                stroke={segment.color}
+                strokeWidth={strokeWidth}
+                fill="none"
+                strokeDasharray={`${segmentLength} ${offset}`}
+                strokeLinecap="round"
+                rotation={rotation}
+                origin={`${center}, ${center}`}
+              />
+            );
+          })}
+        </G>
+      </Svg>
+      <View style={styles.donutCenter}>
+        <Text style={styles.donutCenterLabel}>{centerLabel}</Text>
+        <Text style={styles.donutCenterSub}>{centerSub}</Text>
+      </View>
+    </View>
+  );
+}
+
+// ---------- Main Screen ----------
 export default function HomeScreen() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(15);
   const currentMonth = "December 2024";
 
   const dailyWins: DailyWin[] = [
-    { id: "1", emoji: "😊", title: "Gratitude" },
-    { id: "2", emoji: "💗", title: "Morning ex..." },
-    { id: "3", emoji: "📚", title: "Read book" },
+    { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
+    { id: "2", emoji: "🧘", title: "Morning ex...", bgColor: "#F3E5F5" },
+    { id: "3", emoji: "📚", title: "Read book", bgColor: "#E3F2FD" },
   ];
 
   const winCategories: WinCategory[] = [
-    { name: "Mental", percentage: 35, color: "bg-blue-400", emoji: "🧠" },
-    { name: "Physical", percentage: 40, color: "bg-green-400", emoji: "💪" },
-    { name: "Spiritual", percentage: 25, color: "bg-orange-400", emoji: "✨" },
+    { name: "Mental", percentage: 35, color: "#FF8A80" },
+    { name: "Physical", percentage: 25, color: "#82B1FF" },
+    { name: "Spiritual", percentage: 20, color: "#B9F6CA" },
+    { name: "Goal Path", percentage: 20, color: "#FFE0B2" },
   ];
 
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
-  const totalWins = 24;
+  // December 2024 starts on Sunday → offset = 0
+  const firstDayOffset = 0;
+  const totalDays = 31;
+  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
+
+  // Dates that have photo-circle markers
+  const photoDates = [5, 8, 12, 20];
+
+  const milestones = [
+    { done: true, color: "#81C784" },
+    { done: true, color: "#64B5F6" },
+    { done: true, color: "#FF8A65" },
+    { done: false, isStar: true, color: "#E0E0E0" },
+    { done: false, isEnd: true, color: "#E0E0E0" },
+  ];
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      {/* Enhanced Greeting Header */}
-      <View className="px-6 pt-8 pb-6">
-        <View className="bg-gradient-to-b from-blue-50 via-blue-50 to-green-50 rounded-3xl p-8 items-center border border-blue-100">
-          <View className="flex-row items-center gap-2 mb-2">
-            <Text className="text-3xl">👋</Text>
-            <Text className="text-3xl font-bold text-gray-800">Hello</Text>
-          </View>
-          <Text className="text-2xl font-bold text-blue-600 mb-1">Nice to Meet You!</Text>
-          <Text className="text-sm text-gray-600 mb-4">Today is a great day to grow</Text>
-          <View className="flex-row justify-center gap-6">
-            <Text className="text-5xl">🦕</Text>
-            <Text className="text-5xl">🦖</Text>
-          </View>
-          <View className="flex-row gap-4 mt-6 w-full">
-            <View className="flex-1 bg-white rounded-2xl py-3 px-4 items-center shadow-sm">
-              <Text className="text-2xl font-bold text-blue-600">24</Text>
-              <Text className="text-xs text-gray-600 font-medium">Wins</Text>
-            </View>
-            <View className="flex-1 bg-white rounded-2xl py-3 px-4 items-center shadow-sm">
-              <View className="flex-row items-center gap-1">
-                <Text className="text-lg">🔥</Text>
-                <Text className="text-2xl font-bold text-orange-500">7</Text>
-              </View>
-              <Text className="text-xs text-gray-600 font-medium">Day Streak</Text>
-            </View>
-          </View>
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      {/* ===== Scenic Header ===== */}
+      <View style={styles.headerBg}>
+        {/* Sky */}
+        <View style={styles.skyLayer} />
+        <View style={styles.cloudLayer} />
+        {/* Hills */}
+        <View style={styles.hillBack} />
+        <View style={styles.hillFront} />
+        {/* Trees */}
+        <View style={[styles.tree, { left: 40, bottom: 55 }]}>
+          <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
+          <View style={styles.treeTrunk} />
+        </View>
+        <View style={[styles.tree, { left: 80, bottom: 65 }]}>
+          <View style={[styles.treeTop, { backgroundColor: "#66BB6A", width: 28, height: 28, borderRadius: 14 }]} />
+          <View style={styles.treeTrunk} />
+        </View>
+        <View style={[styles.tree, { right: 70, bottom: 50 }]}>
+          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
+          <View style={styles.treeTrunk} />
+        </View>
+        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
+          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
+          <View style={styles.treeTrunk} />
+        </View>
+        {/* Header Text */}
+        <View style={styles.headerTextWrap}>
+          <Text style={styles.headerHello}>Hello,</Text>
+          <Text style={styles.headerSub}>Nice to Meet You</Text>
         </View>
       </View>
 
-      {/* Calendar */}
-      <View className="px-6 mb-6">
-        <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <View className="flex-row items-center justify-between mb-4">
+      {/* ===== Search Bar ===== */}
+      <View style={styles.searchWrapper}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#bbb" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search your moments..."
+            placeholderTextColor="#bbb"
+          />
+        </View>
+      </View>
+
+      {/* ===== Calendar ===== */}
+      <View style={styles.sectionPadding}>
+        <View style={styles.card}>
+          {/* Month nav */}
+          <View style={styles.calendarNav}>
             <TouchableOpacity>
-              <Ionicons name="chevron-back" size={24} color="#3b82f6" />
+              <Ionicons name="chevron-back" size={22} color="#555" />
             </TouchableOpacity>
-            <Text className="text-lg font-semibold text-gray-700">{currentMonth}</Text>
+            <Text style={styles.monthText}>{currentMonth}</Text>
             <TouchableOpacity>
-              <Ionicons name="chevron-forward" size={24} color="#3b82f6" />
+              <Ionicons name="chevron-forward" size={22} color="#555" />
             </TouchableOpacity>
           </View>
 
           {/* Day headers */}
-          <View className="flex-row justify-between mb-3">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <Text key={day} className="text-xs font-semibold text-gray-500 w-10 text-center">
-                {day}
-              </Text>
+          <View style={styles.dayHeaderRow}>
+            {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
+              <Text key={d} style={styles.dayHeader}>{d}</Text>
             ))}
           </View>
 
           {/* Calendar grid */}
-          <View className="flex-row flex-wrap justify-between">
-            {daysInMonth.map((day) => (
-              <TouchableOpacity
-                key={day}
-                onPress={() => setSelectedDate(day)}
-                className={`w-10 h-10 items-center justify-center rounded-lg mb-2 ${
-                  selectedDate === day
-                    ? "bg-blue-500"
-                    : "bg-white"
-                }`}
-              >
-                <Text
-                  className={`text-sm font-semibold ${
-                    selectedDate === day ? "text-white" : "text-gray-700"
-                  }`}
-                >
-                  {day}
-                </Text>
-              </TouchableOpacity>
+          <View style={styles.calGrid}>
+            {/* Offset empty cells */}
+            {Array.from({ length: firstDayOffset }).map((_, i) => (
+              <View key={`e${i}`} style={styles.calCell} />
             ))}
+            {daysInMonth.map((day) => {
+              const isSelected = selectedDate === day;
+              const hasPhoto = photoDates.includes(day);
+              return (
+                <TouchableOpacity
+                  key={day}
+                  style={styles.calCell}
+                  onPress={() => setSelectedDate(day)}
+                  activeOpacity={0.7}
+                >
+                  <View
+                    style={[
+                      styles.calDayCircle,
+                      isSelected && styles.calDaySelected,
+                      hasPhoto && !isSelected && styles.calDayPhoto,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.calDayText,
+                        isSelected && styles.calDayTextSelected,
+                      ]}
+                    >
+                      {day}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </View>
 
-      {/* Life Moments & Daily Wins Row */}
-      <View className="px-6 flex-row gap-4 mb-6">
+      {/* ===== Life Moments & Daily Wins ===== */}
+      <View style={styles.twoCardRow}>
         {/* Life Moments */}
-        <View className="flex-1 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-lg font-bold text-gray-800">Life</Text>
-            <TouchableOpacity className="p-1">
-              <Ionicons name="search" size={18} color="#9ca3af" />
-            </TouchableOpacity>
+        <View style={[styles.card, styles.halfCard]}>
+          <Text style={styles.cardTitle}>Life Moments</Text>
+          <Text style={styles.cardSubtitle}>RECENTLY</Text>
+          {/* Photo placeholder */}
+          <View style={styles.momentImageWrap}>
+            <View style={styles.momentImagePlaceholder}>
+              <Ionicons name="image-outline" size={40} color="#ccc" />
+            </View>
+            <View style={styles.momentCaptionWrap}>
+              <Ionicons name="camera-outline" size={12} color="#fff" />
+              <Text style={styles.momentCaption}>Morning light</Text>
+            </View>
           </View>
-          <Text className="text-lg font-bold text-gray-800">Moments</Text>
-          <Text className="text-xs text-gray-500 mt-3 leading-relaxed">
-            Capture small moments of joy
-          </Text>
+          <View style={styles.momentFooter}>
+            <View style={styles.momentThumbs}>
+              <View style={styles.thumbCircle} />
+              <View style={[styles.thumbCircle, { marginLeft: -8 }]} />
+              <View style={[styles.thumbCircle, { marginLeft: -8 }]} />
+            </View>
+            <Text style={styles.moreText}>+12 more</Text>
+          </View>
         </View>
 
         {/* Daily Wins */}
-        <View className="flex-1 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <Text className="text-lg font-bold text-gray-800 mb-4">Daily Wins</Text>
+        <View style={[styles.card, styles.halfCard]}>
+          <Text style={styles.cardTitle}>Daily Wins</Text>
+          <Text style={styles.cardSubtitle}>TODAY</Text>
           {dailyWins.map((win) => (
-            <View key={win.id} className="flex-row items-center gap-3 mb-3">
-              <Text className="text-2xl">{win.emoji}</Text>
-              <Text className="text-sm font-medium text-gray-700">{win.title}</Text>
+            <View
+              key={win.id}
+              style={[styles.winChip, { backgroundColor: win.bgColor }]}
+            >
+              <Text style={styles.winChipEmoji}>{win.emoji}</Text>
+              <Text style={styles.winChipText}>{win.title}</Text>
             </View>
           ))}
+          {/* Progress bar */}
+          <View style={styles.doneRow}>
+            <View style={styles.doneDot} />
+            <Text style={styles.doneText}>80% DONE</Text>
+            <View style={styles.doneBarBg}>
+              <View style={styles.doneBarFill} />
+            </View>
+          </View>
         </View>
       </View>
 
-      {/* Enhanced Win Tracker */}
-      <View className="px-6 mb-6">
-        <View className="bg-gradient-to-b from-slate-50 to-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <View className="flex-row items-center justify-between mb-6">
-            <Text className="text-lg font-bold text-gray-800">Win Tracker</Text>
-            <View className="bg-blue-100 rounded-full px-3 py-1">
-              <Text className="text-xs font-semibold text-blue-600">{totalWins} Total</Text>
-            </View>
+      {/* ===== Win Tracker ===== */}
+      <View style={styles.sectionPadding}>
+        <View style={styles.card}>
+          <View style={styles.trackerHeader}>
+            <Text style={styles.sectionTitle}>Win Tracker</Text>
+            <Text style={styles.monthlyLabel}>Monthly</Text>
           </View>
-
-          <View className="flex-row items-center justify-between mb-6">
-            {/* Donut Chart */}
-            <View className="w-32 h-32 relative items-center justify-center">
-              <View className="w-28 h-28 rounded-full bg-gradient-to-r from-blue-400 via-green-400 to-orange-400 items-center justify-center"
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 8,
-                }}
-              >
-                <View className="w-20 h-20 rounded-full bg-white items-center justify-center">
-                  <View className="items-center">
-                    <Text className="text-2xl font-bold text-gray-800">{totalWins}</Text>
-                    <Text className="text-xs text-gray-600 font-medium">wins</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {/* Stats */}
-            <View className="flex-1 ml-6 gap-3">
-              {winCategories.map((category) => (
-                <View key={category.name}>
-                  <View className="flex-row items-center justify-between mb-1">
-                    <View className="flex-row items-center gap-2 flex-1">
-                      <Text className="text-lg">{category.emoji}</Text>
-                      <Text className="text-sm font-semibold text-gray-700">{category.name}</Text>
-                    </View>
-                    <Text className="text-sm font-bold text-gray-800">{category.percentage}%</Text>
-                  </View>
-                  <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <View
-                      className={`h-full ${category.color}`}
-                      style={{ width: `${category.percentage}%` }}
-                    />
-                  </View>
+          <View style={styles.trackerBody}>
+            <DonutChart
+              data={winCategories.map((c) => ({
+                percentage: c.percentage,
+                color: c.color,
+              }))}
+              centerLabel="82%"
+              centerSub="TOTAL"
+            />
+            <View style={styles.legendList}>
+              {winCategories.map((cat) => (
+                <View key={cat.name} style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: cat.color }]} />
+                  <Text style={styles.legendName}>{cat.name}</Text>
+                  <Text style={styles.legendPct}>{cat.percentage}%</Text>
                 </View>
               ))}
             </View>
@@ -197,66 +310,494 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Enhanced Goal Path */}
-      <View className="px-6 mb-20">
-        <View className="bg-gradient-to-b from-slate-50 to-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <View className="flex-row items-center justify-between mb-8">
-            <Text className="text-lg font-bold text-gray-800">Goal Path</Text>
-            <View className="bg-green-100 rounded-full px-3 py-1">
-              <Text className="text-xs font-semibold text-green-600">3/5 Complete</Text>
+      {/* ===== Goal Path ===== */}
+      <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
+        <View style={styles.card}>
+          <View style={styles.goalHeader}>
+            <View>
+              <Text style={styles.goalTitle}>Goal Path</Text>
+              <Text style={styles.cardSubtitle}>MILESTONES</Text>
+            </View>
+            <View style={styles.completeBadge}>
+              <Text style={styles.completeBadgeText}>3 / 5 Complete</Text>
             </View>
           </View>
 
-          {/* Progress Line */}
-          <View className="flex-row items-center justify-between relative mb-8">
-            {/* Connecting Line */}
-            <View className="absolute h-1 bg-gradient-to-r from-green-400 via-green-400 to-gray-200 top-6 left-6 right-6 -z-10" />
-
-            {/* Milestone Steps */}
-            {[0, 1, 2, 3, 4].map((index) => (
-              <View key={index} className="items-center">
+          {/* Milestones */}
+          <View style={styles.milestonesRow}>
+            {milestones.map((m, i) => (
+              <View key={i} style={styles.milestoneCol}>
+                {/* Connecting line to the right */}
+                {i < milestones.length - 1 && (
+                  <View
+                    style={[
+                      styles.milestoneLineRight,
+                      { backgroundColor: m.done ? m.color : "#e0e0e0" },
+                    ]}
+                  />
+                )}
                 <View
-                  className={`w-14 h-14 rounded-full items-center justify-center mb-3 border-4 ${
-                    index < 3
-                      ? "bg-green-400 border-green-400 shadow-md"
-                      : index === 3
-                        ? "bg-blue-100 border-blue-300"
-                        : "bg-gray-100 border-gray-200"
-                  }`}
-                  style={{
-                    shadowColor: index < 3 ? "#22c55e" : "transparent",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 4,
-                  }}
+                  style={[
+                    styles.milestoneCircle,
+                    {
+                      backgroundColor: m.done ? m.color : "#fff",
+                      borderColor: m.done ? m.color : "#ccc",
+                      borderStyle: m.isEnd ? "dashed" : "solid",
+                    },
+                  ]}
                 >
-                  {index < 3 ? (
-                    <Text className="text-2xl">✓</Text>
-                  ) : index === 3 ? (
-                    <Ionicons name="checkmark" size={24} color="#3b82f6" />
+                  {m.done ? (
+                    <Ionicons name="checkmark" size={20} color="#fff" />
+                  ) : m.isStar ? (
+                    <Ionicons name="star-outline" size={18} color="#bbb" />
                   ) : (
-                    <Text className="text-lg text-gray-400">→</Text>
+                    <View style={styles.endDot} />
                   )}
                 </View>
-                <Text className={`text-xs font-semibold text-center w-12 ${
-                  index < 3 ? "text-green-600" : index === 3 ? "text-blue-600" : "text-gray-500"
-                }`}>
-                  Week {index + 1}
-                </Text>
+                {m.isEnd && <Text style={styles.endLabel}>END</Text>}
               </View>
             ))}
-          </View>
-
-          {/* Progress Info */}
-          <View className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <View className="flex-row items-center gap-2 mb-2">
-              <Text className="text-lg">🎯</Text>
-              <Text className="text-sm font-semibold text-blue-900">Keep Up the Momentum!</Text>
-            </View>
-            <Text className="text-xs text-blue-700">You're on track! Just 2 more weeks to complete your goal.</Text>
           </View>
         </View>
       </View>
     </ScrollView>
   );
 }
+
+// ---------- Styles ----------
+const { width: SCREEN_W } = Dimensions.get("window");
+
+const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#f7f7f7",
+  },
+
+  /* ---- Header ---- */
+  headerBg: {
+    width: "100%",
+    height: 220,
+    backgroundColor: "#dce9f5",
+    overflow: "hidden",
+    position: "relative",
+  },
+  skyLayer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#e8eef6",
+  },
+  cloudLayer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 180,
+    height: 100,
+    backgroundColor: "#f3d4d0",
+    borderBottomLeftRadius: 100,
+    opacity: 0.5,
+  },
+  hillBack: {
+    position: "absolute",
+    bottom: 0,
+    left: -30,
+    width: SCREEN_W + 60,
+    height: 100,
+    backgroundColor: "#c5ddb8",
+    borderTopLeftRadius: 200,
+    borderTopRightRadius: 200,
+  },
+  hillFront: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    width: SCREEN_W,
+    height: 60,
+    backgroundColor: "#d4c9a8",
+    borderTopLeftRadius: 300,
+    borderTopRightRadius: 100,
+  },
+  tree: {
+    position: "absolute",
+    alignItems: "center",
+  },
+  treeTop: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+  },
+  treeTrunk: {
+    width: 4,
+    height: 14,
+    backgroundColor: "#8D6E63",
+    borderRadius: 2,
+  },
+  headerTextWrap: {
+    position: "absolute",
+    top: 60,
+    width: "100%",
+    alignItems: "center",
+  },
+  headerHello: {
+    fontSize: 32,
+    fontWeight: "300",
+    color: "#333",
+  },
+  headerSub: {
+    fontSize: 20,
+    fontWeight: "300",
+    color: "#666",
+    marginTop: 2,
+  },
+
+  /* ---- Search ---- */
+  searchWrapper: {
+    paddingHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: "#333",
+  },
+
+  /* ---- Shared ---- */
+  sectionPadding: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#222",
+  },
+  cardSubtitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#aaa",
+    letterSpacing: 1,
+    marginTop: 2,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#222",
+  },
+
+  /* ---- Calendar ---- */
+  calendarNav: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  monthText: {
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#333",
+  },
+  dayHeaderRow: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  dayHeader: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#aaa",
+    letterSpacing: 0.5,
+  },
+  calGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  calCell: {
+    width: `${100 / 7}%` as any,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 6,
+  },
+  calDayCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  calDaySelected: {
+    backgroundColor: "#64B5F6",
+  },
+  calDayPhoto: {
+    backgroundColor: "#e8e8e8",
+  },
+  calDayText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#444",
+  },
+  calDayTextSelected: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+
+  /* ---- Two-card row ---- */
+  twoCardRow: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    gap: 12,
+    marginBottom: 16,
+  },
+  halfCard: {
+    flex: 1,
+  },
+
+  /* ---- Life Moments ---- */
+  momentImageWrap: {
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 12,
+    position: "relative",
+  },
+  momentImagePlaceholder: {
+    width: "100%",
+    height: 130,
+    backgroundColor: "#f0ece4",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  momentCaptionWrap: {
+    position: "absolute",
+    bottom: 8,
+    left: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  momentCaption: {
+    fontSize: 11,
+    color: "#fff",
+    fontWeight: "600",
+  },
+  momentFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  momentThumbs: {
+    flexDirection: "row",
+  },
+  thumbCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "#ddd",
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  moreText: {
+    fontSize: 11,
+    color: "#999",
+  },
+
+  /* ---- Daily Wins ---- */
+  winChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+    gap: 8,
+  },
+  winChipEmoji: {
+    fontSize: 20,
+  },
+  winChipText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#444",
+  },
+  doneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+    gap: 6,
+  },
+  doneDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#66BB6A",
+  },
+  doneText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#666",
+  },
+  doneBarBg: {
+    flex: 1,
+    height: 6,
+    backgroundColor: "#e5e7eb",
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  doneBarFill: {
+    width: "80%" as any,
+    height: "100%",
+    backgroundColor: "#66BB6A",
+    borderRadius: 3,
+  },
+
+  /* ---- Win Tracker ---- */
+  trackerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  monthlyLabel: {
+    fontSize: 14,
+    color: "#aaa",
+  },
+  trackerBody: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  donutCenter: {
+    position: "absolute",
+    alignItems: "center",
+  },
+  donutCenterLabel: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#333",
+  },
+  donutCenterSub: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#aaa",
+    letterSpacing: 1,
+  },
+  legendList: {
+    flex: 1,
+    marginLeft: 20,
+    gap: 12,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendName: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#555",
+  },
+  legendPct: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#555",
+  },
+
+  /* ---- Goal Path ---- */
+  goalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 24,
+  },
+  goalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#64B5F6",
+  },
+  completeBadge: {
+    borderWidth: 1,
+    borderColor: "#c8e6c9",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  completeBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#66BB6A",
+  },
+  milestonesRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    paddingBottom: 8,
+  },
+  milestoneCol: {
+    alignItems: "center",
+    position: "relative",
+  },
+  milestoneCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  milestoneLineRight: {
+    position: "absolute",
+    top: 22,
+    left: 46,
+    width: 30,
+    height: 3,
+    borderRadius: 2,
+    zIndex: -1,
+  },
+  endDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#ccc",
+  },
+  endLabel: {
+    marginTop: 6,
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#bbb",
+    letterSpacing: 1,
+  },
+});
