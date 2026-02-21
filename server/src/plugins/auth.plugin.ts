@@ -1,6 +1,7 @@
 import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
-import { auth } from '../config/firebase';
+import { verifyToken } from '../shared/utils/jwt';
+
 
 /**
  * User interface for authenticated requests
@@ -9,7 +10,7 @@ export interface AuthenticatedRequest extends FastifyRequest {
   user?: {
     uid: string;
     email?: string;
-    emailVerified?: boolean;
+    
   };
 }
 
@@ -29,14 +30,14 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
       }
 
       const token = authHeader.replace('Bearer ', '');
-
-      const decodedToken = await auth.verifyIdToken(token);
+      const decoded = verifyToken(token);
 
       (request as AuthenticatedRequest).user = {
-        uid: decodedToken.uid,
-        email: decodedToken.email,
-        emailVerified: decodedToken.email_verified,
+        uid: decoded.userId,
+        email: decoded.email,
       };
+
+      
     } catch (error) {
       fastify.log.error(error, 'Authentication failed');
       return reply.status(401).send({
