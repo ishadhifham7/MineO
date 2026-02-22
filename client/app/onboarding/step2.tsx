@@ -1,18 +1,60 @@
-import { View, Text, Pressable } from "react-native";
-import { useRouter } from "expo-router";
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 
-export default function OnboardingStep2() {
+export default function Step2() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-2xl font-bold">Onboarding — Step 2</Text>
-      <Pressable
-        className="mt-6 px-4 py-2 bg-green-500 rounded"
-        onPress={() => router.push("/onboarding/step3")}
-      >
-        <Text className="text-white">Next</Text>
-      </Pressable>
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.headerText}>Understanding Patterns</Text>
+        <Text style={styles.subHeaderText}>Awareness builds clarity</Text>
+        
+        {/* Diagram Placeholder */}
+        <View style={styles.diagramContainer}>
+           <Text style={styles.diagramText}>Trigger → Response → Relief</Text>
+           <View style={styles.loopArrow} />
+           <Text style={styles.caption}>Automatic pattern</Text>
+        </View>
+
+        <Text style={styles.description}>
+          Your mind operates through habit loops. Stress triggers automatic responses. By observing these patterns without judgment, you create space for intentional change.
+        </Text>
+      </View>
+
+      <View style={styles.footer}>
+        <View style={styles.progressContainer}>
+          <View style={[styles.progressBar, styles.activeBar]} />
+          <View style={[styles.progressBar, styles.activeBar]} />
+          <View style={styles.progressBar} />
+          <View style={styles.progressBar} />
+        </View>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/onboarding/step3')}>
+          <Text style={styles.buttonText}>Continue →</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+// Combined shared onboarding styles + step2-specific styles
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F5F5E6', padding: 30 },
+  content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  logo: { fontSize: 42, fontWeight: '300', marginBottom: 40, fontFamily: 'serif' },
+  title: { fontSize: 22, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
+  description: { fontSize: 16, textAlign: 'center', color: '#444', lineHeight: 24 },
+  footer: { marginBottom: 40 },
+  progressContainer: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+  progressBar: { height: 2, flex: 1, backgroundColor: '#D1D1C4' },
+  activeBar: { backgroundColor: '#000' },
+  button: { backgroundColor: '#000', padding: 18, borderRadius: 4, alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '500' },
+
+  headerText: { fontSize: 24, fontWeight: 'bold', alignSelf: 'flex-start' },
+  subHeaderText: { fontSize: 16, color: '#666', alignSelf: 'flex-start', marginBottom: 30 },
+  diagramContainer: { width: '100%', padding: 20, backgroundColor: '#E8E8D9', borderRadius: 8, marginVertical: 30, alignItems: 'center' },
+  diagramText: { fontSize: 14, fontWeight: '500' },
+  caption: { fontSize: 12, marginTop: 10, color: '#888' },
+  loopArrow: { width: 60, height: 4, backgroundColor: '#333', borderRadius: 2, marginTop: 8 }
+});
