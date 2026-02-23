@@ -4,8 +4,8 @@ import { Platform } from "react-native";
 
 // Backend URL configuration
 // For Android emulator: use 10.0.2.2
-// For physical device: use your computer's IP address (e.g., 192.168.1.103)
-const BACKEND_IP = "192.168.1.103"; // Your computer's IP
+// For physical device: use your computer's IP address (e.g., 192.168.68.65)
+const BACKEND_IP = "192.168.68.65"; // Your computer's IP
 const BACKEND_PORT = "3001";
 
 // Base URL for API (without specific module path)
