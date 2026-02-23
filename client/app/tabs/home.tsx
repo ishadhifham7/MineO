@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import Svg, { Circle, G } from "react-native-svg";
+import { CalendarContainer } from "../../src/features/calendar";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -93,8 +94,6 @@ function DonutChart({
 // ---------- Main Screen ----------
 export default function HomeScreen() {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState(15);
-  const currentMonth = "December 2024";
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -108,14 +107,6 @@ export default function HomeScreen() {
     { name: "Spiritual", percentage: 20, color: "#B9F6CA" },
     { name: "Goal Path", percentage: 20, color: "#FFE0B2" },
   ];
-
-  // December 2024 starts on Sunday → offset = 0
-  const firstDayOffset = 0;
-  const totalDays = 31;
-  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
-
-  // Dates that have photo-circle markers
-  const photoDates = [5, 8, 12, 20];
 
   const milestones = [
     { done: true, color: "#81C784" },
@@ -173,62 +164,7 @@ export default function HomeScreen() {
 
       {/* ===== Calendar ===== */}
       <View style={styles.sectionPadding}>
-        <View style={styles.card}>
-          {/* Month nav */}
-          <View style={styles.calendarNav}>
-            <TouchableOpacity>
-              <Ionicons name="chevron-back" size={22} color="#555" />
-            </TouchableOpacity>
-            <Text style={styles.monthText}>{currentMonth}</Text>
-            <TouchableOpacity>
-              <Ionicons name="chevron-forward" size={22} color="#555" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Day headers */}
-          <View style={styles.dayHeaderRow}>
-            {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-              <Text key={d} style={styles.dayHeader}>{d}</Text>
-            ))}
-          </View>
-
-          {/* Calendar grid */}
-          <View style={styles.calGrid}>
-            {/* Offset empty cells */}
-            {Array.from({ length: firstDayOffset }).map((_, i) => (
-              <View key={`e${i}`} style={styles.calCell} />
-            ))}
-            {daysInMonth.map((day) => {
-              const isSelected = selectedDate === day;
-              const hasPhoto = photoDates.includes(day);
-              return (
-                <TouchableOpacity
-                  key={day}
-                  style={styles.calCell}
-                  onPress={() => setSelectedDate(day)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      styles.calDayCircle,
-                      isSelected && styles.calDaySelected,
-                      hasPhoto && !isSelected && styles.calDayPhoto,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.calDayText,
-                        isSelected && styles.calDayTextSelected,
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
+        <CalendarContainer />
       </View>
 
       {/* ===== Life Moments & Daily Wins ===== */}
