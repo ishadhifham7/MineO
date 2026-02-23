@@ -9,6 +9,7 @@
 
 export { CalendarContainer } from "./CalendarContainer";
 export { CalendarView } from "./CalendarView";
+export { MomentPreviewSheet } from "./MomentPreviewSheet";
 export { useCalendarData } from "./useCalendarData";
 export * from "./types";
 export * from "./calendar.api";
