@@ -101,4 +101,14 @@ export class JournalService {
       blocks: blocksSnap.docs.map((d) => d.data()),
     };
   }
+
+  // 🔹 get journals by date range (for calendar)
+  static async getJournalsByDateRange(startDate: string, endDate: string) {
+    const snap = await JournalRepository.entries()
+      .where('date', '>=', startDate)
+      .where('date', '<=', endDate)
+      .get();
+
+    return snap.docs.map((doc) => doc.data() as JournalEntry);
+  }
 }

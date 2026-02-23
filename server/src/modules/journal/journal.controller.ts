@@ -69,4 +69,14 @@ export class JournalController {
     const data = await JournalService.getFullJournal(entryId);
     reply.send(data);
   }
+
+  // 🔹 GET journals by date range (for calendar)
+  static async getJournalsByRange(
+    request: FastifyRequest<{ Querystring: { startDate: string; endDate: string } }>,
+    reply: FastifyReply
+  ) {
+    const { startDate, endDate } = request.query;
+    const journals = await JournalService.getJournalsByDateRange(startDate, endDate);
+    reply.send(journals);
+  }
 }
