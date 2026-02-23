@@ -1,9 +1,11 @@
 // src/features/calendar/CalendarContainer.tsx
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { CalendarView } from "./CalendarView";
+import { MomentPreviewSheet } from "./MomentPreviewSheet";
 import { useCalendarData } from "./useCalendarData";
-import type { CalendarState } from "./types";
+import type { CalendarState, JournalEntry } from "./types";
 import { colors } from "../../constants/colors";
 
 /**
@@ -19,6 +21,10 @@ export const CalendarContainer: React.FC = () => {
     selectedDate: null,
   });
 
+  // State for moment preview
+  const [selectedJournal, setSelectedJournal] = useState<JournalEntry | null>(null);
+  const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false);
+
   // Fetch journal data for current month
   const { journals, markedDates, loading, error } = useCalendarData(
     calendarState.currentYear,
@@ -27,8 +33,9 @@ export const CalendarContainer: React.FC = () => {
 
   /**
    * Handle date press event
-   * For now: log selected journal to console
-   * Future: can trigger popup/bottom sheet
+   * Detects if selected date has a journal entry
+   * If yes: opens preview sheet
+   * If no: does nothing
    */
   const handleDayPress = useCallback(
     (day: { dateString: string }) => {
@@ -38,10 +45,12 @@ export const CalendarContainer: React.FC = () => {
       }));
 
       // Find journal for selected date
-      const selectedJournal = journals.find((j) => j.date === day.dateString);
+      const journal = journals.find((j) => j.date === day.dateString);
 
-      if (selectedJournal) {
-        console.log("📅 Selected Journal:", selectedJournal);
+      if (journal) {
+        console.log("📅 Journal found for:", day.dateString);
+        setSelectedJournal(journal);
+        setIsPreviewVisible(true);
       } else {
         console.log("📅 No journal entry for:", day.dateString);
       }
@@ -62,23 +71,51 @@ export const CalendarContainer: React.FC = () => {
     });
   }, []);
 
+  /**
+   * Handle preview sheet close
+   */
+  const handlePreviewClose = useCallback(() => {
+    setIsPreviewVisible(false);
+    setSelectedJournal(null);
+  }, []);
+
+  /**
+   * Handle "View Full Moment" button press
+   * For now: logs to console
+   * Future: will emit navigation event
+   */
+  const handleViewFull = useCallback((journalId: string) => {
+    console.log("🚀 Navigate to journal:", journalId);
+    // TODO: Emit event or call navigation callback
+    // This will be implemented in the next layer
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       {error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Failed to load calendar data</Text>
           <Text style={styles.errorDetail}>{error.message}</Text>
         </View>
       ) : (
-        <CalendarView
-          markedDates={markedDates}
-          selectedDate={calendarState.selectedDate}
-          onDayPress={handleDayPress}
-          onMonthChange={handleMonthChange}
-          loading={loading}
-        />
+        <>
+          <CalendarView
+            markedDates={markedDates}
+            selectedDate={calendarState.selectedDate}
+            onDayPress={handleDayPress}
+            onMonthChange={handleMonthChange}
+            loading={loading}
+          />
+
+          <MomentPreviewSheet
+            visible={isPreviewVisible}
+            journal={selectedJournal}
+            onClose={handlePreviewClose}
+            onViewFull={handleViewFull}
+          />
+        </>
       )}
-    </View>
+    </GestureHandlerRootView>
   );
 };
 
