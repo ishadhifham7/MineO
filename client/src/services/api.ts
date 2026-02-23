@@ -2,18 +2,14 @@
 import axios from "axios";
 import { env } from "../../constants/env";
 
-// Backend URL configuration
-// For Android emulator: use 10.0.2.2
-// For physical device: use your computer's IP address (e.g., 192.168.1.103)
-const BACKEND_IP = "192.168.1.103"; // Your computer's IP
-const BACKEND_PORT = "3001";
-
-// Base URL for API (without specific module path)
-export const API_BASE_URL = `http://${BACKEND_IP}:${BACKEND_PORT}`;
+/**
+ * Journal API Client
+ * Uses auto-detected backend URL - works on any network!
+ */
 
 // Base URL for journal API
 const getBaseURL = () => {
-  return `${API_BASE_URL}/api/v1/journal`;
+  return `${env.API_BASE_URL}/journal`;
 };
 
 export const api = axios.create({
@@ -23,6 +19,8 @@ export const api = axios.create({
   },
   timeout: 10000,
 });
+
+console.log("🔧 Journal API initialized with:", getBaseURL());
 
 // Request interceptor for debugging
 api.interceptors.request.use(

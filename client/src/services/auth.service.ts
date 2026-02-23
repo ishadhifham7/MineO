@@ -23,16 +23,15 @@ export const signupUser = async (data: {
   password: string;
   dob: string;
 }) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+  const response = await fetch(`${env.API_BASE_URL}/auth/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
 
-    });
-
-    const result = await response.json();
+  const result = await response.json();
 
   if (!response.ok) {
     throw new Error(result.message || "Signup failed");
@@ -43,29 +42,27 @@ export const signupUser = async (data: {
 
 // ======================= user login =============================
 export const loginUser = async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-    });
+  const response = await fetch(`${env.API_BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
 
-    const result = await response.json();
+  const result = await response.json();
 
-    if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-    }
+  if (!response.ok) {
+    throw new Error(result.message || "Login failed");
+  }
 
-    // save JWT token locally
-    if (result.token) {
+  // save JWT token locally
+  if (result.token) {
     await saveToken(result.token);
-    }
+  }
 
-    return result;
+  return result;
 };
-
-
 
 // User logout & remove stored token
 
