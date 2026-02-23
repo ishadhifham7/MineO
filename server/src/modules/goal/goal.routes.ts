@@ -6,14 +6,15 @@ import {
   getGoalsController,
   getGoalByIdController,
   deleteGoalController,
+  toggleGoalStageController,
 } from './goal.controller';
 import {
   generateGoalSchema,
   getUserGoalsSchema,
   getGoalByIdSchema,
   deleteGoalSchema,
+  toggleStageCompletionSchema,
 } from './goal.schema';
-import { completeGoalStageController } from './goal.controller';
 
 const goalRoutes: FastifyPluginAsync = async (fastify) => {
   // Generate a new goal
@@ -34,8 +35,13 @@ const goalRoutes: FastifyPluginAsync = async (fastify) => {
     handler: getGoalByIdController,
   });
 
-  // Complete a goal stage
+  // Toggle stage completion status
+  fastify.patch('/:goalId/stages/:stageId', {
+    schema: toggleStageCompletionSchema,
+    handler: toggleGoalStageController,
+  });
 
+  // Delete a goal
   fastify.delete('/:goalId', {
     schema: deleteGoalSchema,
     handler: deleteGoalController,

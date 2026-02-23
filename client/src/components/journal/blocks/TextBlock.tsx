@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, TextStyle, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -7,7 +7,6 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
-
 
 const MIN_WIDTH = 80;
 const MIN_HEIGHT = 40;
@@ -20,8 +19,17 @@ type TextBlockProps = {
   y: number;
   width: number;
   height: number;
-  rotation: number; // already present
+  rotation: number;
   isSelected: boolean;
+  zIndex: number;
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  textColor: string;
+  textAlign: "left" | "center" | "right";
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
   onSelect: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
   onTextChange: (id: string, text: string) => void;
@@ -30,9 +38,10 @@ type TextBlockProps = {
     width: number,
     height: number,
     x: number,
-    y: number
+    y: number,
   ) => void;
   onRotate: (id: string, rotation: number) => void; // already present
+  onLongPress: (id: string, x: number, y: number) => void;
 };
 
 export function TextBlock({
@@ -43,12 +52,22 @@ export function TextBlock({
   width,
   height,
   rotation,
+  fontSize,
+  lineHeight,
+  letterSpacing,
   isSelected,
+  zIndex,
+  isBold,
+  isItalic,
+  isUnderline,
+  textColor,
+  textAlign,
   onSelect,
   onMove,
   onTextChange,
   onResize,
   onRotate,
+  onLongPress,
 }: TextBlockProps) {
   const posX = useSharedValue(x);
   const posY = useSharedValue(y);
@@ -68,6 +87,14 @@ export function TextBlock({
   const [isEditing, setIsEditing] = useState(false);
   const [localText, setLocalText] = useState(text);
   const inputRef = useRef<TextInput>(null);
+
+  /*const textStyle = {
+    fontSize: style.fontSize,
+    fontWeight: style.fontWeight,
+    fontStyle: style.fontStyle,
+    color: style.color,
+    textAlign: style.textAlign,
+  };*/
 
   /* ---- sync from parent ---- */
   useEffect(() => {
@@ -91,12 +118,14 @@ export function TextBlock({
     top: posY.value,
     width: blockWidth.value,
     height: blockHeight.value,
+    zIndex: zIndex,
     transform: [{ rotate: `${rotate.value}deg` }], // ✅ NEW
   }));
 
-  /* ---- move (UNCHANGED) ---- */
+  /* ---- move ---- */
   const panGesture = Gesture.Pan()
     .enabled(!isEditing && !isResizing.value)
+    .minDistance(10)
     .onBegin(() => runOnJS(onSelect)(id))
     .onUpdate((e) => {
       posX.value = x + e.translationX;
@@ -106,13 +135,26 @@ export function TextBlock({
       runOnJS(onMove)(id, posX.value, posY.value);
     });
 
-  /* ---- edit (UNCHANGED) ---- */
+  /* ---- edit ---- */
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
     .onEnd(() => {
       runOnJS(onSelect)(id);
       runOnJS(setIsEditing)(true);
     });
+
+  /* ---- long press for context menu ---- */
+  const longPressGesture = Gesture.LongPress()
+    .minDuration(250)
+    .maxDistance(10)
+    .enabled(!isEditing && !isResizing.value)
+    .onStart((e) => {
+      runOnJS(onSelect)(id);
+      runOnJS(onLongPress)(id, e.absoluteX, e.absoluteY);
+    });
+
+  // Pan should wait for long press to fail
+  panGesture.requireExternalGestureToFail(longPressGesture);
 
   /* ---- resize helpers (UNCHANGED) ---- */
   const startResize = () => {
@@ -131,7 +173,7 @@ export function TextBlock({
       blockWidth.value,
       blockHeight.value,
       posX.value,
-      posY.value
+      posY.value,
     );
   };
 
@@ -142,7 +184,7 @@ export function TextBlock({
       blockWidth.value = Math.max(MIN_WIDTH, startWidth.value + e.translationX);
       blockHeight.value = Math.max(
         MIN_HEIGHT,
-        startHeight.value + e.translationY
+        startHeight.value + e.translationY,
       );
     })
     .onEnd(finishResize);
@@ -150,16 +192,13 @@ export function TextBlock({
   const resizeBL = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
-      const newWidth = Math.max(
-        MIN_WIDTH,
-        startWidth.value - e.translationX
-      );
+      const newWidth = Math.max(MIN_WIDTH, startWidth.value - e.translationX);
       const diff = startWidth.value - newWidth;
       blockWidth.value = newWidth;
       posX.value = startPosX.value + diff;
       blockHeight.value = Math.max(
         MIN_HEIGHT,
-        startHeight.value + e.translationY
+        startHeight.value + e.translationY,
       );
     })
     .onEnd(finishResize);
@@ -169,28 +208,22 @@ export function TextBlock({
     .onUpdate((e) => {
       const newHeight = Math.max(
         MIN_HEIGHT,
-        startHeight.value - e.translationY
+        startHeight.value - e.translationY,
       );
       const diff = startHeight.value - newHeight;
       blockHeight.value = newHeight;
       posY.value = startPosY.value + diff;
-      blockWidth.value = Math.max(
-        MIN_WIDTH,
-        startWidth.value + e.translationX
-      );
+      blockWidth.value = Math.max(MIN_WIDTH, startWidth.value + e.translationX);
     })
     .onEnd(finishResize);
 
   const resizeTL = Gesture.Pan()
     .onBegin(startResize)
     .onUpdate((e) => {
-      const newWidth = Math.max(
-        MIN_WIDTH,
-        startWidth.value - e.translationX
-      );
+      const newWidth = Math.max(MIN_WIDTH, startWidth.value - e.translationX);
       const newHeight = Math.max(
         MIN_HEIGHT,
-        startHeight.value - e.translationY
+        startHeight.value - e.translationY,
       );
       const wDiff = startWidth.value - newWidth;
       const hDiff = startHeight.value - newHeight;
@@ -214,11 +247,26 @@ export function TextBlock({
       runOnJS(onRotate)(id, rotate.value);
     });
 
-  const composedGesture = Gesture.Race(doubleTapGesture, panGesture);
+  const composedGesture = Gesture.Race(
+    doubleTapGesture,
+    longPressGesture,
+    panGesture,
+  );
 
   const finishEditing = () => {
     setIsEditing(false);
     if (localText !== text) onTextChange(id, localText);
+  };
+
+  const computedTextStyle: TextStyle = {
+    fontSize,
+    lineHeight,
+    letterSpacing,
+    fontWeight: isBold ? "bold" : "normal",
+    fontStyle: isItalic ? "italic" : "normal",
+    textDecorationLine: isUnderline ? "underline" : "none",
+    color: textColor,
+    textAlign,
   };
 
   return (
@@ -233,10 +281,10 @@ export function TextBlock({
             onChangeText={setLocalText}
             onBlur={finishEditing}
             multiline
-            style={styles.input}
+            style={[styles.input, computedTextStyle]}
           />
         ) : (
-          <Text style={styles.text}>{text}</Text>
+          <Text style={[styles.text, computedTextStyle]}>{text}</Text>
         )}
 
         {isSelected && (
@@ -257,10 +305,10 @@ export function TextBlock({
 
             {/* rotation handle (NEW) */}
             <GestureDetector gesture={rotateGesture}>
-  <View style={styles.rotateHandle}>
-    <MaterialIcons name="sync" size={18} color="#4A90E2" />
-  </View>
-</GestureDetector>
+              <View style={styles.rotateHandle}>
+                <MaterialIcons name="sync" size={18} color="#4A90E2" />
+              </View>
+            </GestureDetector>
           </>
         )}
       </Animated.View>
@@ -272,7 +320,7 @@ const styles = StyleSheet.create({
   block: {
     position: "absolute",
     padding: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     borderRadius: 8,
   },
   selected: {
@@ -281,13 +329,11 @@ const styles = StyleSheet.create({
     borderColor: "#4A90E2",
   },
   text: {
-    fontSize: 16,
     color: "#111",
   },
   input: {
-    fontSize: 16,
     padding: 0,
-    color: "#111",
+    color: "#221010",
   },
   handle: {
     position: "absolute",
