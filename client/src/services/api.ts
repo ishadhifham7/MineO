@@ -1,21 +1,15 @@
 // src/services/api.ts
 import axios from "axios";
-import { Platform } from "react-native";
+import { env } from "../../constants/env";
 
 // Backend URL configuration
-// Priority: runtime env override -> platform default (android emulator -> 10.0.2.2, others -> localhost)
-// For a physical device set the BACKEND_IP env variable to your machine LAN IP (e.g., 192.168.1.103)
+// For Android emulator: use 10.0.2.2
+// For physical device: use your computer's IP address (e.g., 192.168.1.103)
+const BACKEND_IP = "192.168.1.103"; // Your computer's IP
 const BACKEND_PORT = "3001";
-const DEFAULT_DEV_IP = Platform.OS === "android" ? "10.0.2.2" : "localhost";
-const BACKEND_IP = (typeof process !== "undefined" && process.env?.BACKEND_IP) ||
-  // allow a manual global override (useful when running via Expo start with REACT_NATIVE_PACKAGER_HOSTNAME)
-  (global as any).__BACKEND_IP__ ||
-  DEFAULT_DEV_IP;
 
 // Base URL for API (without specific module path)
-export const API_BASE_URL = (typeof process !== "undefined" && process.env?.API_BASE_URL)
-  ? process.env.API_BASE_URL
-  : `http://${BACKEND_IP}:${BACKEND_PORT}`;
+export const API_BASE_URL = `http://${BACKEND_IP}:${BACKEND_PORT}`;
 
 // Base URL for journal API
 const getBaseURL = () => {
