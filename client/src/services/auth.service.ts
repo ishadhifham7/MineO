@@ -10,13 +10,15 @@ export const signupUser = async (data: {
     dob: string;
 
 }) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
+    const url = `${API_BASE_URL}/api/v1/auth/signup`;
+    console.log("[auth] signup URL:", url);
+    try {
+    const response = await fetch(url, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-
     });
 
     const result = await response.json();
@@ -26,6 +28,10 @@ export const signupUser = async (data: {
   }
 
   return result;
+    } catch (err: any) {
+      console.error("[auth] signup error for URL:", url, err?.message || err);
+      throw err;
+    }
 };
 
 
@@ -33,26 +39,33 @@ export const signupUser = async (data: {
 // ======================= user login =============================
 
 export const loginUser = async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-    });
+  const url = `${API_BASE_URL}/api/v1/auth/login`;
+  console.log("[auth] login URL:", url);
+  try {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+    "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
 
-    const result = await response.json();
+  const result = await response.json();
 
-    if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-    }
+  if (!response.ok) {
+    throw new Error(result.message || "Login failed");
+  }
 
-    // save JWT token locally
-    if (result.token) {
-    await saveToken(result.token);
-    }
+  // save JWT token locally
+  if (result.token) {
+  await saveToken(result.token);
+  }
 
-    return result;
+  return result;
+  } catch (err: any) {
+    console.error("[auth] login error for URL:", url, err?.message || err);
+    throw err;
+  }
 };
 
 
