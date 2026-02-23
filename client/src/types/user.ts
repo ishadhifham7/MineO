@@ -1,23 +1,21 @@
 export type ActivityStatus = "Active" | "Away" | "Offline";
 
-export type Achievement = {
+export interface Achievement {
   id: string;
-  title: string;
   icon: "trophy" | "star" | "award" | "target";
+  title: string;
   earned: boolean;
-};
+}
 
-export type UserProfile = {
+export interface UserProfile {
   id: string;
   name: string;
   username: string;
   email: string;
   bio: string;
-  avatarUrl?: string | null;
-
+  avatarUrl: string | null;
   followers: number;
   following: number;
-
   activityStatus: ActivityStatus;
   achievements: Achievement[];
-};
+}
