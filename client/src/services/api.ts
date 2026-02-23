@@ -1,19 +1,13 @@
 // src/services/api.ts
 import axios from "axios";
-import { Platform } from "react-native";
+import { env } from "../../constants/env";
 
-// Backend URL configuration
-// For Android emulator: use 10.0.2.2
-// For physical device: use your computer's IP address (e.g., 192.168.68.65)
-const BACKEND_IP = "192.168.68.65"; // Your computer's IP
-const BACKEND_PORT = "3001";
-
-// Base URL for API (without specific module path)
-export const API_BASE_URL = `http://${BACKEND_IP}:${BACKEND_PORT}`;
+// Use environment configuration for API URL
+export const API_BASE_URL = env.API_BASE_URL; // This already includes /api/v1
 
 // Base URL for journal API
 const getBaseURL = () => {
-  return `${API_BASE_URL}/api/v1/journal`;
+  return `${env.API_BASE_URL}/journal`;
 };
 
 export const api = axios.create({
