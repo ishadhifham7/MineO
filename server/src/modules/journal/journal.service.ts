@@ -109,30 +109,42 @@ export class JournalService {
       .where('date', '<=', endDate)
       .get();
 
-    // Fetch entries with summaries
+    // Fetch entries with summaries (only for entries that exist)
     const entries = await Promise.all(
       snap.docs.map(async (doc) => {
         const entry = doc.data() as JournalEntry;
         
-        // Get first text block to generate summary
-        const blocksSnap = await JournalRepository.canvasBlocks(entry.id)
-          .where('type', '==', 'text')
-          .limit(1)
-          .get();
+        try {
+          // Get all blocks and find first text block
+          const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
 
-        let summary = '';
-        if (!blocksSnap.empty) {
-          const firstTextBlock = blocksSnap.docs[0].data() as TextBlock;
-          summary = firstTextBlock.text.slice(0, 120);
-          if (firstTextBlock.text.length > 120) {
-            summary += '...';
+          let summary = '';
+          
+          // Find first text block
+          for (const blockDoc of blocksSnap.docs) {
+            const block = blockDoc.data();
+            if (block.type === 'text') {
+              const text = (block as TextBlock).text || '';
+              summary = text.slice(0, 120);
+              if (text.length > 120) {
+                summary += '...';
+              }
+              break; // Found first text block, stop looking
+            }
           }
-        }
 
-        return {
-          ...entry,
-          summary: summary || undefined,
-        };
+          return {
+            ...entry,
+            summary: summary || undefined,
+          };
+        } catch (error) {
+          // If there's an error fetching blocks, return entry without summary
+          console.error(`Error fetching blocks for entry ${entry.id}:`, error);
+          return {
+            ...entry,
+            summary: undefined,
+          };
+        }
       })
     );
 
