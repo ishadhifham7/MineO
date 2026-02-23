@@ -17,9 +17,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onDayPress,
   onMonthChange,
   loading = false,
+  currentMonth,
 }) => {
-  // Get today's date in ISO format
-  const today = new Date().toISOString().split("T")[0];
 
   // Merge selected date styling with marked dates
   const finalMarkedDates = {
@@ -44,11 +43,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   return (
     <View style={styles.container}>
       <Calendar
+        current={currentMonth}
         markedDates={finalMarkedDates}
         onDayPress={onDayPress}
         onMonthChange={onMonthChange}
-        maxDate={today}
         markingType="dot"
+        enableSwipeMonths={true}
+        hideExtraDays={false}
         theme={{
           backgroundColor: colors.cream,
           calendarBackground: colors.cream,

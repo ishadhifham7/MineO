@@ -90,6 +90,9 @@ export const CalendarContainer: React.FC = () => {
     // This will be implemented in the next layer
   }, []);
 
+  // Format current month for calendar (YYYY-MM-DD format)
+  const currentMonthString = `${calendarState.currentYear}-${String(calendarState.currentMonth).padStart(2, '0')}-01`;
+
   return (
     <GestureHandlerRootView style={styles.container}>
       {error ? (
@@ -105,6 +108,7 @@ export const CalendarContainer: React.FC = () => {
             onDayPress={handleDayPress}
             onMonthChange={handleMonthChange}
             loading={loading}
+            currentMonth={currentMonthString}
           />
 
           <MomentPreviewSheet

@@ -47,6 +47,7 @@ export interface CalendarViewProps {
   onDayPress: (day: { dateString: string }) => void;
   onMonthChange: (month: { year: number; month: number }) => void;
   loading?: boolean;
+  currentMonth?: string;
 }
 
 /**
