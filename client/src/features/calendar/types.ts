@@ -11,6 +11,7 @@ export interface JournalEntry {
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;
+  summary?: string; // Preview text generated from first text block
 }
 
 /**
