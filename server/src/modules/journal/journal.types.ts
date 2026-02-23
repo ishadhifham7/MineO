@@ -39,6 +39,7 @@ export interface JournalEntry {
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;
+  summary?: string; // Preview text for calendar
 }
 
 export interface DayJournal extends JournalEntry {

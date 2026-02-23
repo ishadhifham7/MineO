@@ -1,5 +1,5 @@
 import { JournalRepository } from './journal.repository';
-import { JournalEntry, JournalBlock } from './journal.types';
+import { JournalEntry, JournalBlock, TextBlock } from './journal.types';
 import { v4 as uuid } from 'uuid';
 
 export class JournalService {
@@ -109,6 +109,33 @@ export class JournalService {
       .where('date', '<=', endDate)
       .get();
 
-    return snap.docs.map((doc) => doc.data() as JournalEntry);
+    // Fetch entries with summaries
+    const entries = await Promise.all(
+      snap.docs.map(async (doc) => {
+        const entry = doc.data() as JournalEntry;
+        
+        // Get first text block to generate summary
+        const blocksSnap = await JournalRepository.canvasBlocks(entry.id)
+          .where('type', '==', 'text')
+          .limit(1)
+          .get();
+
+        let summary = '';
+        if (!blocksSnap.empty) {
+          const firstTextBlock = blocksSnap.docs[0].data() as TextBlock;
+          summary = firstTextBlock.text.slice(0, 120);
+          if (firstTextBlock.text.length > 120) {
+            summary += '...';
+          }
+        }
+
+        return {
+          ...entry,
+          summary: summary || undefined,
+        };
+      })
+    );
+
+    return entries;
   }
 }
