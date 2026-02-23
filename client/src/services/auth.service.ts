@@ -10,7 +10,7 @@ export const signupUser = async (data: {
     dob: string;
 
 }) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
+    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export const signupUser = async (data: {
 // ======================= user login =============================
 
 export const loginUser = async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
