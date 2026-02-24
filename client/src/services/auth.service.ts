@@ -7,14 +7,14 @@ import { saveToken, removeToken } from "../utils/tokenStorage";
  * Uses auto-detected backend URL - works on any network!
  */
 const authClient = axios.create({
-  baseURL: env.API_URL,
+  baseURL: env.API_BASE_URL,
   timeout: 30000, // 30 seconds for auth requests
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-console.log("🔧 Auth Service initialized with:", env.API_URL);
+console.log("🔧 Auth Service initialized with:", env.API_BASE_URL);
 
 // Sends user data to the backend - user signup
 export const signupUser = async (data: {
@@ -24,11 +24,8 @@ export const signupUser = async (data: {
   dob: string;
 }) => {
   try {
-    console.log(
-      "🔵 Attempting signup to:",
-      `${API_BASE_URL}/api/v1/auth/signup`,
-    );
-    const response = await authClient.post("/api/v1/auth/signup", data);
+    console.log("🔵 Attempting signup to:", `${env.API_BASE_URL}/auth/signup`);
+    const response = await authClient.post("/auth/signup", data);
     return response.data;
   } catch (error: any) {
     console.error("❌ Signup error:", error.message);
@@ -47,10 +44,10 @@ export const signupUser = async (data: {
 // ======================= user login =============================
 export const loginUser = async (email: string, password: string) => {
   try {
-    const url = `${env.API_URL}/api/v1/auth/login`;
+    const url = `${env.API_BASE_URL}/auth/login`;
     console.log("🔵 Attempting login to:", url);
 
-    const response = await authClient.post("/api/v1/auth/login", {
+    const response = await authClient.post("/auth/login", {
       email,
       password,
     });
@@ -76,7 +73,10 @@ export const loginUser = async (email: string, password: string) => {
       throw new Error(error.response.data?.message || "Login failed");
     } else if (error.request) {
       // No response received
-      console.error("❌ No response from server. Backend URL:", env.API_URL);
+      console.error(
+        "❌ No response from server. Backend URL:",
+        env.API_BASE_URL,
+      );
       throw new Error(
         "Cannot reach server. Please check if backend is running at " +
           env.API_URL,
