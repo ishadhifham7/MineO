@@ -51,8 +51,6 @@ export const signupUser = async (data: {
       throw new Error(error.message || "Signup failed");
     }
   }
-
-  return result;
 };
 
 // ======================= user login =============================
@@ -101,13 +99,6 @@ export const loginUser = async (email: string, password: string) => {
       throw new Error(error.message || "Login failed");
     }
   }
-
-  // save JWT token locally
-  if (result.token) {
-    await saveToken(result.token);
-  }
-
-  return result;
 };
 
 // User logout & remove stored token
