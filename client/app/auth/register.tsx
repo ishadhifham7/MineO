@@ -4,17 +4,17 @@ import { signupUser } from "../../src/services/auth.service";
 import * as ImagePicker from "expo-image-picker";
 
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Alert,
-    Image,
-    Platform,
-    ScrollView,
-    KeyboardAvoidingView,
-    ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 
 import { Picker } from "@react-native-picker/picker";
@@ -39,12 +39,13 @@ export default function SignupDetailsScreen() {
   const [month, setMonth] = useState<number | null>(null);
   const [year, setYear] = useState<number | null>(null);
 
-  const [activeWheel, setActiveWheel] = useState<string | null>(null);
-
   const [errors, setErrors] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
-  const years = Array.from({ length: 80 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from(
+    { length: 80 },
+    (_, i) => new Date().getFullYear() - i,
+  );
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
@@ -52,7 +53,6 @@ export default function SignupDetailsScreen() {
     if (!year || !month || !day) return "";
     return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   };
-
 
   // image picker
   const pickImage = async () => {
@@ -86,11 +86,8 @@ export default function SignupDetailsScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-
-
-
   // ====================    handling signup    ==============================
-  
+
   const handleSignup = async () => {
     if (!validate()) return;
 
@@ -116,11 +113,6 @@ export default function SignupDetailsScreen() {
       setLoading(false);
     }
   };
-
-  const wheelStyle = (wheel: string) => [
-    styles.dobPicker,
-    activeWheel === wheel && styles.activeWheel,
-  ];
 
   return (
     <KeyboardAvoidingView
@@ -157,41 +149,41 @@ export default function SignupDetailsScreen() {
           <Text style={styles.label}>Date of Birth</Text>
 
           <View style={styles.dobRow}>
-            <Picker
-              style={wheelStyle("day")}
-              selectedValue={day}
-              onValueChange={(v) => setDay(v)}
-              onFocus={() => setActiveWheel("day")}
-            >
-              <Picker.Item label="Day" value={null} />
-              {days.map((d) => (
-                <Picker.Item key={d} label={String(d)} value={d} />
-              ))}
-            </Picker>
+            <View style={styles.dobPicker}>
+              <Picker<number | null>
+                selectedValue={day}
+                onValueChange={(v: number | null) => setDay(v)}
+              >
+                <Picker.Item label="Day" value={null} />
+                {days.map((d) => (
+                  <Picker.Item key={d} label={String(d)} value={d} />
+                ))}
+              </Picker>
+            </View>
 
-            <Picker
-              style={wheelStyle("month")}
-              selectedValue={month}
-              onValueChange={(v) => setMonth(v)}
-              onFocus={() => setActiveWheel("month")}
-            >
-              <Picker.Item label="Month" value={null} />
-              {months.map((m) => (
-                <Picker.Item key={m} label={String(m)} value={m} />
-              ))}
-            </Picker>
+            <View style={styles.dobPicker}>
+              <Picker<number | null>
+                selectedValue={month}
+                onValueChange={(v: number | null) => setMonth(v)}
+              >
+                <Picker.Item label="Month" value={null} />
+                {months.map((m) => (
+                  <Picker.Item key={m} label={String(m)} value={m} />
+                ))}
+              </Picker>
+            </View>
 
-            <Picker
-              style={wheelStyle("year")}
-              selectedValue={year}
-              onValueChange={(v) => setYear(v)}
-              onFocus={() => setActiveWheel("year")}
-            >
-              <Picker.Item label="Year" value={null} />
-              {years.map((y) => (
-                <Picker.Item key={y} label={String(y)} value={y} />
-              ))}
-            </Picker>
+            <View style={styles.dobPicker}>
+              <Picker<number | null>
+                selectedValue={year}
+                onValueChange={(v: number | null) => setYear(v)}
+              >
+                <Picker.Item label="Year" value={null} />
+                {years.map((y) => (
+                  <Picker.Item key={y} label={String(y)} value={y} />
+                ))}
+              </Picker>
+            </View>
           </View>
         </View>
         {errors.dob && <Text style={styles.error}>{errors.dob}</Text>}
@@ -200,7 +192,10 @@ export default function SignupDetailsScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Gender</Text>
           <View style={styles.pickerContainer}>
-            <Picker selectedValue={gender} onValueChange={setGender}>
+            <Picker<string>
+              selectedValue={gender}
+              onValueChange={(v: string) => setGender(v)}
+            >
               <Picker.Item label="Select Gender" value="" />
               <Picker.Item label="Male" value="Male" />
               <Picker.Item label="Female" value="Female" />
@@ -226,7 +221,11 @@ export default function SignupDetailsScreen() {
           onPress={handleSignup}
           disabled={loading}
         >
-          {loading ? <ActivityIndicator /> : <Text style={styles.buttonText}>Sign Up</Text>}
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.buttonText}>Sign Up</Text>
+          )}
         </TouchableOpacity>
 
         <Text style={styles.backText} onPress={() => router.back()}>
@@ -289,10 +288,6 @@ const styles = StyleSheet.create({
   },
   dobPicker: {
     flex: 1,
-  },
-  activeWheel: {
-    backgroundColor: "#fff7cc",
-    borderRadius: 8,
   },
 
   pickerContainer: {
