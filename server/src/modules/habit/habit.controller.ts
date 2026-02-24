@@ -15,7 +15,18 @@ export class HabitController {
     reply: FastifyReply
   ) {
     const data = await HabitService.getMonthlyCalendar(req.query.month);
-    return reply.send({ days: data });
+    
+    // Transform array to object keyed by date
+    const calendarData = data.reduce((acc, day) => {
+      acc[day.date] = {
+        spiritual: day.spiritual ?? undefined,
+        mental: day.mental ?? undefined,
+        physical: day.physical ?? undefined,
+      };
+      return acc;
+    }, {} as Record<string, any>);
+    
+    return reply.send(calendarData);
   }
 
   static async getRadar(
