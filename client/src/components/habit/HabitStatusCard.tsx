@@ -8,12 +8,12 @@ export default function HabitStatusCard({ title, onSelect }: { title: string; on
   ];
 
   return (
-    <View className="bg-white rounded-[35px] p-2 shadow-sm border border-black/5">
+    <View className="bg-white rounded-[16px] p-4 border border-black/5" style={{shadowColor: "#000", shadowOffset: {width: 0, height: 7}, shadowOpacity: 0.1, shadowRadius: 14, elevation: 5}}>
       <Text className="font-black text-center text-base mb-2 uppercase tracking-tight text-[#2E2A26]">{title}</Text>
-      <View className="flex-row justify-around px-1">
+      <View className="flex-row justify-around px-2">
         {options.map((opt) => (
-          <Pressable key={opt.label} onPress={() => onSelect(opt.val)} className="items-center active:opacity-50">
-            <View className={`w-11 h-11 rounded-full ${opt.color} border-2 border-black/10 mb-1 shadow-inner`} />
+          <Pressable key={opt.label} onPress={() => onSelect(opt.val)} className="items-center active:opacity-70 px-3 py-1">
+            <View className={`w-12 h-12 rounded-full ${opt.color} border-2 border-black/10 mb-1 shadow-inner`} />
             <Text className={`text-[9px] font-black uppercase italic ${opt.textColor}`}>{opt.label}</Text>
           </Pressable>
         ))}
