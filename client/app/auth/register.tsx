@@ -39,8 +39,6 @@ export default function SignupDetailsScreen() {
   const [month, setMonth] = useState<number | null>(null);
   const [year, setYear] = useState<number | null>(null);
 
-  const [activeWheel, setActiveWheel] = useState<string | null>(null);
-
   const [errors, setErrors] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
@@ -116,11 +114,6 @@ export default function SignupDetailsScreen() {
     }
   };
 
-  const wheelStyle = (wheel: string) => [
-    styles.dobPicker,
-    activeWheel === wheel && styles.activeWheel,
-  ];
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -156,41 +149,41 @@ export default function SignupDetailsScreen() {
           <Text style={styles.label}>Date of Birth</Text>
 
           <View style={styles.dobRow}>
-            <Picker
-              style={wheelStyle("day")}
-              selectedValue={day}
-              onValueChange={(v) => setDay(v)}
-              onFocus={() => setActiveWheel("day")}
-            >
-              <Picker.Item label="Day" value={null} />
-              {days.map((d) => (
-                <Picker.Item key={d} label={String(d)} value={d} />
-              ))}
-            </Picker>
+            <View style={styles.dobPicker}>
+              <Picker<number | null>
+                selectedValue={day}
+                onValueChange={(v: number | null) => setDay(v)}
+              >
+                <Picker.Item label="Day" value={null} />
+                {days.map((d) => (
+                  <Picker.Item key={d} label={String(d)} value={d} />
+                ))}
+              </Picker>
+            </View>
 
-            <Picker
-              style={wheelStyle("month")}
-              selectedValue={month}
-              onValueChange={(v) => setMonth(v)}
-              onFocus={() => setActiveWheel("month")}
-            >
-              <Picker.Item label="Month" value={null} />
-              {months.map((m) => (
-                <Picker.Item key={m} label={String(m)} value={m} />
-              ))}
-            </Picker>
+            <View style={styles.dobPicker}>
+              <Picker<number | null>
+                selectedValue={month}
+                onValueChange={(v: number | null) => setMonth(v)}
+              >
+                <Picker.Item label="Month" value={null} />
+                {months.map((m) => (
+                  <Picker.Item key={m} label={String(m)} value={m} />
+                ))}
+              </Picker>
+            </View>
 
-            <Picker
-              style={wheelStyle("year")}
-              selectedValue={year}
-              onValueChange={(v) => setYear(v)}
-              onFocus={() => setActiveWheel("year")}
-            >
-              <Picker.Item label="Year" value={null} />
-              {years.map((y) => (
-                <Picker.Item key={y} label={String(y)} value={y} />
-              ))}
-            </Picker>
+            <View style={styles.dobPicker}>
+              <Picker<number | null>
+                selectedValue={year}
+                onValueChange={(v: number | null) => setYear(v)}
+              >
+                <Picker.Item label="Year" value={null} />
+                {years.map((y) => (
+                  <Picker.Item key={y} label={String(y)} value={y} />
+                ))}
+              </Picker>
+            </View>
           </View>
         </View>
         {errors.dob && <Text style={styles.error}>{errors.dob}</Text>}
@@ -199,7 +192,10 @@ export default function SignupDetailsScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Gender</Text>
           <View style={styles.pickerContainer}>
-            <Picker selectedValue={gender} onValueChange={setGender}>
+            <Picker<string>
+              selectedValue={gender}
+              onValueChange={(v: string) => setGender(v)}
+            >
               <Picker.Item label="Select Gender" value="" />
               <Picker.Item label="Male" value="Male" />
               <Picker.Item label="Female" value="Female" />
@@ -292,10 +288,6 @@ const styles = StyleSheet.create({
   },
   dobPicker: {
     flex: 1,
-  },
-  activeWheel: {
-    backgroundColor: "#fff7cc",
-    borderRadius: 8,
   },
 
   pickerContainer: {
