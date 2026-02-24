@@ -22,13 +22,25 @@ export const signupUser = async (data: {
   email: string;
   password: string;
   dob: string;
+  bio?: string;
+  gender?: string;
+  country?: string;
+  profilePhoto?: string;
 }) => {
   try {
     console.log("🔵 Attempting signup to:", `${env.API_BASE_URL}/auth/signup`);
     const response = await authClient.post("/auth/signup", data);
+
+    console.log("Signup successful:", response.data);
+
+    //auto-login after signup
+    if (response.data?.token) {
+      await saveToken(response.data.token);
+      console.log("Token saved after signup");
+    }
     return response.data;
   } catch (error: any) {
-    console.error("❌ Signup error:", error.message);
+    console.error("Signup error:", error.message);
     if (error.response) {
       throw new Error(error.response.data?.message || "Signup failed");
     } else if (error.request) {

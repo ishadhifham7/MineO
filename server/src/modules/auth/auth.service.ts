@@ -12,6 +12,10 @@ export const signupUser = async (data: {
   email: string;
   password: string;
   dob: string;
+  bio?: string;
+  gender?: string;
+  country?: string;
+  profilePhoto?: string;
 }) => {
   const usersRef = firestore.collection(USERS_COLLECTION);
 
@@ -31,6 +35,12 @@ export const signupUser = async (data: {
     email: data.email,
     password: hashedPassword,
     dob: data.dob,
+
+    bio: data.bio ?? "",
+    gender: data.gender ?? "",
+    country: data.country ?? "",
+    profilePhoto: data.profilePhoto ?? "",
+
     createdAt: new Date(),
   });
 
