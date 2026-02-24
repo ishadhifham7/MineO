@@ -12,7 +12,7 @@ export default function HabitsScreen() {
   const today = "2026-02-08"; 
 
   return (
-    <SafeAreaView className="flex-1 bg-[#A8A08E]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-[#EFEFEF]" edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
           
