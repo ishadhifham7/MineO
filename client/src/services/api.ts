@@ -6,6 +6,9 @@ import { env } from "../../constants/env";
  * Journal API Client
  * Uses auto-detected backend URL - works on any network!
  */
+export const API_BASE_URL = env.API_BASE_URL;
+
+console.log("🔧 API Service initialized with:", API_BASE_URL);
 
 // Base URL for journal API
 const getBaseURL = () => {
@@ -51,9 +54,7 @@ api.interceptors.response.use(
       );
     } else if (error.request) {
       // Request made but no response
-      console.error(
-        "❌ No Response - Is backend running on http://localhost:3001?",
-      );
+      console.error("❌ No Response - Is backend running?", env.API_URL);
       console.error("Request:", error.request);
     } else {
       // Something else happened

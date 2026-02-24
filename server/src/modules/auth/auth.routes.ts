@@ -5,9 +5,19 @@ export async function authRoutes(app: FastifyInstance) {
   //  signup
   app.post('/signup', async (request, reply) => {
     try {
-      const { name, email, password, dob } = request.body as any;
+      const { name, email, password, dob, bio, gender, country, profilePhoto } =
+      request.body as any;
 
-      const result = await signupUser({ name, email, password, dob });
+      const result = await signupUser({
+        name,
+        email,
+        password,
+        dob,
+        bio,
+        gender,
+        country,
+        profilePhoto,
+      });
 
       return reply.send({
         message: 'User created',
