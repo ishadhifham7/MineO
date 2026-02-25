@@ -7,7 +7,7 @@ export default function Step1() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.logo}>mineo</Text>
+        <Text style={styles.logo}>MineO</Text>
         <Text style={styles.title}>Reflect. Visualize. Move forward with intention.</Text>
         <Text style={styles.description}>
           A personal workspace designed for clarity, not stimulation. Track your well-being, reflect on life moments, and build meaningful progress.
