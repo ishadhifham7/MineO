@@ -5,7 +5,7 @@ import { getCalendar, getRadar, patchDailyHabit } from "../../services/habit.ser
 interface HabitContextType {
   activeTab: Category;
   setActiveTab: (tab: Category) => void;
-  visibleCalendar: Record<string, number>;
+  visibleCalendar: Record<string, number | undefined>;
   radarValues: number[];
   updateDailyHabit: (date: string, category: Category, value: number) => Promise<void>;
   isLoading: boolean;
@@ -91,9 +91,9 @@ export function HabitProvider({ children }: HabitProviderProps) {
   }
 
   const visibleCalendar = useMemo(() => {
-    return Object.entries(calendarData).reduce<Record<string, number>>(
+    return Object.entries(calendarData).reduce<Record<string, number | undefined>>(
       (acc, [date, scores]) => {
-        acc[date] = scores?.[activeTab] ?? 0;
+        acc[date] = scores?.[activeTab];
         return acc;
       },
       {}

@@ -51,8 +51,9 @@ export async function patchDailyHabit(
   category: Category,
   value: number
 ): Promise<void> {
+  const payload = { [category]: value };
+
   await httpClient.patch(`/habits/daily/${date}`, {
-    category,
-    value,
+    ...payload,
   });
 }

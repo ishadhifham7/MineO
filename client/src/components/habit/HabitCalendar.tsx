@@ -6,10 +6,14 @@ export default function HabitCalendar({
   data,
 }: {
   category: "spiritual" | "mental" | "physical";
-  data: Record<string, number>;
+  data: Record<string, number | undefined>;
 }) {
   // Convert habit data to marked dates format
   const markedDates = Object.entries(data).reduce((acc, [date, value]) => {
+    if (value === undefined || value === null) {
+      return acc;
+    }
+
     let color = "#E0E0E0"; // Default gray
     if (value === 1) color = "#4CAF50"; // Good - green
     else if (value === 0.5) color = "#2196F3"; // Average - blue
