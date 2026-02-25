@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { signupUser } from "../../src/services/auth.service";
+
 
 import {
   View,
@@ -16,26 +16,23 @@ import {
 const SignupScreen: React.FC = () => {
   const router = useRouter();
   const [name, setName] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [dob, setDob] = useState<string>("");
-
-
-    const handleSignup = async () => {
-      
-      try{
-        await signupUser({ name, email, password, dob });
-
-        Alert.alert("Success", "Account created. Please login.");
-
-        router.replace("/auth/login");
-
-
-      }catch (error: any){
-        Alert.alert("Signup Failed", error.message);
-      }
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
     
-    };
+
+
+  const handleNext = () => {
+    if (!name || !email || !password) {
+    Alert.alert("Error", "Please fill all fields");
+    return;
+    }
+
+    // pass data to register stage
+    router.push({
+      pathname: "/auth/register",
+      params: { name, email, password },
+    });
+  };
 
 
   return(
@@ -87,8 +84,8 @@ const SignupScreen: React.FC = () => {
       />
 
       {/* Signup button */}
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
-        <Text style={styles.buttonText}>Create Account</Text>
+      <TouchableOpacity style={styles.button} onPress={handleNext}>
+        <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
     </View>
   );
