@@ -10,6 +10,7 @@ export interface GoalStage {
 
 export interface Goal {
   id: string;
+  userId: string; // Owner of the goal
   title: string;
   description: string | null;
   stages: GoalStage[];

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { env } from "../../constants/env";
+import { getToken } from "../utils/tokenStorage";
 
 /**
  * Configured Axios HTTP Client
@@ -18,15 +19,15 @@ export const httpClient: AxiosInstance = axios.create({
 
 /**
  * Request interceptor
- * Add authentication tokens here if needed
+ * Automatically adds JWT token to Authorization header
  */
 httpClient.interceptors.request.use(
-  (config) => {
-    // TODO: Add auth token if needed
-    // const token = await getAuthToken();
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+  async (config) => {
+    // Get JWT token from AsyncStorage
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {

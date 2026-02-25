@@ -13,6 +13,7 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGoal } from "../../../src/features/goal/goal.context";
+import { useAuth } from "../../../src/hooks/useAuth";
 
 export default function GoalsHome() {
   const { goals, fetchGoals, loading } = useGoal();
@@ -165,6 +166,11 @@ function GoalListCard({
   else if (progressPct > 60)
     statusColor = "#3B82F6"; // Almost there - Confident Blue
   else if (progressPct > 30) statusColor = "#F59E0B"; // In progress - Motivational Amber
+
+  const { user } = useAuth();
+  useEffect(() => {
+    console.log(user?.userId);
+  }, [user]);
 
   return (
     <Pressable onPress={onPress} style={styles.goalCard}>
