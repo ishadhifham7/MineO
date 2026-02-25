@@ -34,6 +34,7 @@ export type JournalBlock = TextBlock | ImageBlock;
 
 export interface JournalEntry {
   id: string;
+  userId: string; // Owner of the journal entry
   date: string;
   title?: string;
   isPinnedToTimeline: boolean;
