@@ -1,14 +1,5 @@
-import axios from "axios";
-import { API_BASE_URL } from "./api";
+import { httpClient } from "../lib/http";
 import type { CalendarData, RadarApiResponse, Category } from "../features/habit/habit.types";
-
-const habitApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
 
 /**
  * Get calendar data for all habits
@@ -18,7 +9,7 @@ export async function getCalendar(): Promise<CalendarData> {
   const now = new Date();
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   
-  const response = await habitApi.get("/habits/calendar", {
+  const response = await httpClient.get("/habits/calendar", {
     params: { month }
   });
   return response.data;
@@ -40,7 +31,7 @@ export async function getRadar(): Promise<RadarApiResponse> {
     return `${year}-${month}-${day}`;
   };
   
-  const response = await habitApi.get("/habits/radar", {
+  const response = await httpClient.get("/habits/radar", {
     params: {
       start: formatDate(start),
       end: formatDate(end)
@@ -60,7 +51,7 @@ export async function patchDailyHabit(
   category: Category,
   value: number
 ): Promise<void> {
-  await habitApi.patch(`/habits/daily/${date}`, {
+  await httpClient.patch(`/habits/daily/${date}`, {
     category,
     value,
   });

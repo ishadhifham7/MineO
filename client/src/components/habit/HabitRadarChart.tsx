@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import Svg, { Polygon, Line, Text as SvgText } from "react-native-svg";
+import Svg, { Polygon, Line, Circle, Text as SvgText } from "react-native-svg";
 
 export default function HabitRadarChart({
   values,
@@ -7,6 +7,15 @@ export default function HabitRadarChart({
   values: number[];
 }) {
   const [spiritual = 0, mental = 0, physical = 0] = values;
+  
+  // Debug log
+  console.log('🔵 Radar Chart Rendering:', { 
+    values, 
+    spiritual, 
+    mental, 
+    physical,
+    rawValues: values 
+  });
 
   // Adjusted dimensions to prevent overflow
   const size = 300; 
@@ -31,9 +40,19 @@ export default function HabitRadarChart({
     return `${top.x},${top.y} ${right.x},${right.y} ${left.x},${left.y}`;
   });
 
-  const mentalRadius = (mental / 100) * maxRadius;
-  const physicalRadius = (physical / 100) * maxRadius;
-  const spiritualRadius = (spiritual / 100) * maxRadius;
+  const mentalRadius = Math.max((mental / 100) * maxRadius, 3); // Minimum 3px radius
+  const physicalRadius = Math.max((physical / 100) * maxRadius, 3);
+  const spiritualRadius = Math.max((spiritual / 100) * maxRadius, 3);
+  
+  console.log('🎯 Radar Radii:', { 
+    mentalRadius, 
+    physicalRadius, 
+    spiritualRadius, 
+    maxRadius,
+    mental: `${mental}%`,
+    physical: `${physical}%`,
+    spiritual: `${spiritual}%`
+  });
 
   const dataTop = angleToPoint(90, mentalRadius);
   const dataRight = angleToPoint(-30, physicalRadius);
@@ -65,6 +84,22 @@ export default function HabitRadarChart({
             Weekly Growth Tracker
           </Text>
         </View>
+        
+        {/* Debug: Show current values prominently */}
+        <View className="flex-row justify-around w-full mb-3 px-4">
+          <View className="items-center bg-purple-50 px-3 py-1.5 rounded-lg">
+            <Text className="text-[8px] font-bold text-purple-600">SPIRITUAL</Text>
+            <Text className="text-lg font-black text-purple-900">{spiritual}%</Text>
+          </View>
+          <View className="items-center bg-blue-50 px-3 py-1.5 rounded-lg">
+            <Text className="text-[8px] font-bold text-blue-600">MENTAL</Text>
+            <Text className="text-lg font-black text-blue-900">{mental}%</Text>
+          </View>
+          <View className="items-center bg-orange-50 px-3 py-1.5 rounded-lg">
+            <Text className="text-[8px] font-bold text-orange-600">PHYSICAL</Text>
+            <Text className="text-lg font-black text-orange-900">{physical}%</Text>
+          </View>
+        </View>
 
         {/* SVG Container now scaled to fit the card */}
         <View className="items-center justify-center w-full overflow-visible">
@@ -81,10 +116,15 @@ export default function HabitRadarChart({
 
             <Polygon
               points={dataPoints}
-              fill="rgba(209, 209, 209, 0.4)"
-              stroke="#2E2A26"
-              strokeWidth="2"
+              fill="rgba(75, 86, 255, 0.3)"
+              stroke="#4B56FF"
+              strokeWidth="3"
             />
+            
+            {/* Data point circles for visibility */}
+            <Circle cx={dataTop.x} cy={dataTop.y} r="5" fill="#4B56FF" stroke="#fff" strokeWidth="2" />
+            <Circle cx={dataRight.x} cy={dataRight.y} r="5" fill="#FF8E6E" stroke="#fff" strokeWidth="2" />
+            <Circle cx={dataLeft.x} cy={dataLeft.y} r="5" fill="#9C88FF" stroke="#fff" strokeWidth="2" />
 
             <Line x1={centerX} y1={centerY} x2={angleToPoint(90, maxRadius).x} y2={angleToPoint(90, maxRadius).y} stroke="#D1D1D1" strokeWidth="1" />
             <Line x1={centerX} y1={centerY} x2={angleToPoint(-30, maxRadius).x} y2={angleToPoint(-30, maxRadius).y} stroke="#D1D1D1" strokeWidth="1" />
@@ -123,29 +163,17 @@ export default function HabitRadarChart({
           </Svg>
         </View>
 
-        <View className="flex-row justify-around w-full px-2 mt-2">
-          <View className="items-center">
-            <View className="w-2.5 h-2.5 rounded-full bg-[#9C88FF] mb-1" />
-            <Text className="text-[8px] font-bold text-gray-400 uppercase">Spiritual</Text>
-            <Text className="text-xs font-black text-[#2E2A26]">{spiritual}%</Text>
-          </View>
-
-          <View className="items-center">
-            <View className="w-2.5 h-2.5 rounded-full bg-[#4B56FF] mb-1" />
-            <Text className="text-[8px] font-bold text-gray-400 uppercase">Mental</Text>
-            <Text className="text-xs font-black text-[#2E2A26]">{mental}%</Text>
-          </View>
-
-          <View className="items-center">
-            <View className="w-2.5 h-2.5 rounded-full bg-[#FF8E6E] mb-1" />
-            <Text className="text-[8px] font-bold text-gray-400 uppercase">Physical</Text>
-            <Text className="text-xs font-black text-[#2E2A26]">{physical}%</Text>
-          </View>
-        </View>
-
-        <Text className="text-[7px] text-gray-400 mt-4 text-center italic">
+        <Text className="text-[7px] text-gray-400 mt-2 text-center italic">
           Based on 7-day average • Green: 1pt • Blue: 0.5pt
         </Text>
+        
+        {spiritual === 0 && mental === 0 && physical === 0 && (
+          <View className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+            <Text className="text-[9px] text-yellow-800 text-center font-semibold">
+              📊 No data yet! Start tracking your habits to see your progress here.
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
