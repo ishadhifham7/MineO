@@ -1,13 +1,21 @@
 export type Category = "spiritual" | "mental" | "physical";
 
-export type DailyScore = {
-	spiritual?: number;
-	mental?: number;
-	physical?: number;
+export type DailyHabitScores = {
+  spiritual?: number; // 1 | 0.5 | 0
+  mental?: number;
+  physical?: number;
 };
 
-export type CalendarData = Record<string, DailyScore>;
+export type CalendarData = Record<string, DailyHabitScores>;
 
-export type RadarData = { labels: string[]; values: number[] };
+export type RadarBackendData = {
+  green: number;
+  blue: number;
+  red: number;
+};
 
-export default {};
+export type RadarApiResponse = {
+  spiritual: RadarBackendData;
+  mental: RadarBackendData;
+  physical: RadarBackendData;
+};

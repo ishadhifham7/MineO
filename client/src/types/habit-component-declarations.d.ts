@@ -6,7 +6,11 @@ declare module "*HabitCalendar" {
 
 declare module "*HabitStatusCard" {
   import * as React from "react";
-  const HabitStatusCard: React.ComponentType<{ title: string; onSelect: (value: number) => void }>;
+  const HabitStatusCard: React.ComponentType<{ 
+    title: string; 
+    onSelect: (value: number) => void;
+    selectedValue?: number;
+  }>;
   export default HabitStatusCard;
 }
 
