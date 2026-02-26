@@ -14,7 +14,7 @@ export class JournalService {
 
     return {
       ...entry,
-      blocks: blocksSnap.docs.map((d) => d.data()),
+      blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
 
@@ -64,7 +64,7 @@ export class JournalService {
     const batch = entryRef.firestore.batch();
 
     const oldBlocks = await JournalRepository.canvasBlocks(entryId).get();
-    oldBlocks.docs.forEach((doc) => batch.delete(doc.ref));
+    oldBlocks.docs.forEach((doc: any) => batch.delete(doc.ref));
 
     blocks.forEach((block) => {
       batch.set(JournalRepository.canvasBlockById(entryId, block.id), block);
@@ -98,7 +98,7 @@ export class JournalService {
 
     return {
       entry: snap.data(),
-      blocks: blocksSnap.docs.map((d) => d.data()),
+      blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
 }

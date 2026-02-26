@@ -39,7 +39,7 @@ export class HabitService {
       .where("date", "<=", end)
       .get();
 
-    return snapshot.docs.map(doc => {
+    return snapshot.docs.map((doc: any) => {
       const d = doc.data();
       return {
         date: d.date.toDate().toISOString().split("T")[0],
@@ -69,7 +69,7 @@ export class HabitService {
       spiritual: { green: 0, blue: 0, red: 0 }
     };
 
-    snapshot.docs.forEach(doc => {
+    snapshot.docs.forEach((doc: any) => {
       const d = doc.data();
       
       // Count mental values

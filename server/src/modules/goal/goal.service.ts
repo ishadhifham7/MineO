@@ -54,7 +54,7 @@ export async function getGoals(): Promise<any[]> {
     return [];
   }
 
-  const goals = snapshot.docs.map((doc) => {
+  const goals = snapshot.docs.map((doc: any) => {
     const data = doc.data();
 
     // Convert Firestore Timestamp to ISO string

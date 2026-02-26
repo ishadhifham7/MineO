@@ -13,7 +13,7 @@ export async function fetchPinnedJournals(
     .orderBy('date', 'asc')
     .get()
 
-  return snapshot.docs.map(doc => {
+  return snapshot.docs.map((doc: any) => {
     const data = doc.data()
 
     return {
