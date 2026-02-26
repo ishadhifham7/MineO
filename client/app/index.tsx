@@ -19,7 +19,7 @@ export default function SplashScreen() {
     <View style={styles.container}>
       <Video
         ref={videoRef}
-        source={require("../assets/0220.mp4")} 
+        source={require("../assets/Splash Screen.mp4")} 
         style={styles.video}
         resizeMode={ResizeMode.CONTAIN}
         shouldPlay
