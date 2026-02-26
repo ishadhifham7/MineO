@@ -8,19 +8,19 @@ import {
 
 export async function habitRoutes(fastify: FastifyInstance) {
   fastify.patch(
-    "/habits/daily/:date",
+    "/daily/:date",
     { schema: patchHabitSchema },
     HabitController.patchDailyHabit
   );
 
   fastify.get(
-    "/habits/calendar",
+    "/calendar",
     { schema: calendarSchema },
     HabitController.getCalendar
   );
 
   fastify.get(
-    "/habits/radar",
+    "/radar",
     { schema: radarSchema },
     HabitController.getRadar
   );
