@@ -11,7 +11,7 @@ export default function HomeScreen() {
         <Pressable onPress={() => router.push("/tabs/profile")}>
           <Ionicons name="person-circle-outline" size={48} color="#111" />
         </Pressable>
-      </View>
+      </View> 
       
       <View style={styles.content}>
         <Text style={styles.greeting}>Welcome Back!</Text>
