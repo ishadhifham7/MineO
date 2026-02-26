@@ -43,7 +43,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="goals"
+        name="goal"
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="flag-outline" size={size} color={color} />
@@ -60,8 +60,9 @@ export default function TabsLayout() {
         }}
       />
 
+      {/* Hide goals.tsx from tab bar - accessible via navigation only */}
       <Tabs.Screen
-        name="profile"
+        name="goals"
         options={{
           href: null,
         }}

@@ -1,5 +1,6 @@
-import { Tabs, Stack } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import "../src/styles/global.css";
+import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 

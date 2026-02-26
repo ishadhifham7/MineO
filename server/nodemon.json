@@ -1,0 +1,17 @@
+{
+  "watch": ["src"],
+  "ext": "ts,js,json",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "ts-node src/server.ts",
+  "restartable": "rs",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "signal": "SIGTERM",
+  "legacyWatch": true,
+  "verbose": false,
+  "events": {
+    "restart": "echo 🔄 Server restarting...",
+    "crash": "echo ❌ Server crashed - waiting for changes..."
+  }
+}
