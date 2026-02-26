@@ -63,25 +63,31 @@ export class HabitService {
       .where("date", "<=", end)
       .get();
 
-    let mental = 0;
-    let physical = 0;
-    let spiritual = 0;
+    const counts = {
+      mental: { green: 0, blue: 0, red: 0 },
+      physical: { green: 0, blue: 0, red: 0 },
+      spiritual: { green: 0, blue: 0, red: 0 }
+    };
 
     snapshot.docs.forEach(doc => {
       const d = doc.data();
-      mental += d.mental ?? 0;
-      physical += d.physical ?? 0;
-      spiritual += d.spiritual ?? 0;
+      
+      // Count mental values
+      if (d.mental === 1) counts.mental.green++;
+      else if (d.mental === 0.5) counts.mental.blue++;
+      else if (d.mental === 0) counts.mental.red++;
+      
+      // Count physical values
+      if (d.physical === 1) counts.physical.green++;
+      else if (d.physical === 0.5) counts.physical.blue++;
+      else if (d.physical === 0) counts.physical.red++;
+      
+      // Count spiritual values
+      if (d.spiritual === 1) counts.spiritual.green++;
+      else if (d.spiritual === 0.5) counts.spiritual.blue++;
+      else if (d.spiritual === 0) counts.spiritual.red++;
     });
 
-    const MAX_DAYS = 7; // weekly normalization
-    const toPercentage = (value: number) =>
-      Math.round((value / MAX_DAYS) * 100 * 100) / 100;
-
-    return {
-      mental: toPercentage(mental),
-      physical: toPercentage(physical),
-      spiritual: toPercentage(spiritual)
-    };
+    return counts;
   }
 }

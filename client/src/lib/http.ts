@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { env } from "../../constants/env";
+import { getToken } from "../utils/tokenStorage";
 
 /**
  * Configured Axios HTTP Client
@@ -21,12 +22,11 @@ export const httpClient: AxiosInstance = axios.create({
  * Add authentication tokens here if needed
  */
 httpClient.interceptors.request.use(
-  (config) => {
-    // TODO: Add auth token if needed
-    // const token = await getAuthToken();
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+  async (config) => {
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
