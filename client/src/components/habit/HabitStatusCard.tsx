@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { colors } from "../../constants/colors";
 
 export default function HabitStatusCard({
@@ -15,21 +15,49 @@ export default function HabitStatusCard({
   ];
 
   return (
-    <View className="bg-white rounded-2xl p-4">
-      <Text className="font-semibold mb-3">{title.charAt(0).toUpperCase() + title.slice(1)}</Text>
-
-      <View className="flex-row justify-between">
+    <View style={styles.card}>
+      <Text style={styles.title}>{title.charAt(0).toUpperCase() + title.slice(1)}</Text>
+      <View style={styles.row}>
         {options.map((s) => (
           <Pressable
             key={s.label}
-            className="w-16 h-16 rounded-full items-center justify-center"
-            style={{ backgroundColor: s.color }}
+            style={[styles.dot, { backgroundColor: s.color }]}
             onPress={() => onSelect(s.value)}
           >
-            <Text className="text-white text-xs">{s.label}</Text>
+            <Text style={styles.dotLabel}>{s.label}</Text>
           </Pressable>
         ))}
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+  },
+  title: {
+    fontWeight: "600",
+    fontSize: 15,
+    marginBottom: 12,
+    color: "#222",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  dot: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dotLabel: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+});

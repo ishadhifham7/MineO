@@ -5,6 +5,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import { useEffect } from "react";
 
 type FloatingAddMenuProps = {
   visible: boolean;
@@ -20,14 +21,16 @@ export function FloatingAddMenu({
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
 
-  // animate in / out
-  if (visible) {
-    opacity.value = withTiming(1, { duration: 150 });
-    translateY.value = withTiming(0, { duration: 150 });
-  } else {
-    opacity.value = withTiming(0, { duration: 150 });
-    translateY.value = withTiming(20, { duration: 150 });
-  }
+  // animate in / out — must run in useEffect, not during render
+  useEffect(() => {
+    if (visible) {
+      opacity.value = withTiming(1, { duration: 150 });
+      translateY.value = withTiming(0, { duration: 150 });
+    } else {
+      opacity.value = withTiming(0, { duration: 150 });
+      translateY.value = withTiming(20, { duration: 150 });
+    }
+  }, [visible]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

@@ -1,12 +1,13 @@
 // src/features/calendar/CalendarContainer.tsx
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useFocusEffect } from "expo-router";
 import { CalendarView } from "./CalendarView";
 import { MomentPreviewSheet } from "./MomentPreviewSheet";
 import { useCalendarData } from "./useCalendarData";
 import type { CalendarState, JournalEntry } from "./types";
 import { colors } from "../../constants/colors";
+
 
 /**
  * Calendar Container - Logic orchestrator between data and UI
@@ -22,13 +23,20 @@ export const CalendarContainer: React.FC = () => {
   });
 
   // State for moment preview
-  const [selectedJournal, setSelectedJournal] = useState<JournalEntry | null>(null);
+  const [selectedJournals, setSelectedJournals] = useState<JournalEntry[]>([]);
   const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false);
 
   // Fetch journal data for current month
-  const { journals, markedDates, loading, error } = useCalendarData(
+  const { journalsByDate, markedDates, loading, error, refetch } = useCalendarData(
     calendarState.currentYear,
     calendarState.currentMonth,
+  );
+
+  // Re-fetch whenever this screen gains focus (e.g. coming back from journal tab)
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
   );
 
   /**
@@ -44,18 +52,18 @@ export const CalendarContainer: React.FC = () => {
         selectedDate: day.dateString,
       }));
 
-      // Find journal for selected date
-      const journal = journals.find((j) => j.date === day.dateString);
+      // Find all journals for selected date (already sorted newest-first)
+      const entries = journalsByDate[day.dateString] ?? [];
 
-      if (journal) {
-        console.log("📅 Journal found for:", day.dateString);
-        setSelectedJournal(journal);
+      if (entries.length > 0) {
+        console.log(`📅 ${entries.length} journal(s) found for:`, day.dateString);
+        setSelectedJournals(entries);
         setIsPreviewVisible(true);
       } else {
         console.log("📅 No journal entry for:", day.dateString);
       }
     },
-    [journals],
+    [journalsByDate],
   );
 
   /**
@@ -76,7 +84,7 @@ export const CalendarContainer: React.FC = () => {
    */
   const handlePreviewClose = useCallback(() => {
     setIsPreviewVisible(false);
-    setSelectedJournal(null);
+    setSelectedJournals([]);
   }, []);
 
   /**
@@ -94,7 +102,7 @@ export const CalendarContainer: React.FC = () => {
   const currentMonthString = `${calendarState.currentYear}-${String(calendarState.currentMonth).padStart(2, '0')}-01`;
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       {error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Failed to load calendar data</Text>
@@ -113,13 +121,13 @@ export const CalendarContainer: React.FC = () => {
 
           <MomentPreviewSheet
             visible={isPreviewVisible}
-            journal={selectedJournal}
+            journals={selectedJournals}
             onClose={handlePreviewClose}
             onViewFull={handleViewFull}
           />
         </>
       )}
-    </GestureHandlerRootView>
+    </View>
   );
 };
 

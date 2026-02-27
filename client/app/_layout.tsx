@@ -1,17 +1,41 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Platform, View, StyleSheet } from "react-native";
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
+        {Platform.OS === "web" ? (
+          <View style={styles.webRoot}>
+            <View style={styles.webApp}>
+              <Stack screenOptions={{ headerShown: false }} />
+            </View>
+          </View>
+        ) : (
+          <Stack screenOptions={{ headerShown: false }} />
+        )}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  webRoot: {
+    flex: 1,
+    backgroundColor: "#e5e7eb",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  webApp: {
+    width: "100%",
+    maxWidth: 1200,
+    flex: 1,
+    backgroundColor: "#ffffff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+  },
+});

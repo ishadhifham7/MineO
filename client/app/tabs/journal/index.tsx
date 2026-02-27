@@ -53,6 +53,9 @@ export default function JournalScreen() {
     setChapterSliderVisible,
     saveJournal,
     loadJournal,
+    resetJournal,
+    entryId,
+    isNew,
   } = useJournal();
 
   // Initialize today's journal on mount
@@ -337,6 +340,28 @@ export default function JournalScreen() {
           }}
         >
           <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
+        </Pressable>
+
+        {/* New Entry Button - Bottom Left of Save */}
+        <Pressable
+          onPress={resetJournal}
+          style={{
+            position: "absolute",
+            bottom: 80,
+            left: 24,
+            paddingHorizontal: 20,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: "rgba(0,0,0,0.12)",
+            borderWidth: 1,
+            borderColor: "rgba(0,0,0,0.2)",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={{ color: "#333", fontSize: 13, fontWeight: "600" }}>
+            {isNew ? "New Entry" : `✦ New Entry`}
+          </Text>
         </Pressable>
 
         {/* Save Button - Bottom Left */}

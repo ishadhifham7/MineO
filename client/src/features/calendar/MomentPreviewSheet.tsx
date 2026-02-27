@@ -1,229 +1,260 @@
 // src/features/calendar/MomentPreviewSheet.tsx
-import React, { useMemo, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  Animated,
+  ScrollView,
+} from "react-native";
+import { BlurView } from "expo-blur";
 import type { JournalEntry } from "./types";
 import { colors } from "../../constants/colors";
 
-/**
- * Props for MomentPreviewSheet component
- */
+const SHEET_HEIGHT = 360;
+
 export interface MomentPreviewSheetProps {
   visible: boolean;
-  journal: JournalEntry | null;
+  journals: JournalEntry[];
   onClose: () => void;
   onViewFull: (journalId: string) => void;
 }
 
-/**
- * MomentPreviewSheet - Pure UI component for displaying journal preview
- * in a bottom sheet modal
- *
- * Responsibilities:
- * - Display journal preview information
- * - Provide "View Full Moment" action
- * - Handle close interaction
- *
- * Does NOT:
- * - Fetch data
- * - Handle navigation
- * - Contain business logic
- */
 export const MomentPreviewSheet: React.FC<MomentPreviewSheetProps> = ({
   visible,
-  journal,
+  journals,
   onClose,
   onViewFull,
 }) => {
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
+  const slideAnim = useRef(new Animated.Value(SHEET_HEIGHT)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
 
-  // Define snap points for the bottom sheet
-  const snapPoints = useMemo(() => ["35%", "50%"], []);
-
-  // Handle sheet changes
-  React.useEffect(() => {
-    if (visible && journal) {
-      bottomSheetRef.current?.snapToIndex(0);
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 65,
+          friction: 11,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      bottomSheetRef.current?.close();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: SHEET_HEIGHT,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }, [visible, journal]);
+  }, [visible, slideAnim, backdropOpacity]);
 
-  // Render backdrop with dismiss on press
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-        pressBehavior="close"
-      />
-    ),
-    [],
-  );
-
-  // Format date to readable format
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-    };
-    return date.toLocaleDateString("en-US", options);
+    });
   };
 
-  // Handle view full button press
-  const handleViewFull = () => {
-    if (journal) {
-      onViewFull(journal.id);
-    }
-  };
+  // Journals are already sorted newest-first from useCalendarData
+  const latest = journals[0] ?? null;
+  const count = journals.length;
 
-  // Generate preview text
-  const getPreviewText = (): string => {
-    if (!journal) return "";
-
-    // If summary exists, use it
-    if (journal.summary) {
-      return journal.summary;
-    }
-
-    // Otherwise, show placeholder
-    return "Tap to view your moment...";
-  };
-
-  if (!journal) return null;
+  if (!latest) return null;
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={-1}
-      snapPoints={snapPoints}
-      enablePanDownToClose
-      onClose={onClose}
-      backdropComponent={renderBackdrop}
-      backgroundStyle={styles.bottomSheetBackground}
-      handleIndicatorStyle={styles.handleIndicator}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+      statusBarTranslucent
     >
-      <View style={styles.contentContainer}>
-        {/* Date Header */}
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateIcon}>📅</Text>
-          <Text style={styles.dateText}>{formatDate(journal.date)}</Text>
+      {/* Animated blur backdrop */}
+      <Animated.View
+        style={[StyleSheet.absoluteFill, { opacity: backdropOpacity }]}
+        pointerEvents={visible ? "auto" : "none"}
+      >
+        <BlurView intensity={55} tint="dark" style={StyleSheet.absoluteFill}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        </BlurView>
+      </Animated.View>
+
+      {/* Spacer to push sheet to bottom */}
+      <View style={styles.spacer} pointerEvents="none" />
+
+      {/* Animated slide-up sheet */}
+      <Animated.View
+        style={[
+          styles.sheet,
+          { transform: [{ translateY: slideAnim }] },
+        ]}
+      >
+        {/* Handle bar */}
+        <View style={styles.handle} />
+
+        {/* Date + entry count badge */}
+        <View style={styles.row}>
+          <Text style={styles.icon}>📅</Text>
+          <Text style={styles.dateText}>{formatDate(latest.date)}</Text>
+          {count > 1 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{count} entries</Text>
+            </View>
+          )}
         </View>
 
-        {/* Title */}
-        {journal.title && (
-          <View style={styles.titleContainer}>
-            <Text style={styles.titleIcon}>📝</Text>
-            <Text style={styles.titleText} numberOfLines={2}>
-              {journal.title}
-            </Text>
-          </View>
-        )}
-
-        {/* Preview Text */}
-        <View style={styles.previewContainer}>
-          <Text style={styles.previewLabel}>Preview:</Text>
-          <Text style={styles.previewText} numberOfLines={3}>
-            {getPreviewText()}
-          </Text>
-        </View>
-
-        {/* View Full Button */}
-        <TouchableOpacity
-          style={styles.viewFullButton}
-          onPress={handleViewFull}
-          activeOpacity={0.7}
+        {/* List all entries */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.entriesList}
         >
-          <Text style={styles.viewFullText}>View Full Moment →</Text>
-        </TouchableOpacity>
-      </View>
-    </BottomSheet>
+          {journals.map((journal, index) => (
+            <TouchableOpacity
+              key={journal.id}
+              style={[styles.entryCard, index === 0 && styles.entryCardFirst]}
+              onPress={() => onViewFull(journal.id)}
+              activeOpacity={0.75}
+            >
+              {/* Entry number dot */}
+              <View style={styles.entryDot}>
+                <Text style={styles.entryDotText}>{index + 1}</Text>
+              </View>
+              <View style={styles.entryContent}>
+                {journal.title ? (
+                  <Text style={styles.entryTitle} numberOfLines={1}>
+                    {journal.title}
+                  </Text>
+                ) : null}
+                <Text style={styles.entryPreview} numberOfLines={2}>
+                  {journal.summary ?? "Tap to view this moment..."}
+                </Text>
+              </View>
+              <Text style={styles.entryArrow}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Animated.View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  bottomSheetBackground: {
-    backgroundColor: colors.cream,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  handleIndicator: {
-    backgroundColor: colors.textMuted,
-    width: 40,
-    height: 4,
-  },
-  contentContainer: {
+  spacer: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 32,
   },
-  dateContainer: {
+  sheet: {
+    backgroundColor: colors.cream,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 16,
+  },
+  handle: {
+    width: 44,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.textMuted,
+    alignSelf: "center",
+    marginBottom: 20,
+    opacity: 0.5,
+  },
+  row: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
   },
-  dateIcon: {
-    fontSize: 20,
+  icon: {
+    fontSize: 18,
     marginRight: 8,
   },
   dateText: {
     fontSize: 16,
     fontWeight: "600",
     color: colors.textDark,
-  },
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
-  },
-  titleIcon: {
-    fontSize: 18,
-    marginRight: 8,
-    marginTop: 2,
-  },
-  titleText: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.textDark,
-    lineHeight: 24,
   },
-  previewContainer: {
-    marginBottom: 24,
-  },
-  previewLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.textMuted,
-    marginBottom: 8,
-  },
-  previewText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: colors.textDark,
-  },
-  viewFullButton: {
-    backgroundColor: colors.average,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+  badge: {
+    backgroundColor: "#6366F1",
     borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff",
+    letterSpacing: 0.3,
+  },
+  entryCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.04)",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+  },
+  entryCardFirst: {
+    backgroundColor: "rgba(99,102,241,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(99,102,241,0.18)",
+  },
+  entryDot: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "#6366F1",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginRight: 12,
   },
-  viewFullText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+  entryDotText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  entryContent: {
+    flex: 1,
+  },
+  entryTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textDark,
+    marginBottom: 2,
+  },
+  entryPreview: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.textMuted,
+  },
+  entryArrow: {
+    fontSize: 22,
+    color: colors.textMuted,
+    marginLeft: 8,
+  },
+  entriesList: {
+    maxHeight: 280,
   },
 });

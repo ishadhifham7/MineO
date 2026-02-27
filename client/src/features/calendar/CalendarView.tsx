@@ -1,6 +1,6 @@
 // src/features/calendar/CalendarView.tsx
 import React from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Calendar } from "react-native-calendars";
 import type { CalendarViewProps } from "./types";
 import { colors } from "../../constants/colors";
@@ -19,26 +19,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   loading = false,
   currentMonth,
 }) => {
+  // Get today's date in ISO format to disable future dates
+  const today = new Date().toISOString().split("T")[0];
 
   // Merge selected date styling with marked dates
   const finalMarkedDates = {
     ...markedDates,
     ...(selectedDate && {
       [selectedDate]: {
-        ...markedDates[selectedDate],
+        ...(markedDates[selectedDate] || { dots: [] }),
         selected: true,
         selectedColor: colors.average,
       },
     }),
   };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.average} />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -47,7 +41,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         markedDates={finalMarkedDates}
         onDayPress={onDayPress}
         onMonthChange={onMonthChange}
-        markingType="dot"
+        maxDate={today}
+        markingType="multi-dot"
         enableSwipeMonths={true}
         hideExtraDays={false}
         theme={{
@@ -89,12 +84,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  loadingContainer: {
-    padding: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.cream,
-    borderRadius: 12,
   },
 });

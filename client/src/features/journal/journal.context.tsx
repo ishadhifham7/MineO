@@ -415,6 +415,8 @@ interface JournalContextValue extends JournalState {
     title?: string;
     isPinnedToTimeline?: boolean;
   }) => Promise<void>;
+  /** Reset canvas to a blank new entry without loading an existing one */
+  resetJournal: () => void;
 }
 
 // -------------------- Create Context --------------------
@@ -533,6 +535,26 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  /** Reset to a fresh blank canvas so the next save creates a new entry */
+  const resetJournal = () => {
+    const today = new Date().toISOString().split("T")[0];
+    dispatch({
+      type: "SET_JOURNAL",
+      payload: {
+        entryId: null,
+        date: today,
+        title: "",
+        isPinnedToTimeline: false,
+        createdAt: null,
+        updatedAt: null,
+        blocks: [],
+        isNew: true,
+        error: null,
+      },
+    });
+    console.log("📝 Canvas reset — next save will create a new entry");
+  };
+
   const value: JournalContextValue = {
     ...state,
     dispatch,
@@ -580,6 +602,7 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
     loadJournal,
     setMeta,
     saveJournal,
+    resetJournal,
   };
 
   return (

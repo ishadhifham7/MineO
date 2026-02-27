@@ -1,53 +1,62 @@
 // src/features/calendar/useCalendarData.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getJournalsByRange } from "./calendar.api";
-import type { JournalEntry, MarkedDatesType, UseCalendarDataReturn } from "./types";
+import type { JournalEntry, JournalsByDate, MarkedDatesType, UseCalendarDataReturn } from "./types";
 
 /**
  * Custom hook to fetch and transform journal data for calendar display
  * @param year - The year to fetch journals for
  * @param month - The month to fetch journals for (1-12)
- * @returns Journal entries, marked dates, loading state, and error
+ * @returns Journal entries, marked dates, loading state, error, and refetch function
  */
 export const useCalendarData = (year: number, month: number): UseCalendarDataReturn => {
   const [journals, setJournals] = useState<JournalEntry[]>([]);
+  const [journalsByDate, setJournalsByDate] = useState<JournalsByDate>({});
   const [markedDates, setMarkedDates] = useState<MarkedDatesType>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchJournals = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchJournals = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Calculate date range for the month
-        const { startDate, endDate } = getMonthDateRange(year, month);
+      const { startDate, endDate } = getMonthDateRange(year, month);
+      console.log(`📅 Fetching calendar: ${startDate} → ${endDate}`);
 
-        // Fetch journals from API
-        const fetchedJournals = await getJournalsByRange(startDate, endDate);
+      const fetchedJournals = await getJournalsByRange(startDate, endDate);
+      console.log(`📅 Calendar fetched: ${fetchedJournals.length} entries`);
 
-        // Transform to marked dates format
-        const marked = transformToMarkedDates(fetchedJournals);
+      const grouped = groupByDate(fetchedJournals);
+      const marked = transformToMarkedDates(grouped);
 
-        setJournals(fetchedJournals);
-        setMarkedDates(marked);
-      } catch (err) {
-        console.error("Error fetching calendar journals:", err);
-        setError(err instanceof Error ? err : new Error("Failed to fetch journals"));
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Debug: log entry count per date
+      Object.entries(grouped).forEach(([date, entries]) =>
+        console.log(`📅 ${date}: ${entries.length} journal(s)`)
+      );
 
-    fetchJournals();
+      setJournals(fetchedJournals);
+      setJournalsByDate(grouped);
+      setMarkedDates(marked);
+    } catch (err) {
+      console.error("❌ Calendar fetch failed:", err);
+      setError(err instanceof Error ? err : new Error("Failed to fetch journals"));
+    } finally {
+      setLoading(false);
+    }
   }, [year, month]);
+
+  useEffect(() => {
+    fetchJournals();
+  }, [fetchJournals]);
 
   return {
     journals,
+    journalsByDate,
     markedDates,
     loading,
     error,
+    refetch: fetchJournals,
   };
 };
 
@@ -71,18 +80,36 @@ const getMonthDateRange = (year: number, month: number): { startDate: string; en
 };
 
 /**
- * Transform journal entries into calendar marked dates format
- * @param journals - Array of journal entries
- * @returns Object with date keys and marking configuration
+ * Group journal entries by date
  */
-const transformToMarkedDates = (journals: JournalEntry[]): MarkedDatesType => {
+const groupByDate = (journals: JournalEntry[]): JournalsByDate => {
+  const grouped: JournalsByDate = {};
+  journals.forEach((journal) => {
+    if (!grouped[journal.date]) grouped[journal.date] = [];
+    grouped[journal.date].push(journal);
+  });
+  // Sort each group newest first
+  Object.values(grouped).forEach((entries) =>
+    entries.sort((a, b) => b.createdAt - a.createdAt)
+  );
+  return grouped;
+};
+
+/**
+ * Transform grouped journal entries into multi-dot calendar marking
+ * Caps at 3 dots visually but stores full count
+ */
+const transformToMarkedDates = (grouped: JournalsByDate): MarkedDatesType => {
   const marked: MarkedDatesType = {};
 
-  journals.forEach((journal) => {
-    marked[journal.date] = {
-      marked: true,
-      dotColor: journal.isPinnedToTimeline ? "#FFD700" : "#6366F1", // Gold for pinned, indigo for regular
-    };
+  Object.entries(grouped).forEach(([date, entries]) => {
+    // Cap visual dots at 3; marked:true is required by react-native-calendars to render dots
+    const dots = entries.slice(0, 3).map((j) => ({
+      key: j.id,
+      color: j.isPinnedToTimeline ? "#FFD700" : "#6366F1",
+      selectedDotColor: "#FFFFFF",
+    }));
+    marked[date] = { marked: true, dots };
   });
 
   return marked;

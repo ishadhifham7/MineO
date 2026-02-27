@@ -2,14 +2,11 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   TextInput,
-  Dimensions,
+  useWindowDimensions,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
 import Svg, { Circle, G } from "react-native-svg";
 import { CalendarContainer } from "../../src/features/calendar";
 
@@ -93,7 +90,8 @@ function DonutChart({
 
 // ---------- Main Screen ----------
 export default function HomeScreen() {
-  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 768;
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -118,6 +116,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <View style={[styles.pageWrapper, isWide && styles.pageWrapperWide]}>
       {/* ===== Scenic Header ===== */}
       <View style={styles.headerBg}>
         {/* Sky */}
@@ -168,7 +167,7 @@ export default function HomeScreen() {
       </View>
 
       {/* ===== Life Moments & Daily Wins ===== */}
-      <View style={styles.twoCardRow}>
+      <View style={[styles.twoCardRow, isWide && styles.twoCardRowWide]}>
         {/* Life Moments */}
         <View style={[styles.card, styles.halfCard]}>
           <Text style={styles.cardTitle}>Life Moments</Text>
@@ -217,8 +216,61 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* ===== Win Tracker ===== */}
-      <View style={styles.sectionPadding}>
+      {/* ===== Win Tracker + Goal Path on wide screens ===== */}
+      {isWide ? (
+        <View style={[styles.twoCardRow, styles.twoCardRowWide, { marginBottom: 16 }]}>
+          {/* Win Tracker */}
+          <View style={[styles.card, { flex: 1 }]}>
+            <View style={styles.trackerHeader}>
+              <Text style={styles.sectionTitle}>Win Tracker</Text>
+              <Text style={styles.monthlyLabel}>Monthly</Text>
+            </View>
+            <View style={styles.trackerBody}>
+              <DonutChart
+                data={winCategories.map((c) => ({ percentage: c.percentage, color: c.color }))}
+                centerLabel="82%"
+                centerSub="TOTAL"
+              />
+              <View style={styles.legendList}>
+                {winCategories.map((cat) => (
+                  <View key={cat.name} style={styles.legendItem}>
+                    <View style={[styles.legendDot, { backgroundColor: cat.color }]} />
+                    <Text style={styles.legendName}>{cat.name}</Text>
+                    <Text style={styles.legendPct}>{cat.percentage}%</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+          {/* Goal Path */}
+          <View style={[styles.card, { flex: 1 }]}>
+            <View style={styles.goalHeader}>
+              <View>
+                <Text style={styles.goalTitle}>Goal Path</Text>
+                <Text style={styles.cardSubtitle}>MILESTONES</Text>
+              </View>
+              <View style={styles.completeBadge}>
+                <Text style={styles.completeBadgeText}>3 / 5 Complete</Text>
+              </View>
+            </View>
+            <View style={styles.milestonesRow}>
+              {milestones.map((m, i) => (
+                <View key={i} style={styles.milestoneCol}>
+                  {i < milestones.length - 1 && (
+                    <View style={[styles.milestoneLineRight, { backgroundColor: m.done ? m.color : "#e0e0e0" }]} />
+                  )}
+                  <View style={[styles.milestoneCircle, { backgroundColor: m.done ? m.color : "#fff", borderColor: m.done ? m.color : "#ccc", borderStyle: m.isEnd ? "dashed" : "solid" }]}>
+                    {m.done ? (<Ionicons name="checkmark" size={20} color="#fff" />) : m.isStar ? (<Ionicons name="star-outline" size={18} color="#bbb" />) : (<View style={styles.endDot} />)}
+                  </View>
+                  {m.isEnd && <Text style={styles.endLabel}>END</Text>}
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+      {!isWide && <View style={styles.sectionPadding}>
         <View style={styles.card}>
           <View style={styles.trackerHeader}>
             <Text style={styles.sectionTitle}>Win Tracker</Text>
@@ -244,10 +296,9 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-      </View>
+      </View>}
 
-      {/* ===== Goal Path ===== */}
-      <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
+      {!isWide && <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
         <View style={styles.card}>
           <View style={styles.goalHeader}>
             <View>
@@ -258,55 +309,39 @@ export default function HomeScreen() {
               <Text style={styles.completeBadgeText}>3 / 5 Complete</Text>
             </View>
           </View>
-
-          {/* Milestones */}
           <View style={styles.milestonesRow}>
             {milestones.map((m, i) => (
               <View key={i} style={styles.milestoneCol}>
-                {/* Connecting line to the right */}
                 {i < milestones.length - 1 && (
-                  <View
-                    style={[
-                      styles.milestoneLineRight,
-                      { backgroundColor: m.done ? m.color : "#e0e0e0" },
-                    ]}
-                  />
+                  <View style={[styles.milestoneLineRight, { backgroundColor: m.done ? m.color : "#e0e0e0" }]} />
                 )}
-                <View
-                  style={[
-                    styles.milestoneCircle,
-                    {
-                      backgroundColor: m.done ? m.color : "#fff",
-                      borderColor: m.done ? m.color : "#ccc",
-                      borderStyle: m.isEnd ? "dashed" : "solid",
-                    },
-                  ]}
-                >
-                  {m.done ? (
-                    <Ionicons name="checkmark" size={20} color="#fff" />
-                  ) : m.isStar ? (
-                    <Ionicons name="star-outline" size={18} color="#bbb" />
-                  ) : (
-                    <View style={styles.endDot} />
-                  )}
+                <View style={[styles.milestoneCircle, { backgroundColor: m.done ? m.color : "#fff", borderColor: m.done ? m.color : "#ccc", borderStyle: m.isEnd ? "dashed" : "solid" }]}>
+                  {m.done ? (<Ionicons name="checkmark" size={20} color="#fff" />) : m.isStar ? (<Ionicons name="star-outline" size={18} color="#bbb" />) : (<View style={styles.endDot} />)}
                 </View>
                 {m.isEnd && <Text style={styles.endLabel}>END</Text>}
               </View>
             ))}
           </View>
         </View>
+      </View>}
       </View>
     </ScrollView>
   );
 }
 
 // ---------- Styles ----------
-const { width: SCREEN_W } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: "#f7f7f7",
+  },
+  pageWrapper: {
+    width: "100%",
+  },
+  pageWrapperWide: {
+    maxWidth: 960,
+    alignSelf: "center" as const,
+    width: "100%",
   },
 
   /* ---- Header ---- */
@@ -334,8 +369,8 @@ const styles = StyleSheet.create({
   hillBack: {
     position: "absolute",
     bottom: 0,
-    left: -30,
-    width: SCREEN_W + 60,
+    left: "-5%" as any,
+    width: "110%" as any,
     height: 100,
     backgroundColor: "#c5ddb8",
     borderTopLeftRadius: 200,
@@ -345,7 +380,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     left: 0,
-    width: SCREEN_W,
+    width: "100%",
     height: 60,
     backgroundColor: "#d4c9a8",
     borderTopLeftRadius: 300,
@@ -507,6 +542,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
     marginBottom: 16,
+  },
+  twoCardRowWide: {
+    gap: 20,
+    paddingHorizontal: 24,
   },
   halfCard: {
     flex: 1,
