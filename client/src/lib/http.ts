@@ -19,10 +19,11 @@ export const httpClient: AxiosInstance = axios.create({
 
 /**
  * Request interceptor
- * Add authentication tokens here if needed
+ * Automatically adds JWT token to Authorization header
  */
 httpClient.interceptors.request.use(
   async (config) => {
+    // Get JWT token from AsyncStorage
     const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

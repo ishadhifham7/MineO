@@ -2,11 +2,37 @@ import { FastifyPluginAsync } from 'fastify';
 import { JournalController } from './journal.controller';
 
 const journalRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/', JournalController.getJournalByDate); // ?date=
-  fastify.post('/', JournalController.createJournal);
-  fastify.get('/:entryId', JournalController.getJournal);
-  fastify.put('/:entryId/canvas', JournalController.updateCanvas);
-  fastify.patch('/:entryId/meta', JournalController.updateMeta);
+  // SECURITY: All journal routes require authentication
+
+  // Get journal by date (user-specific)
+  fastify.get('/', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.getJournalByDate,
+  }); // ?date=
+
+  // Create journal entry (userId from JWT)
+  fastify.post('/', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.createJournal,
+  });
+
+  // Get journal by ID (ownership verified)
+  fastify.get('/:entryId', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.getJournal,
+  });
+
+  // Update canvas (ownership verified)
+  fastify.put('/:entryId/canvas', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.updateCanvas,
+  });
+
+  // Update metadata (ownership verified)
+  fastify.patch('/:entryId/meta', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.updateMeta,
+  });
 };
 
 export default journalRoutes;

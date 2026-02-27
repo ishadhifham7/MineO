@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { signupUser } from "../../src/services/auth.service";
+import { useAuth } from "../../src/hooks/useAuth";
 import * as ImagePicker from "expo-image-picker";
 
 import {
@@ -21,6 +22,7 @@ import { Picker } from "@react-native-picker/picker";
 
 export default function SignupDetailsScreen() {
   const router = useRouter();
+  const { refreshAuth } = useAuth();
   const params = useLocalSearchParams();
 
   const { name, email, password } = params as {
@@ -104,6 +106,9 @@ export default function SignupDetailsScreen() {
         country,
         profilePhoto: profilePhoto ?? undefined,
       });
+
+      // Refresh auth context to load user data
+      await refreshAuth();
 
       Alert.alert("Success", "Account created");
       router.replace("/onboarding/step1");

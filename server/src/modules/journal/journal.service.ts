@@ -3,9 +3,13 @@ import { JournalEntry, JournalBlock } from './journal.types';
 import { v4 as uuid } from 'uuid';
 
 export class JournalService {
-  // 🔹 get by date (NO auto create)
-  static async getJournalByDate(date: string) {
-    const snap = await JournalRepository.entries().where('date', '==', date).limit(1).get();
+  // 🔹 get by date (NO auto create) - SECURE: filtered by userId
+  static async getJournalByDate(date: string, userId: string) {
+    const snap = await JournalRepository.entries()
+      .where('userId', '==', userId)
+      .where('date', '==', date)
+      .limit(1)
+      .get();
 
     if (snap.empty) return null;
 
@@ -18,13 +22,15 @@ export class JournalService {
     };
   }
 
-  // 🔹 create entry (first save)
+  // 🔹 create entry (first save) - SECURE: userId from JWT
   static async createJournal({
+    userId,
     date,
     title,
     isPinnedToTimeline = false,
     blocks,
   }: {
+    userId: string; // REQUIRED: from authenticated user
     date: string;
     title?: string;
     isPinnedToTimeline?: boolean;
@@ -35,6 +41,7 @@ export class JournalService {
 
     const entry: JournalEntry = {
       id: entryId,
+      userId, // Attach userId from JWT
       date,
       title,
       isPinnedToTimeline,
@@ -54,12 +61,19 @@ export class JournalService {
     return entry;
   }
 
-  // 🔹 update canvas only
-  static async updateCanvas(entryId: string, blocks: JournalBlock[]) {
+  // 🔹 update canvas only - SECURE: ownership verified
+  static async updateCanvas(entryId: string, blocks: JournalBlock[], userId: string) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
     if (!snap.exists) throw new Error('Entry not found');
+
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
 
     const batch = entryRef.firestore.batch();
 
@@ -74,12 +88,23 @@ export class JournalService {
     await batch.commit();
   }
 
-  // 🔹 update metadata only
-  static async updateMeta(entryId: string, meta: { title?: string; isPinnedToTimeline?: boolean }) {
+  // 🔹 update metadata only - SECURE: ownership verified
+  static async updateMeta(
+    entryId: string,
+    meta: { title?: string; isPinnedToTimeline?: boolean },
+    userId: string
+  ) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
     if (!snap.exists) throw new Error('Entry not found');
+
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
 
     await entryRef.update({
       ...meta,
@@ -87,12 +112,19 @@ export class JournalService {
     });
   }
 
-  // 🔹 get full journal by id
-  static async getFullJournal(entryId: string) {
+  // 🔹 get full journal by id - SECURE: ownership verified
+  static async getFullJournal(entryId: string, userId: string) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
     if (!snap.exists) throw new Error('Entry not found');
+
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
 
     const blocksSnap = await JournalRepository.canvasBlocks(entryId).get();
 
