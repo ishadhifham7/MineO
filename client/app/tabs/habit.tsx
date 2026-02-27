@@ -8,10 +8,19 @@ import HabitStatusCard from "../../src/components/habit/HabitStatusCard";
 import HabitRadarChart from "../../src/components/habit/HabitRadarChart";
 import { HabitProvider, useHabit } from "../../src/features/habit/HabitContext";
 
+// Get local date in YYYY-MM-DD format (not UTC)
+const getLocalDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 function HabitsContent() {
   const { activeTab, setActiveTab, visibleCalendar, radarValues, updateDailyHabit, isLoading, isSaving, error, refreshCalendar, refreshRadar } = useHabit();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  const today = getLocalDate();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
