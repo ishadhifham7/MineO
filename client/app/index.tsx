@@ -1,33 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Animated } from "react-native";
 import { useRouter } from "expo-router";
-import { Video, ResizeMode } from "expo-av";
-
-export default function SplashScreen() {
-  const router = useRouter();
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace("/auth/login");
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      <Video
-        ref={videoRef}
-        source={require("../assets/Splash Screen.mp4")} 
-        style={styles.video}
-        resizeMode={ResizeMode.CONTAIN}
-        shouldPlay
-        isLooping={false}
-      />
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -36,8 +9,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  video: {
-    width: 200,
-    height: 200,
+  text: {
+    fontSize: 40,
+    fontWeight: "bold",
+    color: "#222",
   },
 });
+
+export default function SplashScreen() {
+  const router = useRouter();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+    const timer = setTimeout(() => {
+      router.replace("/auth/login");
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>
+        MineO
+      </Animated.Text>
+    </View>
+  );
+}
