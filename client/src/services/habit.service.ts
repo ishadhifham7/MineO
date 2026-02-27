@@ -3,9 +3,10 @@ import type { CalendarData, RadarApiResponse, Category } from "../features/habit
 
 /**
  * Get calendar data for all habits
+ * Uses local month to match user's timezone
  */
 export async function getCalendar(): Promise<CalendarData> {
-  // Get current month in YYYY-MM format
+  // Get current month in YYYY-MM format (local time)
   const now = new Date();
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   
@@ -19,22 +20,22 @@ export async function getCalendar(): Promise<CalendarData> {
  * Get radar data (7-day summary) for all categories
  */
 export async function getRadar(): Promise<RadarApiResponse> {
-  // Get last 7 days
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - 6);
-  
-  const formatDate = (date: Date) => {
+  // Get last 7 days using local dates
+  const formatLocalDate = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
   
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - 6);
+  
   const response = await httpClient.get("/habits/radar", {
     params: {
-      start: formatDate(start),
-      end: formatDate(end)
+      start: formatLocalDate(start),
+      end: formatLocalDate(end)
     }
   });
   return response.data;

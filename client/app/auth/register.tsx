@@ -111,7 +111,7 @@ export default function SignupDetailsScreen() {
       await refreshAuth();
 
       Alert.alert("Success", "Account created");
-      router.replace("/tabs");
+      router.replace("/onboarding/step1");
     } catch (error: any) {
       Alert.alert("Signup Failed", error.message);
     } finally {
