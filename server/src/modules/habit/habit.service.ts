@@ -10,17 +10,30 @@ const collection = firestore.collection("dailyStates");
 export class HabitService {
   // CREATE OR UPDATE DAILY HABIT (UPSERT)
   static async upsertDailyHabit(date: string, payload: any) {
+    // Delete any duplicate documents with malformed IDs for this date
+    const dateParts = date.split('-').map(Number);
+    const utcDate = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+    const dateTimestamp = Timestamp.fromDate(utcDate);
+    
+    const duplicates = await collection
+      .where("date", "==", dateTimestamp)
+      .get();
+    
+    for (const doc of duplicates.docs) {
+      if (doc.id !== date) {
+        await doc.ref.delete();
+      }
+    }
+    
     const docRef = collection.doc(date);
 
-    await docRef.set(
-      {
-        date: Timestamp.fromDate(new Date(date)),
-        ...payload,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
-      },
-      { merge: true }
-    );
+    const updateData = {
+      date: dateTimestamp,
+      ...payload,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await docRef.set(updateData, { merge: true });
   }
 
   // GET MONTHLY CALENDAR DATA
