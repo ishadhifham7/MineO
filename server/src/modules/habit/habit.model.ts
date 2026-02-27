@@ -1,6 +1,7 @@
-import { Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from 'firebase-admin/firestore';
 
 export interface HabitDailyDocument {
+  userId: string; // REQUIRED: User who owns this daily state
   date: Timestamp;
   mental?: number | null;
   physical?: number | null;

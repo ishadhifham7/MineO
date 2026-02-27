@@ -1,10 +1,11 @@
 // src/services/api.ts
 import axios from "axios";
 import { env } from "../../constants/env";
+import { getToken } from "../utils/tokenStorage";
 
 /**
- * Base URL for API
- * Uses auto-detected IP from Expo - no hardcoded IPs!
+ * Journal API Client
+ * Uses auto-detected backend URL - works on any network!
  */
 export const API_BASE_URL = env.API_BASE_URL;
 
@@ -23,11 +24,21 @@ export const api = axios.create({
   timeout: 10000,
 });
 
+// Request interceptor - Automatically adds JWT token to Authorization header
+console.log("🔧 Journal API initialized with:", getBaseURL());
+
 // Request interceptor for debugging
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     console.log("🔵 API Request:", config.method?.toUpperCase(), config.url);
     console.log("📦 Data:", config.data);
+
+    // Get JWT token from AsyncStorage and add to headers
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
   (error) => {

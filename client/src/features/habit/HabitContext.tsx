@@ -50,6 +50,7 @@ export function HabitProvider({ children }: HabitProviderProps) {
   async function loadCalendar() {
     try {
       const data = await getCalendar();
+      console.log('📅 Calendar data loaded:', JSON.stringify(data, null, 2));
       setCalendarData(data);
     } catch (err) {
       console.error("Error loading calendar:", err);
@@ -91,13 +92,15 @@ export function HabitProvider({ children }: HabitProviderProps) {
   }
 
   const visibleCalendar = useMemo(() => {
-    return Object.entries(calendarData).reduce<Record<string, number | undefined>>(
+    const result = Object.entries(calendarData).reduce<Record<string, number | undefined>>(
       (acc, [date, scores]) => {
         acc[date] = scores?.[activeTab];
         return acc;
       },
       {}
     );
+    console.log(`🗓️ visibleCalendar for ${activeTab}:`, result);
+    return result;
   }, [calendarData, activeTab]);
 
   async function updateDailyHabit(
@@ -105,8 +108,9 @@ export function HabitProvider({ children }: HabitProviderProps) {
     category: Category,
     value: number
   ) {
-    const previous = calendarData[date]?.[category] ?? 0;
-
+    const previous = calendarData[date]?.[category];
+    console.log(`💾 Saving habit: date=${date}, category=${category}, value=${value}, previous=${previous}`);
+    
     // Optimistic update
     setCalendarData((prev) => ({
       ...prev,
@@ -123,10 +127,18 @@ export function HabitProvider({ children }: HabitProviderProps) {
       console.log('✅ Radar data refreshed!');
     } catch (err) {
       // Rollback on error
-      setCalendarData((prev) => ({
-        ...prev,
-        [date]: { ...prev[date], [category]: previous },
-      }));
+      setCalendarData((prev) => {
+        const dayData = { ...prev[date] };
+        if (previous === undefined) {
+          delete dayData[category];
+        } else {
+          dayData[category] = previous;
+        }
+        return {
+          ...prev,
+          [date]: dayData,
+        };
+      });
       console.error("❌ Error updating habit:", err);
       throw err;
     } finally {

@@ -1,8 +1,8 @@
 # Firestore Index Configuration
 
-## Required Composite Index
+## Required Composite Indexes
 
-For optimal performance of the `GET /goals` endpoint, create this composite index in Firestore:
+For optimal performance, create these composite indexes in Firestore:
 
 ### Collection: `goals`
 
@@ -11,7 +11,14 @@ For optimal performance of the `GET /goals` endpoint, create this composite inde
 | userId    | Ascending  |
 | createdAt | Descending |
 
-## How to Create the Index
+### Collection: `dailyStates`
+
+| Field  | Order     |
+| ------ | --------- |
+| userId | Ascending |
+| date   | Ascending |
+
+## How to Create the Indexes
 
 ### Option 1: Firestore Console (Recommended)
 
@@ -46,6 +53,20 @@ Create/update `firestore.indexes.json` in your project root:
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "dailyStates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []
@@ -60,9 +81,11 @@ firebase deploy --only firestore:indexes
 
 ### Option 3: Auto-creation via Error Link
 
-When you first run `GET /goals`, Firestore will return an error with a link to auto-create the index. Click the link in the error message.
+When you first run queries that require indexes, Firestore will return an error with a link to auto-create the index. Click the link in the error message.
 
-## Why This Index is Needed
+## Why These Indexes Are Needed
+
+### Goals Index
 
 The query in [goal.service.ts](src/modules/goal/goal.service.ts):
 
@@ -76,6 +99,29 @@ Uses both:
 - Order by `createdAt`
 
 This requires a composite index in Firestore.
+
+### Habit (Daily States) Indexes
+
+The queries in [habit.service.ts](src/modules/habit/habit.service.ts):
+
+**Calendar Query:**
+
+```typescript
+collection.where('userId', '==', userId).where('date', '>=', start).where('date', '<=', end).get();
+```
+
+**Radar Query:**
+
+```typescript
+collection.where('userId', '==', userId).where('date', '>=', start).where('date', '<=', end).get();
+```
+
+Both use:
+
+- Equality filter on `userId`
+- Range filter on `date` (>=, <=)
+
+This requires a composite index on `userId` (ascending) and `date` (ascending).
 
 ## Single-field Indexes
 
