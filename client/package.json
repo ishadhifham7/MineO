@@ -19,6 +19,7 @@
     "axios": "^1.13.4",
     "babel-preset-expo": "~54.0.10",
     "expo": "~54.0.32",
+    "expo-av": "~16.0.8",
     "expo-blur": "^15.0.8",
     "expo-checkbox": "^5.0.8",
     "expo-image-picker": "^17.0.10",

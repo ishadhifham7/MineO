@@ -3,8 +3,8 @@ import axios from "axios";
 import { env } from "../../constants/env";
 
 /**
- * Base URL for API
- * Uses auto-detected IP from Expo - no hardcoded IPs!
+ * Journal API Client
+ * Uses auto-detected backend URL - works on any network!
  */
 export const API_BASE_URL = env.API_BASE_URL;
 
@@ -22,6 +22,8 @@ export const api = axios.create({
   },
   timeout: 10000,
 });
+
+console.log("🔧 Journal API initialized with:", getBaseURL());
 
 // Request interceptor for debugging
 api.interceptors.request.use(
