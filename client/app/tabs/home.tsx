@@ -152,6 +152,15 @@ export default function HomeScreen() {
           <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
           <View style={styles.treeTrunk} />
         </View>
+        {/* Profile Icon - Top Right */}
+        <TouchableOpacity
+          style={styles.profileIconButton}
+          onPress={() => router.push("/other/profile")}
+        >
+          <View style={styles.profileIconContainer}>
+            <Ionicons name="person" size={24} color="#333" />
+          </View>
+        </TouchableOpacity>
         {/* Header Text */}
         <View style={styles.headerTextWrap}>
           <Text style={styles.headerHello}>Hello,</Text>
@@ -799,5 +808,26 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#bbb",
     letterSpacing: 1,
+  },
+
+  /* ---- Profile Icon ---- */
+  profileIconButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 10,
+  },
+  profileIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });
