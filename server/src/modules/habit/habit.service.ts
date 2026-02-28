@@ -39,11 +39,7 @@ export class HabitService {
       .where('date', '<=', end)
       .get();
 
-<<<<<<< HEAD
-    return snapshot.docs.map((doc: any) => {
-=======
-    return snapshot.docs.map((doc) => {
->>>>>>> 40ae5ab0ec066208735bbe3258ec249684c2935e
+    return snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
       const d = doc.data();
       return {
         date: d.date.toDate().toISOString().split('T')[0],
@@ -77,11 +73,7 @@ export class HabitService {
       spiritual: { green: 0, blue: 0, red: 0 },
     };
 
-<<<<<<< HEAD
-    snapshot.docs.forEach((doc: any) => {
-=======
-    snapshot.docs.forEach((doc) => {
->>>>>>> 40ae5ab0ec066208735bbe3258ec249684c2935e
+    snapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
       const d = doc.data();
 
       // Count mental values
