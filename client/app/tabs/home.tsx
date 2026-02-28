@@ -12,6 +12,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import Svg, { Circle, G } from "react-native-svg";
 
+import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useMemo } from "react";
+
 // ---------- Types ----------
 interface DailyWin {
   id: string;
@@ -124,6 +128,48 @@ export default function HomeScreen() {
     { done: false, isStar: true, color: "#E0E0E0" },
     { done: false, isEnd: true, color: "#E0E0E0" },
   ];
+
+  //fetch goals whenever Home is opened (keeps up to date)
+  const { goals, fetchGoals } = useGoal();
+  useFocusEffect(
+    useCallback(() => {
+      fetchGoals();
+    }, [fetchGoals])
+  );
+
+  const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
+
+  const allGoalsCompleted = useMemo(() => {
+  if (!goals || goals.length === 0) return false;
+  return goals.every((g) => g.stages?.length > 0 && g.stages.every((s) => s.completed));
+  }, [goals]);
+
+  const getGoalRowBg = (completed: number, total: number) => {
+  if (!total || total <= 0) return "#F3F4F6"; // gray
+  if (completed <= 0) return "#F3F4F6";
+
+  // Convert any total into a 1..6 bucket
+  const ratio = completed / total;
+  const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
+
+  // setting background colors for the goals based on the progress
+  switch (bucket) {
+    case 1:
+      return "#DCFCE7"; 
+    case 2:
+      return "#DBEAFE"; 
+    case 3:
+      return "#EDE9FE";
+    case 4:
+      return "#FEF3C7"; 
+    case 5:
+      return "#FFE4E6"; 
+    case 6:
+      return "#D1FAE5";
+    default:
+      return "#F3F4F6";
+  }
+};
 
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -324,49 +370,62 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <View style={styles.goalHeader}>
             <View>
-              <Text style={styles.goalTitle}>Goal Path</Text>
-              <Text style={styles.cardSubtitle}>MILESTONES</Text>
-            </View>
-            <View style={styles.completeBadge}>
-              <Text style={styles.completeBadgeText}>3 / 5 Complete</Text>
+              <Text style={styles.goalTitle}>Goal Plan</Text>
+              <Text style={styles.cardSubtitle}>YOUR GOALS</Text>
             </View>
           </View>
 
-          {/* Milestones */}
-          <View style={styles.milestonesRow}>
-            {milestones.map((m, i) => (
-              <View key={i} style={styles.milestoneCol}>
-                {/* Connecting line to the right */}
-                {i < milestones.length - 1 && (
-                  <View
+          {/* no goals */}
+          {(!goals || goals.length === 0) && (
+            <Text style={styles.goalEmptyText}>No goal plans</Text>
+          )}
+
+          {/* all completed */}
+          {goals && goals.length > 0 && allGoalsCompleted && (
+            <Text style={styles.goalEmptyText}>All Goals completed - create a new Goal</Text>
+          )}
+
+          {/* list (max 5) */}
+          {goals && goals.length > 0 && !allGoalsCompleted && (
+            <View style={{ gap: 10 }}>
+              {displayGoals.map((g) => {
+                const total = g.stages?.length ?? 0;
+                const completed = g.stages?.filter((s) => s.completed).length ?? 0;
+                const remaining = Math.max(0, total - completed);
+
+                const isCompleted = total > 0 && completed === total;
+
+                return (
+                  <TouchableOpacity
+                    key={g.id}
                     style={[
-                      styles.milestoneLineRight,
-                      { backgroundColor: m.done ? m.color : "#e0e0e0" },
+                      styles.goalRow,
+                      { backgroundColor: getGoalRowBg(completed, total) },
                     ]}
-                  />
-                )}
-                <View
-                  style={[
-                    styles.milestoneCircle,
-                    {
-                      backgroundColor: m.done ? m.color : "#fff",
-                      borderColor: m.done ? m.color : "#ccc",
-                      borderStyle: m.isEnd ? "dashed" : "solid",
-                    },
-                  ]}
-                >
-                  {m.done ? (
-                    <Ionicons name="checkmark" size={20} color="#fff" />
-                  ) : m.isStar ? (
-                    <Ionicons name="star-outline" size={18} color="#bbb" />
-                  ) : (
-                    <View style={styles.endDot} />
-                  )}
-                </View>
-                {m.isEnd && <Text style={styles.endLabel}>END</Text>}
-              </View>
-            ))}
-          </View>
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/tabs/goal/roadmap",
+                        params: { goalId: g.id },
+                      });
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.goalRowTitle} numberOfLines={1}>
+                        {g.title}
+                      </Text>
+                      <Text style={styles.goalRowSub}>
+                        {isCompleted ? "Completed" : "In progress"}
+                        {total > 0 ? `  •  ${remaining}/${total}` : ""}
+                      </Text>
+                    </View>
+
+                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </View>
       </View>
     </ScrollView>
@@ -754,60 +813,34 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#64B5F6",
+    color: "#000000",
   },
-  completeBadge: {
+  goalEmptyText: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginTop: 6,
+  },
+  goalRow: {
     borderWidth: 1,
-    borderColor: "#c8e6c9",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    borderColor: "#EEF2F7",
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    
   },
-  completeBadgeText: {
+  goalRowTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  goalRowSub: {
+    marginTop: 4,
     fontSize: 12,
     fontWeight: "600",
-    color: "#66BB6A",
-  },
-  milestonesRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 4,
-    paddingBottom: 8,
-  },
-  milestoneCol: {
-    alignItems: "center",
-    position: "relative",
-  },
-  milestoneCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  milestoneLineRight: {
-    position: "absolute",
-    top: 22,
-    left: 46,
-    width: 30,
-    height: 3,
-    borderRadius: 2,
-    zIndex: -1,
-  },
-  endDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#ccc",
-  },
-  endLabel: {
-    marginTop: 6,
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#bbb",
-    letterSpacing: 1,
+    color: "#6B7280",
   },
 
   /* ---- Profile Icon ---- */
