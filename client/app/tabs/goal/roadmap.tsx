@@ -7,7 +7,7 @@ import { BlurView } from "expo-blur";
 import { toggleStageCompletionApi } from "../../../src/features/goal/goal.api";
 
 const GoalRoadmapScreen: React.FC = () => {
-  const { currentGoal, goals } = useGoal();
+  const { currentGoal, goals, upsertGoal } = useGoal();
   const params = useLocalSearchParams();
 
   // Get the goal by ID from URL params, fallback to currentGoal or most recent
@@ -82,15 +82,14 @@ const GoalRoadmapScreen: React.FC = () => {
     );
 
     try {
-      // Call backend API to persist the change
-      await toggleStageCompletionApi(
+      const updatedGoal = await toggleStageCompletionApi(
         displayGoal.id,
         stageId,
         newCompletedStatus,
       );
 
-      // Optionally refresh goals from context to ensure sync
-      // fetchGoals(); // Uncomment if you want to refresh all goals
+      //keep GoalContext in sync so Home widget updates
+      upsertGoal(updatedGoal);
     } catch (error) {
       console.error("Failed to toggle stage completion:", error);
 
