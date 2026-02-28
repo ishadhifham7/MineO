@@ -48,6 +48,10 @@ interface GoalContextType {
 
   currentGoal: Goal | null;
   setCurrentGoal: (goal: Goal | null) => void;
+
+  /* When a stage is checked/unchecked in the roadmap screen,
+   the backend returns the updated goal.*/
+  upsertGoal: (goal: Goal) => void;
 }
 
 /* ========================= */
@@ -81,6 +85,19 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const upsertGoal = (updated: Goal) => {
+    setGoals((prev) => {
+      const idx = prev.findIndex((g) => g.id === updated.id);
+      if (idx === -1) return [updated, ...prev];
+      const copy = [...prev];
+      copy[idx] = updated;
+      return copy;
+    });
+
+    // keep currentGoal in sync too (optional but useful)
+    setCurrentGoal((prev) => (prev?.id === updated.id ? updated : prev));
+  };
+
   return (
     <GoalContext.Provider
       value={{
@@ -92,6 +109,7 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
         setCurrentGoal,
         fetchGoals,
         loading,
+        upsertGoal,
       }}
     >
       {children}
