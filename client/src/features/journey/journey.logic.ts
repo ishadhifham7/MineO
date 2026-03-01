@@ -1,37 +1,21 @@
-import { Dimensions } from "react-native";
-import { JourneyNodePosition } from "./journey.types";
+// src/features/journey/journey.logic.ts
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
+// Points configuration for journey progress
+const POINTS_CONFIG = {
+  GOAL_COMPLETED: 20,
+  JOURNAL_ENTRY: 2,
+  HABIT_STREAK: 1,
+  POINTS_PER_STAGE: 100,
+};
 
-const NODE_SIZE = 70;
-const VERTICAL_SPACING = 180;
-const SIDE_PADDING = 40;
-const MAX_SHIFT = 120;
+export const calculateProgress = (goals: any[], journals: any[], habits: any) => {
+  const goalPoints = goals.filter(g => g.completed).length * 20;
+  const journalPoints = journals.length * 2; // All journals count
+  const habitPoints = habits.maxStreak || 0;
 
-export function generateJourneyPositions(
-  count: number
-): JourneyNodePosition[] {
-  const positions: JourneyNodePosition[] = [];
+  const totalPoints = goalPoints + journalPoints + habitPoints;
+  const currentStage = Math.min(Math.floor(totalPoints / 100) + 1, 6);
+  const progressPercent = (totalPoints % 100);
 
-  let currentX = SCREEN_WIDTH / 2;
-
-  for (let i = 0; i < count; i++) {
-    const y = count * VERTICAL_SPACING - i * VERTICAL_SPACING;
-
-    const shift = (Math.random() - 0.5) * 2 * MAX_SHIFT;
-    currentX += shift;
-
-    currentX = Math.max(
-      SIDE_PADDING,
-      Math.min(SCREEN_WIDTH - SIDE_PADDING - NODE_SIZE, currentX)
-    );
-
-    positions.push({
-      id: `node-${i}`,
-      x: currentX,
-      y,
-    });
-  }
-
-  return positions;
-}
+  return { totalPoints, currentStage, progressPercent };
+};
