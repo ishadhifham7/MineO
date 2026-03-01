@@ -19,20 +19,41 @@ export const signupUser = async (data: {
 }) => {
   const usersRef = firestore.collection(USERS_COLLECTION);
 
-  // check for an existing user with the same email.
-  const existing = await usersRef.where('email', '==', data.email).get();
-
+  // Check email uniqueness
+  const existing = await usersRef.where("email", "==", data.email).get();
   if (!existing.empty) {
-    throw new Error('User already exists');
+    throw new Error("User already exists");
   }
 
-  // if there is no user with that email:
+  // Generate base username from name
+  const baseUsername = data.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, ""); // remove spaces & special chars
 
+  let username = baseUsername;
+  let counter = 0;
+
+  //Ensure username uniqueness
+  while (true) {
+    const usernameQuery = await usersRef
+      .where("username", "==", username)
+      .limit(1)
+      .get();
+
+    if (usernameQuery.empty) break;
+
+    counter++;
+    username = `${baseUsername}${counter}`;
+  }
+
+  // Hash password
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
+  //  Create user document
   const docRef = await usersRef.add({
     name: data.name,
     email: data.email,
+    username, 
     password: hashedPassword,
     dob: data.dob,
 
