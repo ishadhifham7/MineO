@@ -1,60 +1,64 @@
 import React from "react";
-import { Text, StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, View } from "react-native";
 
 type JourneyNodeProps = {
-  id: string;
-  title: string;
-  top: number;
-  left: number;
-  onPress?: (id: string) => void;
+  stage: number; // Keep stage ID for logic/onPress
+  status: "locked" | "current" | "completed";
+  position: { x: number; y: number };
+  onPress?: () => void;
 };
 
 export const JourneyNode: React.FC<JourneyNodeProps> = ({
-  id,
-  title,
-  top,
-  left,
+  position,
   onPress,
 }) => {
   return (
     <Pressable
-      onPress={() => onPress?.(id)}
+      onPress={onPress}
       style={[
-        styles.node,
+        styles.nodeContainer,
         {
-          top,
-          left,
+          top: position.y,
+          left: position.x,
         },
       ]}
     >
-      <Text style={styles.title} numberOfLines={2}>
-        {title}
-      </Text>
+      {/* The Image Frame seen in the design */}
+      <View style={styles.imageFrame}>
+        {/* Placeholder View: This is where the Image will go after backend connection */}
+        <View style={styles.placeholderFill} />
+      </View>
     </Pressable>
   );
 };
 
-const NODE_SIZE = 100;
+// Based on the provided design: smaller nodes for better utilization
+const NODE_SIZE = 70;
 
 const styles = StyleSheet.create({
-  node: {
+  nodeContainer: {
     position: "absolute",
+    // Ensures the node is centered on the SVG path coordinates
+    transform: [{ translateX: -NODE_SIZE / 4 }, { translateY: -NODE_SIZE / 4 }],
+    zIndex: 10,
+  },
+  imageFrame: {
     width: NODE_SIZE,
     height: NODE_SIZE,
-    borderRadius: NODE_SIZE / 2,
-    backgroundColor: "#1E293B",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
+    borderRadius: 18, // Highly rounded corners as per design
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "#444", // Dark border seen in image_66beb2.png
+    overflow: "hidden",
+    // Shadow for the "Polaroid/Card" depth
     shadowColor: "#000",
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
     elevation: 5,
   },
-  title: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-    textAlign: "center",
+  placeholderFill: {
+    flex: 1,
+    backgroundColor: "#E5E7EB", // Grey placeholder for now
   },
 });
