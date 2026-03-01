@@ -4,19 +4,23 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "../src/providers/AuthProvider";
 import { GoalProvider } from "../src/features/goal/goal.context";
+import { ProfileProvider } from "../src/providers/ProfileProvider";
+
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
-          <GoalProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            />
-          </GoalProvider>
+          <ProfileProvider>
+            <GoalProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              />
+            </GoalProvider>
+          </ProfileProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
