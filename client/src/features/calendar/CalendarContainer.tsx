@@ -1,10 +1,11 @@
 // src/features/calendar/CalendarContainer.tsx
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { CalendarView } from "./CalendarView";
 import { MomentPreviewSheet } from "./MomentPreviewSheet";
 import { useCalendarData } from "./useCalendarData";
+import { getLocalToday } from "../../utils/date";
 import type { CalendarState, JournalEntry } from "./types";
 import { colors } from "../../constants/colors";
 
@@ -14,6 +15,8 @@ import { colors } from "../../constants/colors";
  * Manages calendar state and handles user interactions
  */
 export const CalendarContainer: React.FC = () => {
+  const router = useRouter();
+
   // Initialize with current month
   const now = new Date();
   const [calendarState, setCalendarState] = useState<CalendarState>({
@@ -52,15 +55,22 @@ export const CalendarContainer: React.FC = () => {
         selectedDate: day.dateString,
       }));
 
-      // Find all journals for selected date (already sorted newest-first)
-      const entries = journalsByDate[day.dateString] ?? [];
+      // Find journals for selected date — only show the latest 1 entry
+      const allEntries = journalsByDate[day.dateString] ?? [];
+      const entries = allEntries.slice(0, 1);
 
       if (entries.length > 0) {
-        console.log(`📅 ${entries.length} journal(s) found for:`, day.dateString);
+        console.log(`📅 Journal entry found for:`, day.dateString);
         setSelectedJournals(entries);
         setIsPreviewVisible(true);
+      } else if (day.dateString === getLocalToday()) {
+        // Today with no entry → just switch to the journal tab (its index already shows today)
+        console.log("📅 Today tapped — switching to journal tab");
+        router.push("/tabs/journal" as any);
       } else {
-        console.log("📅 No journal entry for:", day.dateString);
+        // Past/future day with no entry — open root-level editor so back returns here
+        console.log("📅 No journal entry for:", day.dateString, "— opening editor");
+        router.push(`/journal/${day.dateString}` as any);
       }
     },
     [journalsByDate],
@@ -88,15 +98,21 @@ export const CalendarContainer: React.FC = () => {
   }, []);
 
   /**
-   * Handle "View Full Moment" button press
-   * For now: logs to console
-   * Future: will emit navigation event
+   * Handle "View Full Moment" button press — navigate to journal date view
    */
-  const handleViewFull = useCallback((journalId: string) => {
-    console.log("🚀 Navigate to journal:", journalId);
-    // TODO: Emit event or call navigation callback
-    // This will be implemented in the next layer
-  }, []);
+  const handleViewFull = useCallback(
+    (journalId: string) => {
+      // Find the date for this journal id
+      const date = Object.keys(journalsByDate).find((d) =>
+        journalsByDate[d].some((j) => j.id === journalId),
+      );
+      if (date) {
+        handlePreviewClose();
+        router.push(`/journal/${date}` as any);
+      }
+    },
+    [journalsByDate, router, handlePreviewClose],
+  );
 
   // Format current month for calendar (YYYY-MM-DD format)
   const currentMonthString = `${calendarState.currentYear}-${String(calendarState.currentMonth).padStart(2, '0')}-01`;

@@ -11,12 +11,14 @@ if (!admin.apps.length) {
       clientEmail: env.FIREBASE_CLIENT_EMAIL,
       privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     }),
+    storageBucket: env.FIREBASE_STORAGE_BUCKET,
   });
 }
 
 export const firebaseAdmin = admin;
 export const firestore = admin.firestore();
 export const auth = admin.auth();
+export const storage = admin.storage();
 export const Timestamp = admin.firestore.Timestamp;
 
 // Ensure Firestore ignores undefined fields

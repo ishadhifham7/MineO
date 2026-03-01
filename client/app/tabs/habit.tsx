@@ -8,7 +8,8 @@ import useHabitTracker from "../../src/features/habit/habit.logic";
 
 export default function HabitsScreen() {
   const { activeTab, setActiveTab, visibleCalendar, radarData, updateDailyHabit } = useHabitTracker();
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>

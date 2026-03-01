@@ -1,9 +1,11 @@
+import { useEffect, useRef } from "react";
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
-  TextInput,
+  Animated,
+  Easing,
   useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -93,6 +95,105 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
 
+  // ── Animations ──
+  const textFade = useRef(new Animated.Value(0)).current;
+  const textSlide = useRef(new Animated.Value(20)).current;
+  const cloudDrift = useRef(new Animated.Value(0)).current;
+  const tree1Sway = useRef(new Animated.Value(0)).current;
+  const tree2Sway = useRef(new Animated.Value(0)).current;
+  const hillScale = useRef(new Animated.Value(0.95)).current;
+
+  useEffect(() => {
+    // Text fade + slide in
+    Animated.parallel([
+      Animated.timing(textFade, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(textSlide, {
+        toValue: 0,
+        duration: 800,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Hills gently scale in
+    Animated.spring(hillScale, {
+      toValue: 1,
+      tension: 20,
+      friction: 7,
+      useNativeDriver: true,
+    }).start();
+
+    // Cloud drifting loop - seamless infinite scrolling
+    Animated.loop(
+      Animated.timing(cloudDrift, {
+        toValue: 1, // Represents 1 full cycle
+        duration: 35000, // Very slow and peaceful
+        easing: Easing.linear, // Linear easing for constant speed
+        useNativeDriver: true,
+      }),
+    ).start();
+
+    // Tree sway loops
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(tree1Sway, {
+          toValue: 1,
+          duration: 2500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(tree1Sway, {
+          toValue: -1,
+          duration: 2500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(tree1Sway, {
+          toValue: 0,
+          duration: 2500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(tree2Sway, {
+          toValue: -1,
+          duration: 3000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(tree2Sway, {
+          toValue: 1,
+          duration: 3000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(tree2Sway, {
+          toValue: 0,
+          duration: 3000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+
+  const tree1Rotate = tree1Sway.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: ["-3deg", "0deg", "3deg"],
+  });
+  const tree2Rotate = tree2Sway.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: ["-4deg", "0deg", "4deg"],
+  });
+
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
     { id: "2", emoji: "🧘", title: "Morning ex...", bgColor: "#F3E5F5" },
@@ -117,52 +218,128 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       <View style={[styles.pageWrapper, isWide && styles.pageWrapperWide]}>
-      {/* ===== Scenic Header ===== */}
+      {/* ===== Animated Scenic Header ===== */}
       <View style={styles.headerBg}>
         {/* Sky */}
         <View style={styles.skyLayer} />
-        <View style={styles.cloudLayer} />
-        {/* Hills */}
-        <View style={styles.hillBack} />
-        <View style={styles.hillFront} />
-        {/* Trees */}
-        <View style={[styles.tree, { left: 40, bottom: 55 }]}>
+        {/* Sun */}
+        <Animated.View
+          style={[
+            styles.sun,
+            {
+              transform: [
+                { translateY: cloudDrift.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -10, 0] }) },
+                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0.8, 1] }) }
+              ]
+            }
+          ]}
+        />
+        {/* Drifting clouds */}
+        <Animated.View
+          style={[
+            styles.cloudLayer,
+            { transform: [{ translateX: cloudDrift.interpolate({ inputRange: [0, 1], outputRange: [width, -200] }) }] },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.cloudLayer2,
+            { transform: [{ translateX: cloudDrift.interpolate({ inputRange: [0, 1], outputRange: [-150, width + 50] }) }] },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.cloudLayer3,
+            { transform: [{ translateX: cloudDrift.interpolate({ inputRange: [0, 1], outputRange: [width / 2, -width] }) }] },
+          ]}
+        />
+        {/* Hills with gentle scale */}
+        <Animated.View
+          style={[
+            styles.hillBack,
+            { transform: [{ scaleX: hillScale }, { translateY: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [10, 0] }) }] },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.hillFront,
+            { transform: [{ translateY: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [15, 0] }) }] },
+          ]}
+        />
+        {/* Trees with sway and scale */}
+        <Animated.View
+          style={[
+            styles.tree,
+            { left: "15%", bottom: 55 },
+            { transform: [
+                { rotate: tree1Rotate },
+                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
+              ] 
+            },
+          ]}
+        >
           <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
           <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { left: 80, bottom: 65 }]}>
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.tree,
+            { left: "30%", bottom: 65 },
+            { transform: [
+                { rotate: tree2Rotate },
+                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
+              ] 
+            },
+          ]}
+        >
           <View style={[styles.treeTop, { backgroundColor: "#66BB6A", width: 28, height: 28, borderRadius: 14 }]} />
           <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { right: 70, bottom: 50 }]}>
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.tree,
+            { right: "25%", bottom: 50 },
+            { transform: [
+                { rotate: tree1Rotate },
+                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
+              ] 
+            },
+          ]}
+        >
           <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
           <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.tree,
+            { right: "12%", bottom: 40 },
+            { transform: [
+                { rotate: tree2Rotate },
+                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
+              ] 
+            },
+          ]}
+        >
+          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 34, height: 34, borderRadius: 17 }]} />
           <View style={styles.treeTrunk} />
-        </View>
-        {/* Header Text */}
-        <View style={styles.headerTextWrap}>
+        </Animated.View>
+        {/* Animated Header Text */}
+        <Animated.View
+          style={[
+            styles.headerTextWrap,
+            {
+              opacity: textFade,
+              transform: [{ translateY: textSlide }],
+            },
+          ]}
+        >
           <Text style={styles.headerHello}>Hello,</Text>
           <Text style={styles.headerSub}>Nice to Meet You</Text>
-        </View>
-      </View>
-
-      {/* ===== Search Bar ===== */}
-      <View style={styles.searchWrapper}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color="#bbb" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search your moments..."
-            placeholderTextColor="#bbb"
-          />
-        </View>
+        </Animated.View>
       </View>
 
       {/* ===== Calendar ===== */}
-      <View style={styles.sectionPadding}>
+      <View style={styles.calendarSection}>
         <CalendarContainer />
       </View>
 
@@ -333,7 +510,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#f7f7f7",
+    backgroundColor: "#FAF7F2",
   },
   pageWrapper: {
     width: "100%",
@@ -345,46 +522,101 @@ const styles = StyleSheet.create({
   },
 
   /* ---- Header ---- */
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 8,
+  },
+  headerGreeting: {
+    fontSize: 15,
+    fontWeight: "400",
+    color: "#8A7F72",
+  },
+  headerName: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#2E2A26",
+    marginTop: 2,
+  },
   headerBg: {
     width: "100%",
-    height: 220,
+    height: 250,
     backgroundColor: "#dce9f5",
     overflow: "hidden",
     position: "relative",
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
   },
   skyLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#e8eef6",
+    backgroundColor: "#E3F2FD",
+  },
+  sun: {
+    position: "absolute",
+    top: 40,
+    right: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#FFF9C4",
+    shadowColor: "#FFF59D",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 5,
   },
   cloudLayer: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    width: 180,
-    height: 100,
-    backgroundColor: "#f3d4d0",
-    borderBottomLeftRadius: 100,
-    opacity: 0.5,
+    top: 20,
+    right: -20,
+    width: 140,
+    height: 60,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 30,
+  },
+  cloudLayer2: {
+    position: "absolute",
+    top: 50,
+    left: 10,
+    width: 100,
+    height: 45,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderRadius: 30,
+  },
+  cloudLayer3: {
+    position: "absolute",
+    top: 15,
+    left: "30%",
+    width: 80,
+    height: 35,
+    backgroundColor: "rgba(255,255,255,0.5)",
+    borderRadius: 20,
   },
   hillBack: {
     position: "absolute",
     bottom: 0,
-    left: "-5%" as any,
-    width: "110%" as any,
-    height: 100,
-    backgroundColor: "#c5ddb8",
-    borderTopLeftRadius: 200,
-    borderTopRightRadius: 200,
+    left: "-10%",
+    width: "120%",
+    height: 110,
+    backgroundColor: "#C8E6C9",
+    borderTopLeftRadius: 250,
+    borderTopRightRadius: 250,
   },
   hillFront: {
     position: "absolute",
     bottom: 0,
-    left: 0,
-    width: "100%",
-    height: 60,
-    backgroundColor: "#d4c9a8",
-    borderTopLeftRadius: 300,
-    borderTopRightRadius: 100,
+    left: "-5%",
+    width: "110%",
+    height: 70,
+    backgroundColor: "#A5D6A7",
+    borderTopLeftRadius: 350,
+    borderTopRightRadius: 150,
   },
   tree: {
     position: "absolute",
@@ -420,6 +652,10 @@ const styles = StyleSheet.create({
   },
 
   /* ---- Search ---- */
+  calendarSection: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
   searchWrapper: {
     paddingHorizontal: 20,
     marginTop: 16,

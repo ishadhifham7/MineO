@@ -1,6 +1,8 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Alert, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { getLocalToday } from "../../../src/utils/date";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
@@ -19,6 +21,8 @@ import type {
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
+import { Platform } from "react-native";
+import { API_BASE_URL } from "../../../src/services/api";
 
 /* ---------------- SCREEN ---------------- */
 
@@ -29,6 +33,12 @@ export default function JournalScreen() {
     addMenuVisible,
     contextMenu,
     chapterSliderVisible,
+    title,
+    chapters: savedChapters,
+    isPinnedToTimeline,
+    isNew,
+    isLoading,
+    date: loadedDate,
     addBlock,
     moveBlock,
     changeText,
@@ -54,22 +64,48 @@ export default function JournalScreen() {
     saveJournal,
     loadJournal,
     resetJournal,
-    entryId,
-    isNew,
   } = useJournal();
 
-  // Initialize today's journal on mount
+  const [savedVisible, setSavedVisible] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep a stable ref to loadJournal so the memoised focus-callback
+  // always calls the latest version (avoids stale-closure issues).
+  const loadJournalRef = useRef(loadJournal);
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    loadJournal(today);
-  }, []);
+    loadJournalRef.current = loadJournal;
+  });
+
+  // Always load today's journal on focus (handles tab switches, day changes, etc.)
+  useFocusEffect(
+    useCallback(() => {
+      const today = getLocalToday();
+      loadJournalRef.current(today);
+
+      // Check every 30s if midnight has passed while user stays on this screen
+      const interval = setInterval(() => {
+        const now = getLocalToday();
+        if (now !== today) {
+          loadJournalRef.current(now);
+        }
+      }, 30_000);
+
+      return () => clearInterval(interval);
+    }, []),
+  );
 
   // Handle save with metadata from ChapterSlider
   const handleSaveWithMetadata = async (metadata: {
     title: string;
+    chapters: string[];
     isPinnedToTimeline: boolean;
   }) => {
     await saveJournal(metadata);
+    // Show "Saved!" message for 2 seconds
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    setSavedVisible(true);
+    savedTimerRef.current = setTimeout(() => setSavedVisible(false), 2000);
   };
 
   const chapters = [
@@ -115,42 +151,84 @@ export default function JournalScreen() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      alert("Permission required");
+      Alert.alert("Permission required", "Allow access to your photo library to add images.");
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false, // ✅ correct (no crop UI)
-      quality: 1,
+      mediaTypes: ["images"],
+      allowsEditing: false,
+      quality: 0.8,
     });
 
     if (result.canceled || !result.assets || result.assets.length === 0) return;
 
-    const imageUri = result.assets[0].uri;
+    const asset = result.assets[0];
 
-    const id = Date.now().toString();
+    // ── Upload to server → Firebase Storage ──────────────────────────────────
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      const filename = asset.fileName || `image_${Date.now()}.jpg`;
+      const mimeType = asset.mimeType || "image/jpeg";
 
-    // Center the image in the canvas (4000x4000)
-    const maxZ =
-      blocks.length > 0
-        ? Math.max(...blocks.map((b: JournalBlock) => b.zIndex))
-        : 0;
-    const CANVAS_SIZE = 4000;
-    const imageWidth = 200;
-    const imageHeight = 200;
-    const newBlock: ImageBlockType = {
-      id,
-      type: "image",
-      imageUri,
-      x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
-      y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
-      width: imageWidth,
-      height: imageHeight,
-      rotation: 0,
-      zIndex: maxZ + 1,
-    };
-    addBlock(newBlock);
+      if (Platform.OS === "web") {
+        // On web, {uri, type, name} is treated as a plain field, not a file.
+        // We must fetch the blob URI and append an actual File/Blob object.
+        const response = await fetch(asset.uri);
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: mimeType });
+        formData.append("image", file);
+      } else {
+        // On native (iOS/Android), RN's FormData polyfill handles {uri,type,name}
+        formData.append("image", {
+          uri: asset.uri,
+          type: mimeType,
+          name: filename,
+        } as any);
+      }
+
+      console.log("📸 Uploading image:", filename, "platform:", Platform.OS);
+      const uploadRes = await fetch(`${API_BASE_URL}/journal/upload-image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("📥 Response status:", uploadRes.status);
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}));
+        throw new Error(err.message || `Upload failed (${uploadRes.status})`);
+      }
+
+      const { url: imageUri } = await uploadRes.json();
+
+      // ── Add block with permanent URL ────────────────────────────────────────
+      const id = Date.now().toString();
+      const maxZ =
+        blocks.length > 0
+          ? Math.max(...blocks.map((b: JournalBlock) => b.zIndex))
+          : 0;
+      const CANVAS_SIZE = 4000;
+      const imageWidth = 240;
+      const imageHeight = 240;
+      const newBlock: ImageBlockType = {
+        id,
+        type: "image",
+        imageUri,
+        x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
+        y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
+        width: imageWidth,
+        height: imageHeight,
+        rotation: 0,
+        zIndex: maxZ + 1,
+      };
+      addBlock(newBlock);
+    } catch (err: any) {
+      Alert.alert("Upload failed", err.message || "Could not upload image. Try again.");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // BLOCK ACTIONS
@@ -238,6 +316,11 @@ export default function JournalScreen() {
 
   /* ---------- RENDER ---------- */
 
+  const today = getLocalToday();
+  // If context still has a different date's data (e.g. coming back from [date].tsx),
+  // treat it as loading so we never flash stale past-day content
+  const isStaleDate = loadedDate !== undefined && loadedDate !== today;
+
   const sortedBlocks = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
 
   const handleCanvasPress = () => {
@@ -253,6 +336,11 @@ export default function JournalScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {isLoading || isStaleDate ? (
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator size="large" color="#444" />
+        </View>
+      ) : (
       <View style={{ flex: 1 }}>
         <Toolbar
           visible={showToolbar}
@@ -342,28 +430,6 @@ export default function JournalScreen() {
           <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
         </Pressable>
 
-        {/* New Entry Button - Bottom Left of Save */}
-        <Pressable
-          onPress={resetJournal}
-          style={{
-            position: "absolute",
-            bottom: 80,
-            left: 24,
-            paddingHorizontal: 20,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: "rgba(0,0,0,0.12)",
-            borderWidth: 1,
-            borderColor: "rgba(0,0,0,0.2)",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#333", fontSize: 13, fontWeight: "600" }}>
-            {isNew ? "New Entry" : `✦ New Entry`}
-          </Text>
-        </Pressable>
-
         {/* Save Button - Bottom Left */}
         <Pressable
           onPress={() => setChapterSliderVisible(true)}
@@ -393,7 +459,7 @@ export default function JournalScreen() {
               letterSpacing: 1,
             }}
           >
-            Save
+            {isNew ? "Save" : "Edit & Save"}
           </Text>
         </Pressable>
 
@@ -402,7 +468,64 @@ export default function JournalScreen() {
           chapters={chapters}
           onClose={() => setChapterSliderVisible(false)}
           onSave={handleSaveWithMetadata}
+          initialTitle={title}
+          initialSelectedChapters={savedChapters}
+          initialIsPinnedToTimeline={isPinnedToTimeline}
+          isExistingEntry={!isNew}
         />
+
+        {/* Uploading image overlay */}
+        {uploadingImage && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              top: 60,
+              alignSelf: "center",
+              backgroundColor: "rgba(0,0,0,0.75)",
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 24,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <ActivityIndicator color="#fff" size="small" />
+            <Text style={{ color: "#fff", fontSize: 14, fontWeight: "600" }}>
+              Uploading image…
+            </Text>
+          </View>
+        )}
+
+        {/* Saved toast */}
+        {savedVisible && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "rgba(0,0,0,0.78)",
+                paddingHorizontal: 32,
+                paddingVertical: 14,
+                borderRadius: 28,
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 17, fontWeight: "700" }}>
+                ✓ Saved!
+              </Text>
+            </View>
+          </View>
+        )}
 
         {contextMenu.visible && (
           <ContextMenu
@@ -415,6 +538,7 @@ export default function JournalScreen() {
           />
         )}
       </View>
+      )}
     </SafeAreaView>
   );
 }

@@ -23,15 +23,40 @@ type Props = {
   visible: boolean;
   chapters: Chapter[];
   onClose: () => void;
-  onSave?: (metadata: { title: string; isPinnedToTimeline: boolean }) => void;
+  onSave?: (metadata: { title: string; chapters: string[]; isPinnedToTimeline: boolean }) => void;
+  initialTitle?: string;
+  initialSelectedChapters?: string[];
+  initialIsPinnedToTimeline?: boolean;
+  isExistingEntry?: boolean;
 };
 
-export function ChapterSlider({ visible, chapters, onClose, onSave }: Props) {
+export function ChapterSlider({
+  visible,
+  chapters,
+  onClose,
+  onSave,
+  initialTitle = "",
+  initialSelectedChapters = [],
+  initialIsPinnedToTimeline = false,
+  isExistingEntry = false,
+}: Props) {
   const translateY = useRef(new Animated.Value(SLIDER_HEIGHT)).current;
 
-  const [subject, setSubject] = useState("");
-  const [addToTimeline, setAddToTimeline] = useState(false);
-  const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
+  const [subject, setSubject] = useState(initialTitle);
+  const [addToTimeline, setAddToTimeline] = useState(initialIsPinnedToTimeline);
+  const [selectedChapters, setSelectedChapters] = useState<string[]>(initialSelectedChapters);
+
+  // Stable string for comparing chapter arrays without causing infinite re-renders
+  const chaptersKey = JSON.stringify(initialSelectedChapters);
+
+  // Sync with saved values whenever the slider becomes visible
+  useEffect(() => {
+    if (visible) {
+      setSubject(initialTitle);
+      setAddToTimeline(initialIsPinnedToTimeline);
+      setSelectedChapters(JSON.parse(chaptersKey));
+    }
+  }, [visible, initialTitle, initialIsPinnedToTimeline, chaptersKey]);
 
   /* ---------------- animation ---------------- */
 
@@ -57,6 +82,7 @@ export function ChapterSlider({ visible, chapters, onClose, onSave }: Props) {
     if (onSave) {
       await onSave({
         title: subject,
+        chapters: selectedChapters,
         isPinnedToTimeline: addToTimeline,
       });
     }
@@ -82,7 +108,10 @@ export function ChapterSlider({ visible, chapters, onClose, onSave }: Props) {
           placeholder="Enter subject"
           value={subject}
           onChangeText={setSubject}
-          style={styles.input}
+          style={[
+            styles.input,
+            isExistingEntry && subject ? styles.inputWithValue : null,
+          ]}
           placeholderTextColor="#999"
         />
 
@@ -124,7 +153,9 @@ export function ChapterSlider({ visible, chapters, onClose, onSave }: Props) {
 
         {/* Save button */}
         <Pressable style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
+          <Text style={styles.saveButtonText}>
+            {isExistingEntry ? "Update" : "Save"}
+          </Text>
         </Pressable>
       </Animated.View>
     </View>
@@ -160,6 +191,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f4",
     color: "#000",
     marginBottom: 18,
+  },
+
+  inputWithValue: {
+    borderWidth: 1,
+    borderColor: "#4A90E2",
+    backgroundColor: "#f0f6ff",
   },
 
   chapterGrid: {

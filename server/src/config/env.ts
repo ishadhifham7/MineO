@@ -7,10 +7,11 @@ dotenv.config();
  */
 function validateEnv() {
   const required = [
-    /**'JWT_SECRET',*/
+    'JWT_SECRET',
     'FIREBASE_PROJECT_ID',
     'FIREBASE_CLIENT_EMAIL',
     'FIREBASE_PRIVATE_KEY',
+    'FIREBASE_STORAGE_BUCKET',
     'GROQ_API_KEY',
   ];
 
@@ -30,6 +31,7 @@ export const env = {
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID!,
   FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL!,
   FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+  FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET!,
 
   JWT_SECRET: process.env.JWT_SECRET!,
 } as const;

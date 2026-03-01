@@ -96,19 +96,20 @@ const groupByDate = (journals: JournalEntry[]): JournalsByDate => {
 };
 
 /**
- * Transform grouped journal entries into multi-dot calendar marking
- * Caps at 3 dots visually but stores full count
+ * Transform grouped journal entries into single-dot calendar marking
+ * One entry per date — shows a single dot
  */
 const transformToMarkedDates = (grouped: JournalsByDate): MarkedDatesType => {
   const marked: MarkedDatesType = {};
 
   Object.entries(grouped).forEach(([date, entries]) => {
-    // Cap visual dots at 3; marked:true is required by react-native-calendars to render dots
-    const dots = entries.slice(0, 3).map((j) => ({
-      key: j.id,
-      color: j.isPinnedToTimeline ? "#FFD700" : "#6366F1",
+    // Only show 1 dot per date (latest entry)
+    const latest = entries[0];
+    const dots = [{
+      key: latest.id,
+      color: latest.isPinnedToTimeline ? "#E6A817" : "#C4956A",
       selectedDotColor: "#FFFFFF",
-    }));
+    }];
     marked[date] = { marked: true, dots };
   });
 

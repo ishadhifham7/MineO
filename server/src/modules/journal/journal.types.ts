@@ -36,6 +36,7 @@ export interface JournalEntry {
   id: string;
   date: string;
   title?: string;
+  chapters?: string[];
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;

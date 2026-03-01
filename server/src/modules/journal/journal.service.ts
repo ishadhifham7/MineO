@@ -18,28 +18,59 @@ export class JournalService {
     };
   }
 
-  // 🔹 create entry (first save)
+  // 🔹 create entry (upsert – one entry per date)
   static async createJournal({
     date,
     title,
+    chapters,
     isPinnedToTimeline = false,
     blocks,
   }: {
     date: string;
     title?: string;
+    chapters?: string[];
     isPinnedToTimeline?: boolean;
     blocks: JournalBlock[];
   }) {
+    // ── Check if an entry already exists for this date ──────────────────────
+    const existing = await JournalRepository.entries()
+      .where('date', '==', date)
+      .limit(1)
+      .get();
+
+    if (!existing.empty) {
+      // Update the existing entry instead of creating a duplicate
+      const existingEntry = existing.docs[0].data() as JournalEntry;
+      const entryId = existingEntry.id;
+
+      await JournalService.updateCanvas(entryId, blocks);
+
+      if (title !== undefined || isPinnedToTimeline !== undefined) {
+        await JournalService.updateMeta(entryId, { title, isPinnedToTimeline });
+      }
+
+      return { ...existingEntry, updatedAt: Date.now() };
+    }
+
+    // ── No existing entry – create a fresh one ───────────────────────────────
     const now = Date.now();
     const entryId = uuid();
+
+    // Derive summary from first text block
+    const firstText = blocks.find((b) => b.type === 'text') as TextBlock | undefined;
+    const summary = firstText
+      ? firstText.text.slice(0, 120) + (firstText.text.length > 120 ? '...' : '')
+      : '';
 
     const entry: JournalEntry = {
       id: entryId,
       date,
       title,
+      chapters: chapters || [],
       isPinnedToTimeline,
       createdAt: now,
       updatedAt: now,
+      summary,
     };
 
     const batch = JournalRepository.entries().firestore.batch();
@@ -61,6 +92,12 @@ export class JournalService {
 
     if (!snap.exists) throw new Error('Entry not found');
 
+    // Derive summary from first text block
+    const firstText = blocks.find((b) => b.type === 'text') as TextBlock | undefined;
+    const summary = firstText
+      ? firstText.text.slice(0, 120) + (firstText.text.length > 120 ? '...' : '')
+      : '';
+
     const batch = entryRef.firestore.batch();
 
     const oldBlocks = await JournalRepository.canvasBlocks(entryId).get();
@@ -70,12 +107,12 @@ export class JournalService {
       batch.set(JournalRepository.canvasBlockById(entryId, block.id), block);
     });
 
-    batch.update(entryRef, { updatedAt: Date.now() });
+    batch.update(entryRef, { updatedAt: Date.now(), summary });
     await batch.commit();
   }
 
   // 🔹 update metadata only
-  static async updateMeta(entryId: string, meta: { title?: string; isPinnedToTimeline?: boolean }) {
+  static async updateMeta(entryId: string, meta: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean }) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
@@ -102,52 +139,24 @@ export class JournalService {
     };
   }
 
-  // 🔹 get journals by date range (for calendar)
+  // 🔹 get journals by date range (for calendar) – one entry per date, no block fetch
   static async getJournalsByDateRange(startDate: string, endDate: string) {
     const snap = await JournalRepository.entries()
       .where('date', '>=', startDate)
       .where('date', '<=', endDate)
       .get();
 
-    // Fetch entries with summaries (only for entries that exist)
-    const entries = await Promise.all(
-      snap.docs.map(async (doc) => {
-        const entry = doc.data() as JournalEntry;
-        
-        try {
-          // Get all blocks and find first text block
-          const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
+    // Deduplicate: keep only the earliest entry per date (createdAt asc)
+    const uniqueByDate = new Map<string, JournalEntry>();
+    for (const doc of snap.docs) {
+      const entry = doc.data() as JournalEntry;
+      const existing = uniqueByDate.get(entry.date);
+      if (!existing || entry.createdAt < existing.createdAt) {
+        uniqueByDate.set(entry.date, entry);
+      }
+    }
 
-          let summary = '';
-          
-          // Find first text block
-          for (const blockDoc of blocksSnap.docs) {
-            const block = blockDoc.data();
-            if (block.type === 'text') {
-              const text = (block as TextBlock).text || '';
-              summary = text.slice(0, 120);
-              if (text.length > 120) {
-                summary += '...';
-              }
-              break; // Found first text block, stop looking
-            }
-          }
-
-          return {
-            ...entry,
-            summary: summary || undefined,
-          };
-        } catch (error) {
-          // If there's an error fetching blocks, return entry without summary
-          console.error(`Error fetching blocks for entry ${entry.id}:`, error);
-          return {
-            ...entry,
-            summary: undefined,
-          };
-        }
-      })
-    );
-
-    return entries;
+    // Return entry metadata directly — summary is stored on the entry at save time
+    return Array.from(uniqueByDate.values());
   }
 }

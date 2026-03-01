@@ -33,12 +33,14 @@ export const signupUser = async (data: {
 // ======================= user login =============================
 
 export const loginUser = async (email: string, password: string) => {
+  const normalizedEmail = email.trim().toLowerCase();
+
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email: normalizedEmail, password }),
     });
 
     const result = await response.json();

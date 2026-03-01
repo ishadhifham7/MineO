@@ -50,6 +50,7 @@ export class JournalController {
       Params: { entryId: string };
       Body: {
         title?: string;
+        chapters?: string[];
         isPinnedToTimeline?: boolean;
       };
     }>,

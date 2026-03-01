@@ -5,6 +5,7 @@ export interface JournalEntry {
   id: string;
   date: string;
   title: string;
+  chapters: string[];
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;
@@ -14,6 +15,7 @@ export interface JournalState {
   entryId: string | null;
   date: string | null;
   title: string;
+  chapters: string[];
   isPinnedToTimeline: boolean;
   createdAt: number | null;
   updatedAt: number | null;

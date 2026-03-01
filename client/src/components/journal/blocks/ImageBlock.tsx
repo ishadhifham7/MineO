@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -8,6 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ImageBlock as ImageBlockType } from "../../../../types/journal";
+import { env } from "../../../../constants/env";
 
 const MIN_WIDTH = 80;
 const MIN_HEIGHT = 80;
@@ -52,6 +53,16 @@ export function ImageBlockComponent({
   onRotate,
   onLongPress,
 }: ImageBlockProps) {
+  // Resolve relative paths (e.g. /uploads/...) to full URLs using
+  // the current device's server base, so images work on any network.
+  const resolvedUri = useMemo(() => {
+    if (!imageUri) return imageUri;
+    if (imageUri.startsWith('http://') || imageUri.startsWith('https://')) {
+      return imageUri;
+    }
+    return `${env.API_URL}${imageUri}`;
+  }, [imageUri]);
+
   const posX = useSharedValue(x);
   const posY = useSharedValue(y);
   const blockWidth = useSharedValue(width);
@@ -217,7 +228,7 @@ export function ImageBlockComponent({
         style={[styles.block, animatedStyle, isSelected && styles.selected]}
       >
         <Image
-          source={{ uri: imageUri }}
+          source={{ uri: resolvedUri }}
           style={styles.image}
           resizeMode="cover"
         />

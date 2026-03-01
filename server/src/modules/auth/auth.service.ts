@@ -14,10 +14,12 @@ export const signupUser = async (data: {
     dob: string;
 }) => {
 
+    const normalizedEmail = data.email.trim().toLowerCase();
+
     const usersRef = firestore.collection(USERS_COLLECTION);
 
     // check for an existing user with the same email.
-    const existing = await usersRef.where("email", "==", data.email).get();
+    const existing = await usersRef.where("email", "==", normalizedEmail).get();
 
     if (!existing.empty) {
         throw new Error("User already exists");
@@ -29,7 +31,7 @@ export const signupUser = async (data: {
 
     const docRef = await usersRef.add({
         name: data.name,
-        email: data.email,
+        email: normalizedEmail,
         password: hashedPassword,
         dob: data.dob,
         createdAt: new Date(),
@@ -42,9 +44,11 @@ export const signupUser = async (data: {
 //================= login user - verifies password and returns JWT ===================
 
 export const loginUser = async (email: string, password: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
+
     const usersRef = firestore.collection(USERS_COLLECTION);
 
-    const snapshot = await usersRef.where("email", "==", email).get();
+    const snapshot = await usersRef.where("email", "==", normalizedEmail).get();
 
     // check for an existing user
     if (snapshot.empty) {
@@ -60,6 +64,10 @@ export const loginUser = async (email: string, password: string) => {
 
     if (!isMatch) {
         throw new Error("Invalid credentials");
+    }
+
+    if (!env.JWT_SECRET) {
+        throw new Error("Server auth is not configured (missing JWT secret)");
     }
 
     //create JWD token which expires in 3 days

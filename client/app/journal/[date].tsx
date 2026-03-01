@@ -1,3 +1,10 @@
+/**
+ * Root-level journal date route — used when navigating from outside the journal tab
+ * (e.g. from the home calendar). Back button returns to the previous screen (home).
+ *
+ * Wraps the editor in its own JournalProvider so it doesn't depend on the
+ * journal-tab stack's provider.
+ */
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
@@ -9,28 +16,30 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import { Canvas } from "../../../src/components/journal/Canvas";
-import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
-import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
-import { ContextMenu } from "../../../src/components/journal/ContextMenu";
-import { ChapterSlider } from "../../../src/components/journal/ChapterSlider";
-import { Toolbar } from "../../../src/components/journal/Toolbar";
-import { FloatingAddMenu } from "../../../src/components/journal/FlootingAddMenu";
+import { Canvas } from "../../src/components/journal/Canvas";
+import { TextBlock as TextBlockComponent } from "../../src/components/journal/blocks/TextBlock";
+import { ImageBlockComponent } from "../../src/components/journal/blocks/ImageBlock";
+import { ContextMenu } from "../../src/components/journal/ContextMenu";
+import { ChapterSlider } from "../../src/components/journal/ChapterSlider";
+import { Toolbar } from "../../src/components/journal/Toolbar";
+import { FloatingAddMenu } from "../../src/components/journal/FlootingAddMenu";
 import {
+  JournalProvider,
   useJournal,
   isTextBlock,
   isImageBlock,
-} from "../../../src/features/journal/journal.context";
+} from "../../src/features/journal/journal.context";
 import type {
   JournalBlock,
   TextBlock as TextBlockType,
   ImageBlock as ImageBlockType,
-} from "../../../types/journal";
+} from "../../types/journal";
 import * as ImagePicker from "expo-image-picker";
 import { Platform } from "react-native";
-import { API_BASE_URL } from "../../../src/services/api";
+import { API_BASE_URL } from "../../src/services/api";
 
-export default function JournalDateView() {
+/* -------- Inner component that uses the journal context -------- */
+function JournalDateEditor() {
   const { date } = useLocalSearchParams<{ date: string }>();
   const router = useRouter();
 
@@ -76,17 +85,12 @@ export default function JournalDateView() {
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (date) {
-      loadJournal(date);
-    }
+    if (date) loadJournal(date);
   }, [date]);
 
-  // Re-load whenever the screen regains focus (e.g. coming back from another tab)
   useFocusEffect(
     useCallback(() => {
-      if (date) {
-        loadJournal(date);
-      }
+      if (date) loadJournal(date);
     }, [date]),
   );
 
@@ -304,7 +308,7 @@ export default function JournalDateView() {
             if (router.canGoBack()) {
               router.back();
             } else {
-              router.replace("/tabs/journal" as any);
+              router.replace("/tabs/home" as any);
             }
           }}
           style={styles.backBtn}
@@ -347,16 +351,10 @@ export default function JournalDateView() {
           />
 
           {blocks.length === 0 && isNew ? (
-            /* Empty past day – show prompt to start writing */
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>📝</Text>
               <Text style={styles.emptyText}>No journal entry for this day</Text>
-              <Pressable
-                onPress={() => {
-                  addTextBlock();
-                }}
-                style={styles.startBtn}
-              >
+              <Pressable onPress={addTextBlock} style={styles.startBtn}>
                 <Text style={styles.startBtnText}>Start Writing</Text>
               </Pressable>
             </View>
@@ -404,7 +402,6 @@ export default function JournalDateView() {
             </Canvas>
           )}
 
-          {/* Floating + button (show once there are blocks or user has started) */}
           {!(blocks.length === 0 && isNew) && (
             <>
               <FloatingAddMenu
@@ -426,7 +423,6 @@ export default function JournalDateView() {
                 <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
               </Pressable>
 
-              {/* Save Button */}
               <Pressable
                 onPress={() => setChapterSliderVisible(true)}
                 style={styles.saveBtn}
@@ -449,7 +445,6 @@ export default function JournalDateView() {
             isExistingEntry={!isNew}
           />
 
-          {/* Uploading image overlay */}
           {uploadingImage && (
             <View pointerEvents="none" style={styles.uploadOverlay}>
               <ActivityIndicator color="#fff" size="small" />
@@ -457,7 +452,6 @@ export default function JournalDateView() {
             </View>
           )}
 
-          {/* Saved toast */}
           {savedVisible && (
             <View pointerEvents="none" style={styles.savedOverlay}>
               <View style={styles.savedToast}>
@@ -479,6 +473,15 @@ export default function JournalDateView() {
         </View>
       )}
     </SafeAreaView>
+  );
+}
+
+/* -------- Exported default wraps the editor in its own JournalProvider -------- */
+export default function JournalDateRoute() {
+  return (
+    <JournalProvider>
+      <JournalDateEditor />
+    </JournalProvider>
   );
 }
 
