@@ -117,7 +117,9 @@ export class JournalService {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
-    if (!snap.exists) throw new Error('Entry not found');
+    if (!snap.exists) {
+      throw new Error('Entry not found');
+    }
 
     const entry = snap.data() as JournalEntry;
 
@@ -128,8 +130,9 @@ export class JournalService {
 
     const blocksSnap = await JournalRepository.canvasBlocks(entryId).get();
 
+    // Return flattened structure for frontend
     return {
-      entry: snap.data(),
+      ...entry,
       blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }

@@ -13,6 +13,7 @@ import {
   isTextBlock,
   isImageBlock,
 } from "../../../src/features/journal/journal.context";
+import { useJourney } from "../../../src/providers/JourneyProvider";
 import type {
   JournalBlock,
   TextBlock as TextBlockType,
@@ -54,6 +55,8 @@ export default function JournalScreen() {
     saveJournal,
     loadJournal,
   } = useJournal();
+  
+  const { refreshJourneys } = useJourney();
 
   // Initialize today's journal on mount
   useEffect(() => {
@@ -67,6 +70,9 @@ export default function JournalScreen() {
     isPinnedToTimeline: boolean;
   }) => {
     await saveJournal(metadata);
+    // Refresh journey map to show the new journal
+    await refreshJourneys();
+    console.log('✅ Journey map refreshed after journal save');
   };
 
   const chapters = [
