@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, SafeAreaView, Text, ActivityIndicator, Pressable } from 'react-native';
+import { View, StyleSheet, Dimensions, SafeAreaView, Text, ActivityIndicator, Pressable, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { JourneyCanvas } from '../../src/components/journey/JourneyCanvas';
 import { JourneyNode } from '../../src/components/journey/JourneyNode';
 import { TimelinePath } from '../../src/components/journey/TimelinePath';
@@ -11,28 +12,41 @@ import { JournalApi } from '../../src/services/journal.service';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-// Generate positions dynamically for journals
+// Theme rotation for visual variety
+const THEME_ROTATION = ['mountain', 'gears', 'star', 'book', 'compass'] as const;
+
+// Determine node status based on position
+const getNodeStatus = (index: number, totalCount: number): "completed" | "current" | "locked" => {
+  // For real journals loaded from backend, all existing ones are "completed"
+  // The most recent one is "current" (now at the TOP since we start from bottom)
+  if (index === totalCount - 1) return 'current'; // Newest (at top)
+  return 'completed'; // All older journals below
+};
+
+// Generate winding path positions - starts at BOTTOM and climbs UP
 const generatePositions = (count: number) => {
   const positions = [];
-  const verticalSpacing = 180;
-  const leftX = SCREEN_WIDTH * 0.15;
-  const middleX = SCREEN_WIDTH * 0.50;
-  const rightX = SCREEN_WIDTH * 0.78;
-  
+  const verticalSpacing = 150; // Space between each node
+
+  // Wide X positions for dramatic winding — the path swings from edge to edge
+  const leftX    = SCREEN_WIDTH * 0.14;
+  const midLeftX  = SCREEN_WIDTH * 0.36;
+  const midRightX = SCREEN_WIDTH * 0.64;
+  const rightX   = SCREEN_WIDTH * 0.86;
+
+  // 6-point alternating pattern creates a continuous sine-like wave
+  const pattern = [leftX, midLeftX, midRightX, rightX, midRightX, midLeftX];
+
+  // Oldest journal sits at the bottom; each newer one climbs upward
+  const startY = 160 + (count - 1) * verticalSpacing;
+
   for (let i = 0; i < count; i++) {
-    let centerX;
-    const pattern = i % 3;
-    
-    if (pattern === 0) centerX = leftX;
-    else if (pattern === 1) centerX = middleX;
-    else centerX = rightX;
-    
     positions.push({
-      centerX,
-      centerY: 120 + (i * verticalSpacing),
+      centerX: pattern[i % pattern.length],
+      centerY: startY - i * verticalSpacing,
     });
   }
-  
+
   return positions;
 };
 
@@ -78,11 +92,11 @@ export default function JourneyScreen() {
     setSelectedJournal(null);
   };
 
-  // Sort journals by date (newest first) so oldest appears at bottom
+  // Sort journals by date (oldest first) so path starts at bottom and climbs up
   const sortedJournals = [...journals].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
-    return dateB - dateA; // Descending: newest date first (top), oldest last (bottom)
+    return dateA - dateB; // Ascending: oldest date first (bottom), newest last (top)
   });
 
   const positions = generatePositions(sortedJournals.length);
@@ -90,22 +104,29 @@ export default function JourneyScreen() {
     id: journal.id,
     centerX: positions[index].centerX,
     centerY: positions[index].centerY,
+    status: getNodeStatus(index, sortedJournals.length),
+    theme: THEME_ROTATION[index % THEME_ROTATION.length],
   }));
 
-  // Calculate content height based on last stage position + padding
-  const contentHeight = stages.length > 0 ? stages[stages.length - 1].centerY + 200 : 800;
+  // Calculate content height based on the FIRST stage (bottom node) + padding
+  // Oldest journal is at the BOTTOM (highest Y value), not the last in the array
+  const maxY = stages.length > 0 ? Math.max(...stages.map(s => s.centerY)) : 900;
+  const contentHeight = maxY + 200;
 
   // Show loading while checking auth or loading journals
   if (authLoading || isLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Your Journey</Text>
+          <View style={styles.headerTitleRow}>
+            <Ionicons name="map" size={28} color="#6366F1" style={styles.headerIcon} />
+            <Text style={styles.headerTitle}>Journey Map</Text>
+          </View>
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4A90E2" />
-          <Text style={styles.loadingText}>Loading your journey...</Text>
+          <ActivityIndicator size="large" color="#6366F1" />
+          <Text style={styles.loadingText}>Loading your journey map...</Text>
         </View>
       </SafeAreaView>
     );
@@ -116,13 +137,18 @@ export default function JourneyScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Your Journey</Text>
+          <View style={styles.headerTitleRow}>
+            <Ionicons name="map" size={28} color="#6366F1" style={styles.headerIcon} />
+            <Text style={styles.headerTitle}>Journey Map</Text>
+          </View>
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>🔒</Text>
+          <View style={styles.emptyIconContainer}>
+            <Text style={styles.emptyIcon}>🔒</Text>
+          </View>
           <Text style={styles.emptyTitle}>Please Login</Text>
-          <Text style={styles.emptySubtitle}>You need to be logged in to view your journey</Text>
+          <Text style={styles.emptySubtitle}>You need to be logged in to view your journey map</Text>
           <Pressable style={styles.loginButton} onPress={() => router.push('/auth/login')}>
             <Text style={styles.loginButtonText}>Go to Login</Text>
           </Pressable>
@@ -136,11 +162,16 @@ export default function JourneyScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Your Journey</Text>
+          <View style={styles.headerTitleRow}>
+            <Ionicons name="map" size={28} color="#6366F1" style={styles.headerIcon} />
+            <Text style={styles.headerTitle}>Journey Map</Text>
+          </View>
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>⚠️</Text>
+          <View style={styles.emptyIconContainer}>
+            <Text style={styles.emptyIcon}>⚠️</Text>
+          </View>
           <Text style={styles.emptyTitle}>Error Loading Journey</Text>
           <Text style={styles.emptySubtitle}>{error}</Text>
           <Pressable style={styles.loginButton} onPress={refreshJourneys}>
@@ -155,13 +186,18 @@ export default function JourneyScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Your Journey</Text>
+          <View style={styles.headerTitleRow}>
+            <Ionicons name="map" size={28} color="#6366F1" style={styles.headerIcon} />
+            <Text style={styles.headerTitle}>Journey Map</Text>
+          </View>
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📔</Text>
+          <View style={styles.emptyIconContainer}>
+            <Text style={styles.emptyIcon}>📔</Text>
+          </View>
           <Text style={styles.emptyTitle}>No journals yet</Text>
-          <Text style={styles.emptySubtitle}>Start writing to see your journey unfold</Text>
+          <Text style={styles.emptySubtitle}>Start writing to see your journey map unfold</Text>
         </View>
       </SafeAreaView>
     );
@@ -170,25 +206,31 @@ export default function JourneyScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Your Journey</Text>
+        <View style={styles.headerTitleRow}>
+          <Ionicons name="map" size={28} color="#6366F1" style={styles.headerIcon} />
+          <Text style={styles.headerTitle}>Journey Map</Text>
+        </View>
         <Text style={styles.headerSubtitle}>Every step tells a story</Text>
       </View>
 
-      <JourneyCanvas contentHeight={contentHeight}>
-        {/* Render the timeline path */}
-        <TimelinePath nodes={stages} height={contentHeight} />
+      <View style={styles.canvasWrapper}>
+        <JourneyCanvas contentHeight={contentHeight}>
+          {/* Render the enhanced serpentine timeline path */}
+          <TimelinePath nodes={stages} height={contentHeight} />
 
-        {/* Render journey nodes */}
-        {stages.map((stage, index) => (
-          <JourneyNode
-            key={stage.id}
-            stage={index + 1}
-            status="current"
-            position={{ x: stage.centerX, y: stage.centerY }}
-            onPress={() => handleNodePress(stage.id)}
-          />
-        ))}
-      </JourneyCanvas>
+          {/* Render journey nodes with themes and states */}
+          {stages.map((stage, index) => (
+            <JourneyNode
+              key={stage.id}
+              stage={index + 1}
+              status={stage.status}
+              theme={stage.theme}
+              position={{ x: stage.centerX, y: stage.centerY }}
+              onPress={() => handleNodePress(stage.id)}
+            />
+          ))}
+        </JourneyCanvas>
+      </View>
 
       {/* Journal Modal */}
       <JournalModal
@@ -204,26 +246,46 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#EFEFEF', // Match goal tracker background
   },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 24,
-    paddingTop: 32,
+    paddingVertical: 16,
+    paddingTop: 48,
+    paddingBottom: 20,
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 2,
+    borderBottomColor: '#6366F1',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerIcon: {
+    opacity: 0.9,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 32,
+    fontWeight: '800',
     color: '#111827',
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6B7280',
-    marginTop: 4,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#6366F1',
+    marginTop: 6,
+    fontStyle: 'italic',
+  },
+  canvasWrapper: {
+    flex: 1,
+    backgroundColor: '#EFEFEF',
   },
   loadingContainer: {
     flex: 1,
@@ -242,31 +304,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 40,
   },
+  emptyIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 48,
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: '#111827',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   emptySubtitle: {
     fontSize: 15,
     color: '#6B7280',
     textAlign: 'center',
+    lineHeight: 22,
   },
   loginButton: {
-    marginTop: 24,
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    backgroundColor: '#4A90E2',
-    borderRadius: 12,
+    marginTop: 28,
+    paddingHorizontal: 36,
+    paddingVertical: 16,
+    backgroundColor: '#6366F1',
+    borderRadius: 14,
+    shadowColor: '#6366F1',
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: '#5558E3',
   },
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

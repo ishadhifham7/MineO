@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { JourneyApi, JourneyNode } from "../services/journey.service";
@@ -43,7 +44,7 @@ export const JourneyProvider: React.FC<{ children: ReactNode }> = ({
   /**
    * Fetch journey timeline from backend
    */
-  const loadJourneys = async (): Promise<void> => {
+  const loadJourneys = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -64,7 +65,7 @@ export const JourneyProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   /**
    * Load journeys when user is authenticated
@@ -78,16 +79,16 @@ export const JourneyProvider: React.FC<{ children: ReactNode }> = ({
       setError(null);
       setIsLoading(false);
     }
-  }, [authLoading, isAuthenticated]);
+  }, [authLoading, isAuthenticated, loadJourneys]);
 
   /**
    * Exposed refresh function for manual reload
    */
-  const refreshJourneys = async (): Promise<void> => {
+  const refreshJourneys = useCallback(async (): Promise<void> => {
     if (isAuthenticated) {
       await loadJourneys();
     }
-  };
+  }, [isAuthenticated, loadJourneys]);
 
   const value: JourneyContextType = {
     journals,
