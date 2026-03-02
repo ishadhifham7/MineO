@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, SafeAreaView, Text, ActivityIndicator, Pressable, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimensions, SafeAreaView, Text, ActivityIndicator, Pressable, TouchableOpacity, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { JourneyCanvas } from '../../src/components/journey/JourneyCanvas';
@@ -56,6 +56,19 @@ export default function JourneyScreen() {
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingJournal, setLoadingJournal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshJourneys();
+      console.log('✅ Journey refreshed successfully');
+    } catch (err) {
+      console.error('❌ Error refreshing journey:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleNodePress = async (journalId: string) => {
     try {
@@ -214,7 +227,17 @@ export default function JourneyScreen() {
       </View>
 
       <View style={styles.canvasWrapper}>
-        <JourneyCanvas contentHeight={contentHeight}>
+        <JourneyCanvas 
+          contentHeight={contentHeight}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor="#6366F1"
+              colors={["#6366F1"]}
+            />
+          }
+        >
           {/* Render the enhanced serpentine timeline path */}
           <TimelinePath nodes={stages} height={contentHeight} />
 
