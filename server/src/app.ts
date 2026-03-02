@@ -44,11 +44,15 @@ export async function buildApp() {
   // Register multipart (file upload support)
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10 MB max
 
-  // Serve uploaded files (local storage)
+  // Serve uploaded files (local storage) with aggressive caching
   await app.register(fastifyStatic, {
     root: path.join(process.cwd(), 'uploads'),
     prefix: '/uploads/',
     decorateReply: false,
+    maxAge: '7d',
+    immutable: true,
+    lastModified: true,
+    etag: true,
   });
 
   // Register core plugins

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Image, StyleSheet, View, Text } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -53,15 +53,36 @@ export function ImageBlockComponent({
   onRotate,
   onLongPress,
 }: ImageBlockProps) {
-  // Resolve relative paths (e.g. /uploads/...) to full URLs using
-  // the current device's server base, so images work on any network.
+  const [isBroken, setIsBroken] = useState(false);
+
+  // Resolve image URIs so they always point at the CURRENT server IP.
+  // Old entries may have stored local file:// URIs from the image picker
+  // that are no longer accessible. Detect and mark them as broken.
   const resolvedUri = useMemo(() => {
-    if (!imageUri) return imageUri;
+    if (!imageUri) return null;
+
+    // Old entries stored raw device file paths — these are ephemeral and lost
+    if (imageUri.startsWith('file://')) {
+      return null; // will show placeholder
+    }
+
+    // If it's already a full URL, extract the /uploads/... path and rebuild
     if (imageUri.startsWith('http://') || imageUri.startsWith('https://')) {
+      const uploadsIdx = imageUri.indexOf('/uploads/');
+      if (uploadsIdx !== -1) {
+        return `${env.API_URL}${imageUri.substring(uploadsIdx)}`;
+      }
       return imageUri;
     }
+
+    // Relative path — prepend current server URL
     return `${env.API_URL}${imageUri}`;
   }, [imageUri]);
+
+  // If resolvedUri is null, mark as broken
+  useEffect(() => {
+    if (!resolvedUri) setIsBroken(true);
+  }, [resolvedUri]);
 
   const posX = useSharedValue(x);
   const posY = useSharedValue(y);
@@ -227,11 +248,21 @@ export function ImageBlockComponent({
       <Animated.View
         style={[styles.block, animatedStyle, isSelected && styles.selected]}
       >
-        <Image
-          source={{ uri: resolvedUri }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        {isBroken || !resolvedUri ? (
+          <View style={[StyleSheet.absoluteFill, styles.brokenImage]}>
+            <MaterialIcons name="broken-image" size={36} color="#aaa" />
+            <Text style={styles.brokenText}>Image unavailable</Text>
+          </View>
+        ) : (
+          <View style={StyleSheet.absoluteFill}>
+            <Image
+              source={{ uri: resolvedUri }}
+              style={StyleSheet.absoluteFill}
+              resizeMode="cover"
+              onError={() => setIsBroken(true)}
+            />
+          </View>
+        )}
 
         {/* Selection handles */}
         {isSelected && (
@@ -266,12 +297,24 @@ export function ImageBlockComponent({
 const styles = StyleSheet.create({
   block: {
     position: "absolute",
-    overflow: "hidden",
   },
   selected: {
     borderWidth: 1,
     borderColor: "#4A90E2",
     borderStyle: "dashed",
+  },
+  brokenImage: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  brokenText: {
+    marginTop: 6,
+    fontSize: 11,
+    color: "#999",
   },
   image: {
     width: "100%",
