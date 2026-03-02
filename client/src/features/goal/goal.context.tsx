@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import { fetchGoalsApi } from "./goal.api";
 
 /* ========================= */
@@ -72,7 +72,7 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentGoal, setCurrentGoal] = useState<Goal | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchGoals = async () => {
+  const fetchGoals = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchGoalsApi();
@@ -83,7 +83,7 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const upsertGoal = (updated: Goal) => {
     setGoals((prev) => {
