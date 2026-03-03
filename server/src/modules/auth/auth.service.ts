@@ -2,8 +2,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { firestore } from '../../config/firebase';
 import { env } from '../../config/env';
+import { devDB } from './auth.db';
 
 const USERS_COLLECTION = 'users';
+const USE_FIREBASE = env.FIREBASE_PROJECT_ID && !env.FIREBASE_PROJECT_ID.includes('mock');
+
+if (!USE_FIREBASE) {
+  console.log('⚠️  Using in-memory database for development (Firebase not configured)');
+}
 
 // ============= signup user - creates user securely in firestore ================
 
@@ -17,6 +23,31 @@ export const signupUser = async (data: {
   country?: string;
   profilePhoto?: string;
 }) => {
+  // Use in-memory database for development
+  if (!USE_FIREBASE) {
+    console.log('🔵 Using dev database for signup');
+    
+    // Check for existing user
+    const existing = await devDB.findUserByEmail(data.email);
+    if (existing) {
+      throw new Error('User already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    return await devDB.createUser({
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+      dob: data.dob,
+      bio: data.bio ?? "",
+      gender: data.gender ?? "",
+      country: data.country ?? "",
+      profilePhoto: data.profilePhoto ?? "",
+    });
+  }
+
+  // Use Firebase for production
   const usersRef = firestore.collection(USERS_COLLECTION);
 
   // check for an existing user with the same email.
@@ -52,6 +83,35 @@ export const signupUser = async (data: {
 export const loginUser = async (email: string, password: string) => {
   console.log('🔵 loginUser called with email:', email);
 
+  // Use in-memory database for development
+  if (!USE_FIREBASE) {
+    console.log('🔵 Using dev database for login');
+    
+    const user = await devDB.findUserByEmail(email);
+    
+    if (!user) {
+      console.log('❌ User not found');
+      throw new Error('Invalid email or password');
+    }
+
+    console.log('🔵 User found, comparing password...');
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('🔵 Password comparison completed, match:', isMatch);
+
+    if (!isMatch) {
+      throw new Error('Invalid email or password');
+    }
+
+    console.log('🔵 Generating JWT token...');
+    const token = jwt.sign({ userId: user.id, email: user.email }, env.JWT_SECRET, {
+      expiresIn: '3d',
+    });
+    console.log('🔵 JWT token generated successfully');
+
+    return { token };
+  }
+
+  // Use Firebase for production
   const usersRef = firestore.collection(USERS_COLLECTION);
   console.log('🔵 Got users collection reference');
 

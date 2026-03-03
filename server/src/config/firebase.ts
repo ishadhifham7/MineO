@@ -3,6 +3,7 @@ import { env } from './env';
 
 /**
  * Initialize Firebase Admin SDK
+ * In development, uses mock credentials - won't connect to real Firebase
  */
 if (!admin.apps.length) {
   admin.initializeApp({

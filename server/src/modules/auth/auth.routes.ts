@@ -5,9 +5,18 @@ export async function authRoutes(app: FastifyInstance) {
   //  signup
   app.post('/signup', async (request, reply) => {
     try {
+      console.log('📥 Signup request received:', request.body);
       const { name, email, password, dob, bio, gender, country, profilePhoto } =
       request.body as any;
 
+      if (!name || !email || !password || !dob) {
+        console.log('❌ Missing required fields:', { name: !!name, email: !!email, password: !!password, dob: !!dob });
+        return reply.status(400).send({
+          message: 'Name, email, password, and date of birth are required',
+        });
+      }
+
+      console.log('🔵 Calling signupUser service...');
       const result = await signupUser({
         name,
         email,
@@ -19,11 +28,13 @@ export async function authRoutes(app: FastifyInstance) {
         profilePhoto,
       });
 
+      console.log('✅ Signup successful:', result.id);
       return reply.send({
         message: 'User created',
         userId: result.id,
       });
     } catch (error: any) {
+      console.error('❌ Signup error:', error.message);
       return reply.status(400).send({
         message: error.message,
       });
