@@ -71,20 +71,10 @@ export default function JournalScreen() {
     isPinnedToTimeline: boolean;
   }) => {
     await saveJournal(metadata);
-    // Refresh journey map to show the new journal
     await refreshJourneys();
     console.log("✅ Journey map refreshed after journal save");
   };
 
-  const chapters = [
-    { id: "1", title: "Life" },
-    { id: "2", title: "Health" },
-    { id: "3", title: "Mind" },
-    { id: "4", title: "Career" },
-    { id: "5", title: "Relationships" },
-  ];
-
-  // CREATE BLOCK
   const addTextBlock = () => {
     const id = Date.now().toString();
     const maxZ =
@@ -282,30 +272,69 @@ export default function JournalScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        {/* Date Header */}
+        {/* Date Header + Save Button */}
         <View
-          style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4 }}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 4,
+          }}
         >
-          <Text
+          {/* Date (left) */}
+          <View>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "700",
+                color: "#111",
+                letterSpacing: 0.2,
+              }}
+            >
+              {typeof formattedDate === "object" ? formattedDate.day : ""}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "400",
+                color: "#888",
+                marginTop: 2,
+              }}
+            >
+              {typeof formattedDate === "object" ? formattedDate.weekday : ""}
+            </Text>
+          </View>
+
+          {/* Save button (right) */}
+          <Pressable
+            onPress={() => setChapterSliderVisible(true)}
             style={{
-              fontSize: 22,
-              fontWeight: "700",
-              color: "#111",
-              letterSpacing: 0.2,
+              paddingHorizontal: 22,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: "#111",
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 3,
             }}
           >
-            {typeof formattedDate === "object" ? formattedDate.day : ""}
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "400",
-              color: "#888",
-              marginTop: 2,
-            }}
-          >
-            {typeof formattedDate === "object" ? formattedDate.weekday : ""}
-          </Text>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 15,
+                fontWeight: "600",
+                letterSpacing: 0.5,
+              }}
+            >
+              Save
+            </Text>
+          </Pressable>
         </View>
 
         {/* Canvas container with margins — Toolbar sits inside here */}
@@ -409,42 +438,8 @@ export default function JournalScreen() {
           <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
         </Pressable>
 
-        {/* Save Button */}
-        <Pressable
-          onPress={() => setChapterSliderVisible(true)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            left: 24,
-            paddingHorizontal: 28,
-            height: 44,
-            borderRadius: 24,
-            backgroundColor: "#000",
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "row",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: "bold",
-              letterSpacing: 1,
-            }}
-          >
-            Save
-          </Text>
-        </Pressable>
-
         <ChapterSlider
           visible={chapterSliderVisible}
-          chapters={chapters}
           onClose={() => setChapterSliderVisible(false)}
           onSave={handleSaveWithMetadata}
         />
