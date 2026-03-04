@@ -1,7 +1,15 @@
 export type ImageBlock = {
   id: string;
   type: "image";
-  imageUri: string;
+  /**
+   * imageUrl: Firebase Storage HTTPS download URL (persisted, works across devices).
+   * imageUri: local device URI (used transiently during upload for instant preview).
+   * At least one must be present.
+   */
+  imageUrl?: string;
+  imageUri?: string;
+  /** Firebase Storage path — required for deletion, e.g. users/{uid}/journal/{blockId}.jpg */
+  imagePath?: string;
   x: number;
   y: number;
   width: number;

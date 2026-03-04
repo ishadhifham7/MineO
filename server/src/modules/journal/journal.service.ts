@@ -1,5 +1,6 @@
 import { JournalRepository } from './journal.repository';
-import { JournalEntry, JournalBlock } from './journal.types';
+import { JournalEntry, JournalBlock, ImageBlock } from './journal.types';
+import { deleteRemovedImages, deleteCanvasImages } from './journal.storage';
 import { v4 as uuid } from 'uuid';
 
 export class JournalService {
@@ -75,10 +76,16 @@ export class JournalService {
       throw new Error('FORBIDDEN');
     }
 
+    // Capture old image blocks BEFORE deleting from Firestore (for Storage cleanup)
+    const oldBlocksSnap = await JournalRepository.canvasBlocks(entryId).get();
+    const oldAllBlocks: JournalBlock[] = oldBlocksSnap.docs.map(
+      (d: any) => d.data() as JournalBlock
+    );
+    const oldImageBlocks = oldAllBlocks.filter((b): b is ImageBlock => b.type === 'image');
+
     const batch = entryRef.firestore.batch();
 
-    const oldBlocks = await JournalRepository.canvasBlocks(entryId).get();
-    oldBlocks.docs.forEach((doc: any) => batch.delete(doc.ref));
+    oldBlocksSnap.docs.forEach((doc: any) => batch.delete(doc.ref));
 
     blocks.forEach((block) => {
       batch.set(JournalRepository.canvasBlockById(entryId, block.id), block);
@@ -86,6 +93,10 @@ export class JournalService {
 
     batch.update(entryRef, { updatedAt: Date.now() });
     await batch.commit();
+
+    // Delete Storage files for image blocks that were removed
+    const newImageBlocks = blocks.filter((b): b is ImageBlock => b.type === 'image');
+    await deleteRemovedImages(oldImageBlocks, newImageBlocks);
   }
 
   // 🔹 update metadata only - SECURE: ownership verified
@@ -135,5 +146,34 @@ export class JournalService {
       ...entry,
       blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
+  }
+
+  // 🔹 delete journal entry + all its Storage images - SECURE: ownership verified
+  static async deleteJournal(entryId: string, userId: string) {
+    const entryRef = JournalRepository.entryById(entryId);
+    const snap = await entryRef.get();
+
+    if (!snap.exists) throw new Error('Entry not found');
+
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
+
+    // Fetch all canvas blocks to find images that need Storage cleanup
+    const blocksSnap = await JournalRepository.canvasBlocks(entryId).get();
+    const allBlocks: JournalBlock[] = blocksSnap.docs.map((d: any) => d.data() as JournalBlock);
+    const imageBlocks = allBlocks.filter((b): b is ImageBlock => b.type === 'image');
+
+    // Delete all canvas block docs + entry doc in one batch
+    const batch = entryRef.firestore.batch();
+    blocksSnap.docs.forEach((doc: any) => batch.delete(doc.ref));
+    batch.delete(entryRef);
+    await batch.commit();
+
+    // Clean up Firebase Storage files (after Firestore batch succeeds)
+    await deleteCanvasImages(imageBlocks);
   }
 }

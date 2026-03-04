@@ -1,9 +1,11 @@
-import { FastifyInstance } from "fastify";
-import { UpdateUserProfileBody, UserProfile } from "./user.types";
-import { getCurrentTimestamp } from "../../shared/utils/date";
+import { FastifyInstance } from 'fastify';
+import { UpdateUserProfileBody, UserProfile } from './user.types';
+import { getCurrentTimestamp } from '../../shared/utils/date';
+import { uploadImageToStorage, deleteImageFromStorage } from '../journal/journal.storage';
+import { env } from '../../config/env';
 
 // Firestore collection used in signup code earlier - "users"
-const USERS_COLLECTION = "users";
+const USERS_COLLECTION = 'users';
 
 /**
  * Find a user document.
@@ -27,14 +29,14 @@ export async function findUserDocByUid(fastify: FastifyInstance, uid: string) {
 
   // 2) Fallback: query by field
   // Try "uid" field
-  const q1 = await usersRef.where("uid", "==", uid).limit(1).get();
+  const q1 = await usersRef.where('uid', '==', uid).limit(1).get();
   if (!q1.empty) {
     const doc = q1.docs[0];
     return { ref: doc.ref, data: doc.data() };
   }
 
   // Try "userId" field (some projects use that)
-  const q2 = await usersRef.where("userId", "==", uid).limit(1).get();
+  const q2 = await usersRef.where('userId', '==', uid).limit(1).get();
   if (!q2.empty) {
     const doc = q2.docs[0];
     return { ref: doc.ref, data: doc.data() };
@@ -46,7 +48,7 @@ export async function findUserDocByUid(fastify: FastifyInstance, uid: string) {
 export async function getMyProfile(fastify: FastifyInstance, uid: string): Promise<UserProfile> {
   const result = await findUserDocByUid(fastify, uid);
   if (!result) {
-    throw new Error("PROFILE_NOT_FOUND");
+    throw new Error('PROFILE_NOT_FOUND');
   }
 
   const d = result.data;
@@ -78,7 +80,7 @@ export async function patchMyProfile(
   body: UpdateUserProfileBody
 ): Promise<UserProfile> {
   const result = await findUserDocByUid(fastify, uid);
-  if (!result) throw new Error("PROFILE_NOT_FOUND");
+  if (!result) throw new Error('PROFILE_NOT_FOUND');
 
   // Only update allowed keys that are present
   const updates: Record<string, any> = {};
@@ -114,4 +116,34 @@ export async function patchMyProfile(
     createdAt: d.createdAt,
     updatedAt: d.updatedAt,
   };
+}
+
+/**
+ * Upload a profile photo to Firebase Storage and save the download URL in Firestore.
+ * Automatically replaces any previous profile photo.
+ */
+export async function uploadProfilePhoto(
+  fastify: FastifyInstance,
+  uid: string,
+  buffer: Buffer,
+  mimeType: string
+): Promise<{ photoUrl: string }> {
+  if (!env.FIREBASE_STORAGE_BUCKET) {
+    throw new Error('STORAGE_NOT_CONFIGURED');
+  }
+
+  const storagePath = `users/${uid}/profile/photo.jpg`;
+
+  // Delete the previous photo if it exists (ignore 404)
+  await deleteImageFromStorage(storagePath);
+
+  const { imageUrl } = await uploadImageToStorage(buffer, storagePath, mimeType);
+
+  // Persist the URL in Firestore
+  const result = await findUserDocByUid(fastify, uid);
+  if (!result) throw new Error('PROFILE_NOT_FOUND');
+
+  await result.ref.set({ photoUrl: imageUrl, updatedAt: getCurrentTimestamp() }, { merge: true });
+
+  return { photoUrl: imageUrl };
 }

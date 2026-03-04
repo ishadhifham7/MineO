@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { apiFetchFormData } from "../../src/api/http";
+import { compressProfileImage } from "../../src/utils/imageUtils";
 
 import { useProfile } from "../../src/providers/ProfileProvider"; // ✅ adjust if your path differs
 
@@ -22,10 +24,18 @@ export default function ProfileScreen() {
   const router = useRouter();
 
   // Context profile
-  const { profile, loading, error, refreshProfile, updateProfile, clearProfile } = useProfile();
+  const {
+    profile,
+    loading,
+    error,
+    refreshProfile,
+    updateProfile,
+    clearProfile,
+  } = useProfile();
 
   // ===== Existing UI state =====
-  const [activityStatus, setActivityStatus] = useState<ActivityStatus>("Active");
+  const [activityStatus, setActivityStatus] =
+    useState<ActivityStatus>("Active");
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [showEditInfoModal, setShowEditInfoModal] = useState(false);
   const [showTipsModal, setShowTipsModal] = useState(false);
@@ -104,7 +114,6 @@ export default function ProfileScreen() {
     // Prevent old user info showing after logout
     clearProfile();
 
-    
     router.replace("/auth/login");
   };
 
@@ -133,7 +142,10 @@ export default function ProfileScreen() {
       setShowEditInfoModal(false);
       Alert.alert("Success", "Personal details updated successfully.");
     } catch (e: any) {
-      Alert.alert("Update failed", e?.message || "Could not update personal details.");
+      Alert.alert(
+        "Update failed",
+        e?.message || "Could not update personal details.",
+      );
     }
   };
 
@@ -141,7 +153,10 @@ export default function ProfileScreen() {
     try {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert("Permission required", "Please allow photo access to change profile picture.");
+        Alert.alert(
+          "Permission required",
+          "Please allow photo access to change profile picture.",
+        );
         return;
       }
 
@@ -149,47 +164,72 @@ export default function ProfileScreen() {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.7,
-        base64: true,
+        quality: 1, // we compress ourselves
       });
 
       if (result.canceled) return;
 
       const asset = result.assets?.[0];
-      if (!asset?.base64) {
+      if (!asset?.uri) {
         Alert.alert("Error", "Could not read image data.");
         return;
       }
 
-      // Store as data URL (simple, works immediately).
-      const dataUrl = `data:image/jpeg;base64,${asset.base64}`;
+      // Step 1: Compress to 512px JPEG at 0.7 quality
+      const compressed = await compressProfileImage(asset.uri);
 
-      await updateProfile({ photoUrl: dataUrl });
+      // Step 2: Upload to Firebase Storage via backend (POST /users/upload-photo)
+      const formData = new FormData();
+      // @ts-ignore — React Native's FormData accepts this format
+      formData.append("file", {
+        uri: compressed.uri,
+        type: "image/jpeg",
+        name: "photo.jpg",
+      });
+
+      const uploadResult = await apiFetchFormData<{ photoUrl: string }>(
+        "/users/upload-photo",
+        formData,
+      );
+
+      // Step 3: Persist the Storage URL in Firestore via PATCH /users/me
+      await updateProfile({ photoUrl: uploadResult.photoUrl });
       setShowPhotoModal(false);
       Alert.alert("Success", "Profile photo updated.");
     } catch (e: any) {
-      Alert.alert("Upload failed", e?.message || "Could not update profile photo.");
+      Alert.alert(
+        "Upload failed",
+        e?.message || "Could not update profile photo.",
+      );
     }
   };
-
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="chevron-back" size={28} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={{ width: 28 }} />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Error banner */}
         {!!error && (
           <View style={styles.errorBanner}>
             <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity onPress={() => refreshProfile()} style={styles.retryBtn}>
+            <TouchableOpacity
+              onPress={() => refreshProfile()}
+              style={styles.retryBtn}
+            >
               <Text style={styles.retryText}>Retry</Text>
             </TouchableOpacity>
           </View>
@@ -219,13 +259,19 @@ export default function ProfileScreen() {
           <Text style={styles.profileUsername}>@{username || "—"}</Text>
           <Text style={styles.profileBio}>{bio || "—"}</Text>
 
-          <TouchableOpacity style={styles.editProfileButton} onPress={() => setShowEditProfileModal(true)}>
+          <TouchableOpacity
+            style={styles.editProfileButton}
+            onPress={() => setShowEditProfileModal(true)}
+          >
             <Text style={styles.editProfileButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
         {/* Activity Status */}
-        <TouchableOpacity style={styles.statusRow} onPress={() => setShowActivityModal(true)}>
+        <TouchableOpacity
+          style={styles.statusRow}
+          onPress={() => setShowActivityModal(true)}
+        >
           <View style={styles.statusLeft}>
             <View style={styles.statusIconContainer}>
               <Ionicons name="radio-button-on" size={24} color="#000" />
@@ -233,8 +279,18 @@ export default function ProfileScreen() {
             <Text style={styles.statusText}>Activity Status</Text>
           </View>
           <View style={styles.statusRight}>
-            <View style={[styles.statusDot, { backgroundColor: getStatusColor(activityStatus) }]} />
-            <Text style={[styles.statusLabel, { color: getStatusColor(activityStatus) }]}>
+            <View
+              style={[
+                styles.statusDot,
+                { backgroundColor: getStatusColor(activityStatus) },
+              ]}
+            />
+            <Text
+              style={[
+                styles.statusLabel,
+                { color: getStatusColor(activityStatus) },
+              ]}
+            >
               {activityStatus}
             </Text>
             <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
@@ -245,7 +301,10 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ACCOUNT MANAGEMENT</Text>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditInfoModal(true)}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => setShowEditInfoModal(true)}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="person-outline" size={24} color="#000" />
               <Text style={styles.menuText}>Personal Details</Text>
@@ -253,7 +312,10 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/other/account-settings")}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push("/other/account-settings")}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="settings-outline" size={24} color="#000" />
               <Text style={styles.menuText}>Account Settings</Text>
@@ -261,7 +323,10 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/other/preferences")}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push("/other/preferences")}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="color-palette-outline" size={24} color="#000" />
               <Text style={styles.menuText}>Language & Theme</Text>
@@ -274,7 +339,10 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>NEED HELP?</Text>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowTipsModal(true)}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => setShowTipsModal(true)}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="bulb-outline" size={24} color="#000" />
               <Text style={styles.menuText}>Tips and Tricks</Text>
@@ -282,7 +350,10 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowFAQModal(true)}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => setShowFAQModal(true)}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="help-circle-outline" size={24} color="#000" />
               <Text style={styles.menuText}>Frequently Asked Questions</Text>
@@ -290,7 +361,10 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowContactModal(true)}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => setShowContactModal(true)}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="mail-outline" size={24} color="#000" />
               <Text style={styles.menuText}>Contact Us</Text>
@@ -300,7 +374,10 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout */}
-        <TouchableOpacity style={styles.logoutButton} onPress={() => setShowLogoutModal(true)}>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => setShowLogoutModal(true)}
+        >
           <Ionicons name="log-out-outline" size={20} color="#F44336" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
@@ -308,10 +385,13 @@ export default function ProfileScreen() {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      
-
       {/* Activity Status Modal */}
-      <Modal visible={showActivityModal} transparent animationType="fade" onRequestClose={() => setShowActivityModal(false)}>
+      <Modal
+        visible={showActivityModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowActivityModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
@@ -321,29 +401,46 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
             <View style={styles.modalBody}>
-              {(["Active", "Away", "Offline"] as ActivityStatus[]).map((status) => (
-                <TouchableOpacity
-                  key={status}
-                  style={[styles.statusOption, activityStatus === status && styles.statusOptionSelected]}
-                  onPress={() => {
-                    setActivityStatus(status);
-                    setShowActivityModal(false);
-                  }}
-                >
-                  <View style={styles.statusOptionLeft}>
-                    <View style={[styles.statusDot, { backgroundColor: getStatusColor(status) }]} />
-                    <Text style={styles.statusOptionText}>{status}</Text>
-                  </View>
-                  {activityStatus === status && <Ionicons name="checkmark" size={24} color="#2196F3" />}
-                </TouchableOpacity>
-              ))}
+              {(["Active", "Away", "Offline"] as ActivityStatus[]).map(
+                (status) => (
+                  <TouchableOpacity
+                    key={status}
+                    style={[
+                      styles.statusOption,
+                      activityStatus === status && styles.statusOptionSelected,
+                    ]}
+                    onPress={() => {
+                      setActivityStatus(status);
+                      setShowActivityModal(false);
+                    }}
+                  >
+                    <View style={styles.statusOptionLeft}>
+                      <View
+                        style={[
+                          styles.statusDot,
+                          { backgroundColor: getStatusColor(status) },
+                        ]}
+                      />
+                      <Text style={styles.statusOptionText}>{status}</Text>
+                    </View>
+                    {activityStatus === status && (
+                      <Ionicons name="checkmark" size={24} color="#2196F3" />
+                    )}
+                  </TouchableOpacity>
+                ),
+              )}
             </View>
           </View>
         </View>
       </Modal>
 
       {/* Edit Information Modal */}
-      <Modal visible={showEditInfoModal} transparent animationType="slide" onRequestClose={() => setShowEditInfoModal(false)}>
+      <Modal
+        visible={showEditInfoModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowEditInfoModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
@@ -356,12 +453,22 @@ export default function ProfileScreen() {
             <ScrollView style={styles.editFormScroll}>
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Phone Number</Text>
-                <TextInput style={styles.formInput} value={phoneNumber} onChangeText={setPhoneNumber} placeholder="+1 (555) 123-4567" />
+                <TextInput
+                  style={styles.formInput}
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  placeholder="+1 (555) 123-4567"
+                />
               </View>
 
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Birthday</Text>
-                <TextInput style={styles.formInput} value={birthday} onChangeText={setBirthday} placeholder="05/15/1990" />
+                <TextInput
+                  style={styles.formInput}
+                  value={birthday}
+                  onChangeText={setBirthday}
+                  placeholder="05/15/1990"
+                />
               </View>
 
               <View style={styles.formGroup}>
@@ -374,15 +481,28 @@ export default function ProfileScreen() {
 
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Country</Text>
-                <TextInput style={styles.formInput} value={country} onChangeText={setCountry} placeholder="Sri Lanka" />
+                <TextInput
+                  style={styles.formInput}
+                  value={country}
+                  onChangeText={setCountry}
+                  placeholder="Sri Lanka"
+                />
               </View>
 
               <View style={styles.formButtons}>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setShowEditInfoModal(false)}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowEditInfoModal(false)}
+                >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveButton} onPress={savePersonalDetails}>
-                  <Text style={styles.saveButtonText}>{loading ? "Saving..." : "Save"}</Text>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={savePersonalDetails}
+                >
+                  <Text style={styles.saveButtonText}>
+                    {loading ? "Saving..." : "Save"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -391,7 +511,12 @@ export default function ProfileScreen() {
       </Modal>
 
       {/* Edit Profile Modal */}
-      <Modal visible={showEditProfileModal} transparent animationType="slide" onRequestClose={() => setShowEditProfileModal(false)}>
+      <Modal
+        visible={showEditProfileModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowEditProfileModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
@@ -404,7 +529,12 @@ export default function ProfileScreen() {
             <ScrollView style={styles.editFormScroll}>
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Full Name</Text>
-                <TextInput style={styles.formInput} value={fullName} onChangeText={setFullName} placeholder="Your name" />
+                <TextInput
+                  style={styles.formInput}
+                  value={fullName}
+                  onChangeText={setFullName}
+                  placeholder="Your name"
+                />
               </View>
 
               <View style={styles.formGroup}>
@@ -422,7 +552,11 @@ export default function ProfileScreen() {
 
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Email</Text>
-                <TextInput style={[styles.formInput, { opacity: 0.7 }]} value={email} editable={false} />
+                <TextInput
+                  style={[styles.formInput, { opacity: 0.7 }]}
+                  value={email}
+                  editable={false}
+                />
               </View>
 
               <View style={styles.formGroup}>
@@ -443,11 +577,19 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.formButtons}>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setShowEditProfileModal(false)}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowEditProfileModal(false)}
+                >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveButton} onPress={saveEditProfile}>
-                  <Text style={styles.saveButtonText}>{loading ? "Saving..." : "Save"}</Text>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={saveEditProfile}
+                >
+                  <Text style={styles.saveButtonText}>
+                    {loading ? "Saving..." : "Save"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -456,31 +598,40 @@ export default function ProfileScreen() {
       </Modal>
 
       {/* Logout Confirmation Modal */}
-      <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
+      <Modal
+        visible={showLogoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.confirmModalContainer}>
             <Text style={styles.confirmTitle}>Logout</Text>
-            <Text style={styles.confirmMessage}>Are you sure you want to logout?</Text>
+            <Text style={styles.confirmMessage}>
+              Are you sure you want to logout?
+            </Text>
 
-            <TouchableOpacity style={styles.confirmLogoutButton} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.confirmLogoutButton}
+              onPress={handleLogout}
+            >
               <Text style={styles.confirmLogoutText}>Logout</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.confirmCancelButton} onPress={() => setShowLogoutModal(false)}>
+            <TouchableOpacity
+              style={styles.confirmCancelButton}
+              onPress={() => setShowLogoutModal(false)}
+            >
               <Text style={styles.confirmCancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
-      
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-  
   container: { flex: 1, backgroundColor: "#F5F5F5" },
 
   header: {
@@ -497,10 +648,8 @@ const styles = StyleSheet.create({
 
   backButton: { padding: 4 },
 
-  headerTitle: { fontSize: 18, 
-    fontWeight: "600", 
-    color: "#000" },
-    
+  headerTitle: { fontSize: 18, fontWeight: "600", color: "#000" },
+
   scrollView: { flex: 1 },
 
   errorBanner: {
@@ -511,15 +660,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F44336",
   },
-  errorText: { 
-    color: "#F44336", 
-    fontWeight: "600" },
+  errorText: {
+    color: "#F44336",
+    fontWeight: "600",
+  },
 
   retryBtn: { marginTop: 8 },
 
-  retryText: { 
-    color: "#2196F3", 
-    fontWeight: "600" },
+  retryText: {
+    color: "#2196F3",
+    fontWeight: "600",
+  },
 
   profileCard: {
     backgroundColor: "#fff",

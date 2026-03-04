@@ -2,8 +2,8 @@ import admin from 'firebase-admin';
 import { env } from './env';
 
 const isDevelopment = env.NODE_ENV === 'development';
-const hasValidCredentials = 
-  env.FIREBASE_PROJECT_ID !== 'dev-project' && 
+const hasValidCredentials =
+  env.FIREBASE_PROJECT_ID !== 'dev-project' &&
   env.FIREBASE_CLIENT_EMAIL !== 'dev@example.com' &&
   env.FIREBASE_PRIVATE_KEY !== 'dev-key';
 
@@ -12,13 +12,18 @@ const hasValidCredentials =
  */
 if (!admin.apps.length && (hasValidCredentials || !isDevelopment)) {
   try {
-    admin.initializeApp({
+    const appConfig: admin.AppOptions = {
       credential: admin.credential.cert({
         projectId: env.FIREBASE_PROJECT_ID,
         clientEmail: env.FIREBASE_CLIENT_EMAIL,
         privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       }),
-    });
+    };
+    // Only set storageBucket when configured to avoid SDK errors
+    if (env.FIREBASE_STORAGE_BUCKET) {
+      appConfig.storageBucket = env.FIREBASE_STORAGE_BUCKET;
+    }
+    admin.initializeApp(appConfig);
     console.log('✅ Firebase initialized successfully');
   } catch (error) {
     if (isDevelopment) {
@@ -67,15 +72,35 @@ const createMockFirestore = () => {
   } as any;
 };
 
-const createMockAuth = () => ({
-  verifyIdToken: async () => ({ uid: 'mock-user' }),
-  createUser: async () => ({ uid: 'mock-user' }),
-  getUserByEmail: async () => ({ uid: 'mock-user' }),
-} as any);
+const createMockAuth = () =>
+  ({
+    verifyIdToken: async () => ({ uid: 'mock-user' }),
+    createUser: async () => ({ uid: 'mock-user' }),
+    getUserByEmail: async () => ({ uid: 'mock-user' }),
+  }) as any;
 
 export const firebaseAdmin = admin.apps.length ? admin : null;
 export const firestore = admin.apps.length ? admin.firestore() : createMockFirestore();
 export const auth = admin.apps.length ? admin.auth() : createMockAuth();
+
+// Mock bucket for development without Firebase Storage
+const createMockBucket = () =>
+  ({
+    file: (path: string) => ({
+      save: async () => {},
+      delete: async () => {},
+      getSignedUrl: async () => ['https://mock-url.example.com/image.jpg'],
+      getMetadata: async () => [{}],
+      makePublic: async () => {},
+      name: path,
+    }),
+    name: 'mock-bucket',
+  }) as any;
+
+export const storageBucket =
+  admin.apps.length && env.FIREBASE_STORAGE_BUCKET
+    ? admin.storage().bucket(env.FIREBASE_STORAGE_BUCKET)
+    : createMockBucket();
 
 // Create a compatible Timestamp class for both real and mock Firebase
 class MockTimestamp {
@@ -110,7 +135,7 @@ class MockTimestamp {
   }
 }
 
-export const Timestamp = admin.apps.length ? admin.firestore.Timestamp : MockTimestamp as any;
+export const Timestamp = admin.apps.length ? admin.firestore.Timestamp : (MockTimestamp as any);
 
 // Ensure Firestore ignores undefined fields if initialized
 if (admin.apps.length) {

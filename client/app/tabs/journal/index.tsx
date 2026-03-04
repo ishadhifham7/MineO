@@ -1,6 +1,6 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
@@ -20,6 +20,7 @@ import type {
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
+import { uploadJournalImage } from "../../../src/features/journal/journal.api";
 
 /* ---------------- SCREEN ---------------- */
 
@@ -31,6 +32,7 @@ export default function JournalScreen() {
     contextMenu,
     chapterSliderVisible,
     addBlock,
+    updateBlock,
     moveBlock,
     changeText,
     resizeBlock,
@@ -55,8 +57,15 @@ export default function JournalScreen() {
     saveJournal,
     loadJournal,
   } = useJournal();
-  
+
   const { refreshJourneys } = useJourney();
+
+  /**
+   * Tracks Storage paths of images uploaded during this session that haven't
+   * been committed to a saved journal yet. Used for cleanup on unmount.
+   */
+  const pendingUploadPaths = useRef<string[]>([]);
+  const isSaved = useRef(false);
 
   // Initialize today's journal on mount
   useEffect(() => {
@@ -70,9 +79,12 @@ export default function JournalScreen() {
     isPinnedToTimeline: boolean;
   }) => {
     await saveJournal(metadata);
+    isSaved.current = true;
+    // Clear pending paths — they are now owned by the saved journal entry
+    pendingUploadPaths.current = [];
     // Refresh journey map to show the new journal
     await refreshJourneys();
-    console.log('✅ Journey map refreshed after journal save');
+    console.log("✅ Journey map refreshed after journal save");
   };
 
   const chapters = [
@@ -118,20 +130,22 @@ export default function JournalScreen() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      alert("Permission required");
+      Alert.alert(
+        "Permission required",
+        "Please allow photo access to add images.",
+      );
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false, // ✅ correct (no crop UI)
+      allowsEditing: false,
       quality: 1,
     });
 
     if (result.canceled || !result.assets || result.assets.length === 0) return;
 
-    const imageUri = result.assets[0].uri;
-
+    const localUri = result.assets[0].uri;
     const id = Date.now().toString();
 
     // Center the image in the canvas (4000x4000)
@@ -142,10 +156,12 @@ export default function JournalScreen() {
     const CANVAS_SIZE = 4000;
     const imageWidth = 200;
     const imageHeight = 200;
+
+    // Add block immediately with local URI for instant preview
     const newBlock: ImageBlockType = {
       id,
       type: "image",
-      imageUri,
+      imageUri: localUri, // local preview — replaced once upload finishes
       x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
       y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
       width: imageWidth,
@@ -154,6 +170,21 @@ export default function JournalScreen() {
       zIndex: maxZ + 1,
     };
     addBlock(newBlock);
+
+    // Upload in background — update block with persistent URL when done
+    try {
+      const { imageUrl, imagePath } = await uploadJournalImage(id, localUri);
+      // Track path for cleanup if journal is never saved
+      pendingUploadPaths.current.push(imagePath);
+      // Update the block: persist the Storage URL and path
+      updateBlock(id, { imageUrl, imagePath });
+    } catch (err: any) {
+      console.error("❌ Image upload failed:", err?.message);
+      Alert.alert(
+        "Upload failed",
+        "Could not upload image. It will only be visible on this device. Please try again.",
+      );
+    }
   };
 
   // BLOCK ACTIONS
@@ -295,7 +326,7 @@ export default function JournalScreen() {
                 <ImageBlockComponent
                   key={block.id}
                   id={block.id}
-                  imageUri={block.imageUri}
+                  imageUri={block.imageUrl ?? block.imageUri ?? ""}
                   x={block.x}
                   y={block.y}
                   width={block.width}

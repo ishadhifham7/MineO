@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -8,6 +8,35 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ImageBlock as ImageBlockType } from "../../../../types/journal";
+
+const MIN_WIDTH = 80;
+const MIN_HEIGHT = 80;
+const HANDLE_SIZE = 15;
+
+/**
+ * Returns true only for persistent https:// URLs (Firebase Storage download URLs).
+ * Local file:// / content:// URIs are valid only on the device that picked them.
+ */
+function isPersistedUrl(uri: string): boolean {
+  return typeof uri === "string" && uri.startsWith("https://");
+}
+
+/**
+ * Returns true for any URI that <Image> will at least attempt to render
+ * (includes local file:// paths which work during the current session).
+ */
+function isRenderableUri(uri: string): boolean {
+  return (
+    typeof uri === "string" &&
+    uri.length > 0 &&
+    (uri.startsWith("https://") ||
+      uri.startsWith("http://") ||
+      uri.startsWith("file://") ||
+      uri.startsWith("content://") ||
+      uri.startsWith("ph://") || // iOS photos
+      uri.startsWith("assets-library://"))
+  );
+}
 
 const MIN_WIDTH = 80;
 const MIN_HEIGHT = 80;
@@ -57,8 +86,14 @@ export function ImageBlockComponent({
   const blockWidth = useSharedValue(width);
   const blockHeight = useSharedValue(height);
   const rotate = useSharedValue(rotation);
-
   const isResizing = useSharedValue(false);
+
+  // Track whether the image failed to load (broken / expired local URI)
+  const [imageError, setImageError] = useState(false);
+  // Track whether we're waiting for an upload to finish
+  const isUploading = imageUri
+    ? !isPersistedUrl(imageUri) && isRenderableUri(imageUri)
+    : false;
 
   const startPosX = useSharedValue(0);
   const startPosY = useSharedValue(0);
@@ -74,6 +109,11 @@ export function ImageBlockComponent({
     blockHeight.value = height;
     rotate.value = rotation;
   }, [x, y, width, height, rotation]);
+
+  // Reset error state when URI changes (e.g., local → Storage URL after upload)
+  useEffect(() => {
+    setImageError(false);
+  }, [imageUri]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     left: posX.value,
@@ -216,11 +256,26 @@ export function ImageBlockComponent({
       <Animated.View
         style={[styles.block, animatedStyle, isSelected && styles.selected]}
       >
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        {/* Show spinner while the upload is still in progress (local URI) */}
+        {isUploading && !imageError && (
+          <View style={styles.uploadingOverlay}>
+            <ActivityIndicator size="small" color="#4A90E2" />
+          </View>
+        )}
+
+        {/* Broken / empty URI → show placeholder */}
+        {!imageUri || !isRenderableUri(imageUri) || imageError ? (
+          <View style={styles.placeholder}>
+            <MaterialIcons name="broken-image" size={32} color="#aaa" />
+          </View>
+        ) : (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.image}
+            resizeMode="cover"
+            onError={() => setImageError(true)}
+          />
+        )}
 
         {/* Selection handles */}
         {isSelected && (
@@ -265,6 +320,27 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
+    borderRadius: 8,
+  },
+  /** Shown when image URI is broken or unavailable */
+  placeholder: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderStyle: "dashed",
+  },
+  /** Semi-transparent overlay shown while the image is being uploaded */
+  uploadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 5,
     borderRadius: 8,
   },
   handle: {

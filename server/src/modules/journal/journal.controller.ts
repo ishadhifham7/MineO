@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { JournalService } from './journal.service';
 import { JournalBlock } from './journal.types';
 import { AppError } from '../../shared/errors/app-error';
+import { uploadImageToStorage } from './journal.storage';
+import { env } from '../../config/env';
 
 export class JournalController {
   // 🔹 GET journal by date (NO auto create) - SECURE
@@ -132,6 +134,71 @@ export class JournalController {
           error: 'Forbidden',
           message: 'You do not have permission to access this journal entry',
         });
+      }
+      throw error;
+    }
+  }
+
+  // 🔹 UPLOAD image for a journal block - SECURE
+  static async uploadImage(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user?.uid;
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    if (!env.FIREBASE_STORAGE_BUCKET) {
+      throw new AppError('Storage not configured on this server', 503);
+    }
+
+    // Parse multipart: fields blockId + file
+    const data = await (request as any).file();
+    if (!data) throw new AppError('No file uploaded', 400);
+
+    const blockId = data.fields?.blockId?.value as string | undefined;
+    if (!blockId) throw new AppError('blockId field is required', 400);
+
+    const mimeType: string = data.mimetype || 'image/jpeg';
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedMimes.includes(mimeType)) {
+      throw new AppError('Unsupported image type', 415);
+    }
+
+    // Collect the file buffer from the multipart stream
+    const chunks: Buffer[] = [];
+    for await (const chunk of data.file) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+
+    // User-isolated path: users/{uid}/journal/{blockId}.jpg
+    const ext = mimeType.split('/')[1] ?? 'jpg';
+    const storagePath = `users/${userId}/journal/${blockId}.${ext}`;
+
+    const { imageUrl, imagePath } = await uploadImageToStorage(buffer, storagePath, mimeType);
+
+    reply.send({ imageUrl, imagePath });
+  }
+
+  // 🔹 DELETE journal entry + images - SECURE
+  static async deleteJournal(
+    request: FastifyRequest<{ Params: { entryId: string } }>,
+    reply: FastifyReply
+  ) {
+    const userId = request.user?.uid;
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    const { entryId } = request.params;
+
+    try {
+      await JournalService.deleteJournal(entryId, userId);
+      reply.send({ success: true });
+    } catch (error: any) {
+      if (error.message === 'FORBIDDEN') {
+        return reply.status(403).send({
+          error: 'Forbidden',
+          message: 'You do not have permission to delete this journal entry',
+        });
+      }
+      if (error.message === 'Entry not found') {
+        return reply.status(404).send({ error: 'Not found' });
       }
       throw error;
     }
