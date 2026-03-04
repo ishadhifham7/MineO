@@ -55,7 +55,7 @@ export default function JournalScreen() {
     saveJournal,
     loadJournal,
   } = useJournal();
-  
+
   const { refreshJourneys } = useJourney();
 
   // Initialize today's journal on mount
@@ -72,7 +72,7 @@ export default function JournalScreen() {
     await saveJournal(metadata);
     // Refresh journey map to show the new journal
     await refreshJourneys();
-    console.log('✅ Journey map refreshed after journal save');
+    console.log("✅ Journey map refreshed after journal save");
   };
 
   const chapters = [
@@ -257,64 +257,76 @@ export default function JournalScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        <Toolbar
-          visible={showToolbar}
-          onToggleBold={handleToggleBold}
-          onToggleItalic={handleToggleItalic}
-          onToggleUnderline={handleToggleUnderline}
-          onChangeColor={handleChangeColor}
-          onAlign={handleAlignText}
-          fontSize={selectedBlock?.fontSize || 16}
-          lineHeight={selectedBlock?.lineHeight || 22}
-          letterSpacing={selectedBlock?.letterSpacing || 0}
-          onChangeFontSize={handleChangeFontSize}
-          onChangeLineHeight={handleChangeLineHeight}
-          onChangeLetterSpacing={handleChangeLetterSpacing}
-        />
+        {/* Canvas container with margins — Toolbar sits inside here */}
+        <View
+          style={{
+            flex: 1,
+            marginTop: 120,
+            marginBottom: 4,
+            marginHorizontal: 12,
+            borderRadius: 16,
+            overflow: "hidden",
+          }}
+        >
+          <Toolbar
+            visible={showToolbar}
+            onToggleBold={handleToggleBold}
+            onToggleItalic={handleToggleItalic}
+            onToggleUnderline={handleToggleUnderline}
+            onChangeColor={handleChangeColor}
+            onAlign={handleAlignText}
+            fontSize={selectedBlock?.fontSize || 16}
+            lineHeight={selectedBlock?.lineHeight || 22}
+            letterSpacing={selectedBlock?.letterSpacing || 0}
+            onChangeFontSize={handleChangeFontSize}
+            onChangeLineHeight={handleChangeLineHeight}
+            onChangeLetterSpacing={handleChangeLetterSpacing}
+          />
 
-        <Canvas onCanvasPress={handleCanvasPress}>
-          {sortedBlocks.map((block) => {
-            if (isTextBlock(block)) {
-              return (
-                <TextBlockComponent
-                  key={block.id}
-                  {...block}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={handleSelectBlock}
-                  onMove={handleMoveBlock}
-                  onTextChange={handleChangeText}
-                  onResize={handleResizeBlock}
-                  onRotate={handleRotateBlock}
-                  onLongPress={handleOpenContextMenu}
-                />
-              );
-            }
+          <Canvas onCanvasPress={handleCanvasPress}>
+            {sortedBlocks.map((block) => {
+              if (isTextBlock(block)) {
+                return (
+                  <TextBlockComponent
+                    key={block.id}
+                    {...block}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={handleSelectBlock}
+                    onMove={handleMoveBlock}
+                    onTextChange={handleChangeText}
+                    onResize={handleResizeBlock}
+                    onRotate={handleRotateBlock}
+                    onLongPress={handleOpenContextMenu}
+                  />
+                );
+              }
 
-            if (isImageBlock(block)) {
-              return (
-                <ImageBlockComponent
-                  key={block.id}
-                  id={block.id}
-                  imageUri={block.imageUri}
-                  x={block.x}
-                  y={block.y}
-                  width={block.width}
-                  height={block.height}
-                  rotation={block.rotation}
-                  zIndex={block.zIndex}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={handleSelectBlock}
-                  onMove={handleMoveBlock}
-                  onResize={handleResizeBlock}
-                  onRotate={handleRotateBlock}
-                  onLongPress={handleOpenContextMenu}
-                />
-              );
-            }
+              if (isImageBlock(block)) {
+                return (
+                  <ImageBlockComponent
+                    key={block.id}
+                    id={block.id}
+                    imageUri={block.imageUri}
+                    x={block.x}
+                    y={block.y}
+                    width={block.width}
+                    height={block.height}
+                    rotation={block.rotation}
+                    zIndex={block.zIndex}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={handleSelectBlock}
+                    onMove={handleMoveBlock}
+                    onResize={handleResizeBlock}
+                    onRotate={handleRotateBlock}
+                    onLongPress={handleOpenContextMenu}
+                  />
+                );
+              }
 
-            return null;
-          })}
-        </Canvas>
+              return null;
+            })}
+          </Canvas>
+        </View>
 
         <FloatingAddMenu
           visible={addMenuVisible}
@@ -328,6 +340,7 @@ export default function JournalScreen() {
           }}
         />
 
+        {/* Add Block Button */}
         <Pressable
           onPress={() => setAddMenuVisible(!addMenuVisible)}
           style={{
@@ -345,7 +358,7 @@ export default function JournalScreen() {
           <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
         </Pressable>
 
-        {/* Save Button - Bottom Left */}
+        {/* Save Button */}
         <Pressable
           onPress={() => setChapterSliderVisible(true)}
           style={{
@@ -355,7 +368,7 @@ export default function JournalScreen() {
             paddingHorizontal: 28,
             height: 44,
             borderRadius: 24,
-            backgroundColor: "#000", // green-400
+            backgroundColor: "#000",
             alignItems: "center",
             justifyContent: "center",
             flexDirection: "row",
