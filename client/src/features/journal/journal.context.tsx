@@ -87,7 +87,7 @@ export type JournalAction =
   | { type: "SET_ADD_MENU_VISIBLE"; payload: boolean }
   | {
       type: "OPEN_CONTEXT_MENU";
-      payload: { blockId: string; x: number; y: number };
+      payload: { blockId: string | null; x: number; y: number };
     }
   | { type: "CLOSE_CONTEXT_MENU" }
   | { type: "SET_CHAPTER_SLIDER_VISIBLE"; payload: boolean }
@@ -402,7 +402,7 @@ interface JournalContextValue extends JournalState {
   changeLineHeight: (id: string, lineHeight: number) => void;
   changeLetterSpacing: (id: string, letterSpacing: number) => void;
   setAddMenuVisible: (visible: boolean) => void;
-  openContextMenu: (blockId: string, x: number, y: number) => void;
+  openContextMenu: (blockId: string | null, x: number, y: number) => void;
   closeContextMenu: () => void;
   setChapterSliderVisible: (visible: boolean) => void;
   copyBlock: (id: string) => void;

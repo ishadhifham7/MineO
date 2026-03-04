@@ -7,6 +7,9 @@ type Props = {
   onPaste: () => void;
   onDelete: () => void;
   onClose: () => void;
+  /** When true (long-press on empty canvas), only Paste is active;
+   *  Copy and Delete are shown but visually disabled. */
+  pasteOnly?: boolean;
 };
 
 export function ContextMenu({
@@ -16,18 +19,40 @@ export function ContextMenu({
   onPaste,
   onDelete,
   onClose,
+  pasteOnly = false,
 }: Props) {
   return (
     <Pressable style={styles.overlay} onPress={onClose}>
       <View style={[styles.menu, { top: y + 10, left: x - 80 }]}>
-        <Pressable style={styles.item} onPress={onCopy}>
-          <Text style={styles.text}>Copy</Text>
+        {/* Copy */}
+        <Pressable
+          style={[styles.item, pasteOnly && styles.itemDisabled]}
+          onPress={pasteOnly ? undefined : onCopy}
+        >
+          <Text style={[styles.text, pasteOnly && styles.textDisabled]}>
+            Copy
+          </Text>
         </Pressable>
+
+        {/* Paste */}
         <Pressable style={styles.item} onPress={onPaste}>
           <Text style={styles.text}>Paste</Text>
         </Pressable>
-        <Pressable style={styles.item} onPress={onDelete}>
-          <Text style={[styles.text, { color: "#ff3b30" }]}>Delete</Text>
+
+        {/* Delete */}
+        <Pressable
+          style={[styles.item, pasteOnly && styles.itemDisabled]}
+          onPress={pasteOnly ? undefined : onDelete}
+        >
+          <Text
+            style={[
+              styles.text,
+              { color: "#ff3b30" },
+              pasteOnly && styles.textDisabled,
+            ]}
+          >
+            Delete
+          </Text>
         </Pressable>
       </View>
     </Pressable>
@@ -56,8 +81,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
   },
+  itemDisabled: {
+    opacity: 0.3,
+  },
   text: {
     fontSize: 16,
     color: "#111",
+  },
+  textDisabled: {
+    color: "#aaa",
   },
 });

@@ -1,6 +1,13 @@
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from "react-native-reanimated";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
@@ -20,6 +27,47 @@ import type {
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
+
+/* ---------------- Add Button with rotation ---------------- */
+
+function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
+  const rotation = useSharedValue(0);
+
+  if (open) {
+    rotation.value = withTiming(1, { duration: 200 });
+  } else {
+    rotation.value = withTiming(0, { duration: 200 });
+  }
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        rotate: `${interpolate(rotation.value, [0, 1], [0, 45])}deg`,
+      },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        position: "absolute",
+        bottom: 24,
+        right: 24,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#000",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Animated.View style={animatedStyle}>
+        <MaterialIcons name="add" size={28} color="#fff" />
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 /* ---------------- SCREEN ---------------- */
 
@@ -54,8 +102,9 @@ export default function JournalScreen() {
     setChapterSliderVisible,
     saveJournal,
     loadJournal,
+    date,
   } = useJournal();
-  
+
   const { refreshJourneys } = useJourney();
 
   // Initialize today's journal on mount
@@ -70,20 +119,10 @@ export default function JournalScreen() {
     isPinnedToTimeline: boolean;
   }) => {
     await saveJournal(metadata);
-    // Refresh journey map to show the new journal
     await refreshJourneys();
-    console.log('✅ Journey map refreshed after journal save');
+    console.log("✅ Journey map refreshed after journal save");
   };
 
-  const chapters = [
-    { id: "1", title: "Life" },
-    { id: "2", title: "Health" },
-    { id: "3", title: "Mind" },
-    { id: "4", title: "Career" },
-    { id: "5", title: "Relationships" },
-  ];
-
-  // CREATE BLOCK
   const addTextBlock = () => {
     const id = Date.now().toString();
     const maxZ =
@@ -247,6 +286,11 @@ export default function JournalScreen() {
     deselectBlock();
   };
 
+  const handleCanvasLongPress = (x: number, y: number) => {
+    // Open context menu on empty canvas — pasteOnly mode (blockId = null)
+    openContextMenu(null, x, y);
+  };
+
   const selectedBlock = blocks.find(
     (b: JournalBlock) => b.id === selectedBlockId && isTextBlock(b),
   ) as TextBlockType | undefined;
@@ -254,67 +298,171 @@ export default function JournalScreen() {
   // Show toolbar only for selected text blocks
   const showToolbar = selectedBlock !== undefined;
 
+  // Format YYYY-MM-DD → "20th January 2025" and "Saturday"
+  const formatJournalDate = (dateStr: string | null) => {
+    if (!dateStr) {
+      const now = new Date();
+      return formatJournalDate(now.toISOString().split("T")[0]);
+    }
+    const d = new Date(dateStr + "T00:00:00"); // force local time
+    const day = d.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+          ? "nd"
+          : day % 10 === 3 && day !== 13
+            ? "rd"
+            : "th";
+    const month = d.toLocaleString("en-US", { month: "long" });
+    const year = d.getFullYear();
+    const weekday = d.toLocaleString("en-US", { weekday: "long" });
+    return { day: `${day}${suffix} ${month} ${year}`, weekday };
+  };
+
+  const formattedDate = formatJournalDate(date);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        <Toolbar
-          visible={showToolbar}
-          onToggleBold={handleToggleBold}
-          onToggleItalic={handleToggleItalic}
-          onToggleUnderline={handleToggleUnderline}
-          onChangeColor={handleChangeColor}
-          onAlign={handleAlignText}
-          fontSize={selectedBlock?.fontSize || 16}
-          lineHeight={selectedBlock?.lineHeight || 22}
-          letterSpacing={selectedBlock?.letterSpacing || 0}
-          onChangeFontSize={handleChangeFontSize}
-          onChangeLineHeight={handleChangeLineHeight}
-          onChangeLetterSpacing={handleChangeLetterSpacing}
-        />
+        {/* Date Header + Save Button */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 4,
+          }}
+        >
+          {/* Date (left) */}
+          <View>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "700",
+                color: "#111",
+                letterSpacing: 0.2,
+              }}
+            >
+              {typeof formattedDate === "object" ? formattedDate.day : ""}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "400",
+                color: "#888",
+                marginTop: 2,
+              }}
+            >
+              {typeof formattedDate === "object" ? formattedDate.weekday : ""}
+            </Text>
+          </View>
 
-        <Canvas onCanvasPress={handleCanvasPress}>
-          {sortedBlocks.map((block) => {
-            if (isTextBlock(block)) {
-              return (
-                <TextBlockComponent
-                  key={block.id}
-                  {...block}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={handleSelectBlock}
-                  onMove={handleMoveBlock}
-                  onTextChange={handleChangeText}
-                  onResize={handleResizeBlock}
-                  onRotate={handleRotateBlock}
-                  onLongPress={handleOpenContextMenu}
-                />
-              );
-            }
+          {/* Save button (right) */}
+          <Pressable
+            onPress={() => setChapterSliderVisible(true)}
+            style={{
+              paddingHorizontal: 22,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: "#111",
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 3,
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 15,
+                fontWeight: "600",
+                letterSpacing: 0.5,
+              }}
+            >
+              Save
+            </Text>
+          </Pressable>
+        </View>
 
-            if (isImageBlock(block)) {
-              return (
-                <ImageBlockComponent
-                  key={block.id}
-                  id={block.id}
-                  imageUri={block.imageUri}
-                  x={block.x}
-                  y={block.y}
-                  width={block.width}
-                  height={block.height}
-                  rotation={block.rotation}
-                  zIndex={block.zIndex}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={handleSelectBlock}
-                  onMove={handleMoveBlock}
-                  onResize={handleResizeBlock}
-                  onRotate={handleRotateBlock}
-                  onLongPress={handleOpenContextMenu}
-                />
-              );
-            }
+        {/* Canvas container with margins — Toolbar sits inside here */}
+        <View
+          style={{
+            flex: 1,
+            marginTop: 30,
+            marginBottom: 4,
+            marginHorizontal: 12,
+            borderRadius: 16,
+            overflow: "hidden",
+          }}
+        >
+          <Toolbar
+            visible={showToolbar}
+            onToggleBold={handleToggleBold}
+            onToggleItalic={handleToggleItalic}
+            onToggleUnderline={handleToggleUnderline}
+            onChangeColor={handleChangeColor}
+            onAlign={handleAlignText}
+            fontSize={selectedBlock?.fontSize || 16}
+            lineHeight={selectedBlock?.lineHeight || 22}
+            letterSpacing={selectedBlock?.letterSpacing || 0}
+            onChangeFontSize={handleChangeFontSize}
+            onChangeLineHeight={handleChangeLineHeight}
+            onChangeLetterSpacing={handleChangeLetterSpacing}
+          />
 
-            return null;
-          })}
-        </Canvas>
+          <Canvas
+            onCanvasPress={handleCanvasPress}
+            onCanvasLongPress={handleCanvasLongPress}
+          >
+            {sortedBlocks.map((block) => {
+              if (isTextBlock(block)) {
+                return (
+                  <TextBlockComponent
+                    key={block.id}
+                    {...block}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={handleSelectBlock}
+                    onMove={handleMoveBlock}
+                    onTextChange={handleChangeText}
+                    onResize={handleResizeBlock}
+                    onRotate={handleRotateBlock}
+                    onLongPress={handleOpenContextMenu}
+                  />
+                );
+              }
+
+              if (isImageBlock(block)) {
+                return (
+                  <ImageBlockComponent
+                    key={block.id}
+                    id={block.id}
+                    imageUri={block.imageUri}
+                    x={block.x}
+                    y={block.y}
+                    width={block.width}
+                    height={block.height}
+                    rotation={block.rotation}
+                    zIndex={block.zIndex}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={handleSelectBlock}
+                    onMove={handleMoveBlock}
+                    onResize={handleResizeBlock}
+                    onRotate={handleRotateBlock}
+                    onLongPress={handleOpenContextMenu}
+                  />
+                );
+              }
+
+              return null;
+            })}
+          </Canvas>
+        </View>
 
         <FloatingAddMenu
           visible={addMenuVisible}
@@ -328,59 +476,14 @@ export default function JournalScreen() {
           }}
         />
 
-        <Pressable
+        {/* Add Block Button — rotates to × when menu is open */}
+        <AddButton
+          open={addMenuVisible}
           onPress={() => setAddMenuVisible(!addMenuVisible)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            right: 24,
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            backgroundColor: "#000",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
-        </Pressable>
-
-        {/* Save Button - Bottom Left */}
-        <Pressable
-          onPress={() => setChapterSliderVisible(true)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            left: 24,
-            paddingHorizontal: 28,
-            height: 44,
-            borderRadius: 24,
-            backgroundColor: "#000", // green-400
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "row",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: "bold",
-              letterSpacing: 1,
-            }}
-          >
-            Save
-          </Text>
-        </Pressable>
+        />
 
         <ChapterSlider
           visible={chapterSliderVisible}
-          chapters={chapters}
           onClose={() => setChapterSliderVisible(false)}
           onSave={handleSaveWithMetadata}
         />
@@ -393,6 +496,7 @@ export default function JournalScreen() {
             onPaste={handlePaste}
             onDelete={handleDelete}
             onClose={handleCloseContextMenu}
+            pasteOnly={!contextMenu.blockId}
           />
         )}
       </View>

@@ -10,6 +10,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  runOnJS,
 } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
@@ -18,9 +19,14 @@ const CANVAS_SIZE = 4000;
 type CanvasProps = {
   children?: ReactNode;
   onCanvasPress?: () => void;
+  onCanvasLongPress?: (x: number, y: number) => void;
 };
 
-export function Canvas({ children, onCanvasPress }: CanvasProps) {
+export function Canvas({
+  children,
+  onCanvasPress,
+  onCanvasLongPress,
+}: CanvasProps) {
   const horizontalScrollRef = useRef<ScrollView>(null);
   const verticalScrollRef = useRef<ScrollView>(null);
 
@@ -43,6 +49,17 @@ export function Canvas({ children, onCanvasPress }: CanvasProps) {
       savedScale.value = scale.value;
     });
 
+  // Long-press on empty canvas — must be OUTSIDE ScrollViews so the scroll
+  // responder doesn't cancel it before 400ms is reached.
+  const longPressGesture = Gesture.LongPress()
+    .minDuration(400)
+    .maxDistance(10)
+    .onStart((e) => {
+      if (onCanvasLongPress) {
+        runOnJS(onCanvasLongPress)(e.x, e.y);
+      }
+    });
+
   const animatedCanvasStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
@@ -62,68 +79,55 @@ export function Canvas({ children, onCanvasPress }: CanvasProps) {
   }, []);
 
   // --- FIX: Make both scroll directions always available ---
+  // Long press wraps the OUTER view so ScrollViews can't cancel it.
   return (
-    <View style={{ flex: 1, overflow: "hidden" }}>
-      <ScrollView
-        ref={verticalScrollRef}
-        style={{ flex: 1 }}
-        contentContainerStyle={{ minHeight: CANVAS_SIZE }}
-        showsVerticalScrollIndicator
-        scrollEventThrottle={16}
-        bounces
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
-        horizontal={false}
-      >
+    <GestureDetector gesture={longPressGesture}>
+      <View style={{ flex: 1, overflow: "hidden" }}>
         <ScrollView
-          ref={horizontalScrollRef}
-          horizontal
-          contentContainerStyle={{ minWidth: CANVAS_SIZE }}
-          showsHorizontalScrollIndicator
+          ref={verticalScrollRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ minHeight: CANVAS_SIZE }}
+          showsVerticalScrollIndicator
           scrollEventThrottle={16}
           bounces
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="none"
+          horizontal={false}
         >
-          <GestureDetector gesture={pinchGesture}>
-            <Animated.View style={[styles.canvas, animatedCanvasStyle]}>
-              {/* Overlay Pressable to detect empty canvas clicks */}
-              {onCanvasPress && (
-                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                  <Pressable
-                    style={{ flex: 1 }}
-                    onPress={onCanvasPress}
-                    android_ripple={{ color: "#00000010" }}
-                    hitSlop={8}
-                  />
-                </View>
-              )}
-              {/* Grid (visual reference only)
-              {Array.from({ length: 20 }).map((_, i) => (
-                <View
-                  key={`h-${i}`}
-                  style={[
-                    styles.gridLine,
-                    { top: i * 200, left: 0, width: CANVAS_SIZE, height: 1 },
-                  ]}
-                />
-              ))}
-              {Array.from({ length: 20 }).map((_, i) => (
-                <View
-                  key={`v-${i}`}
-                  style={[
-                    styles.gridLine,
-                    { left: i * 200, top: 0, width: 1, height: CANVAS_SIZE },
-                  ]}
-                />
-              ))} */}
-              {/* Blocks live here */}
-              {children}
-            </Animated.View>
-          </GestureDetector>
+          <ScrollView
+            ref={horizontalScrollRef}
+            horizontal
+            contentContainerStyle={{ minWidth: CANVAS_SIZE }}
+            showsHorizontalScrollIndicator
+            scrollEventThrottle={16}
+            bounces
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
+          >
+            <GestureDetector gesture={pinchGesture}>
+              <Animated.View style={[styles.canvas, animatedCanvasStyle]}>
+                {/* Overlay Pressable to detect empty canvas taps */}
+                {onCanvasPress && (
+                  <View
+                    style={StyleSheet.absoluteFill}
+                    pointerEvents="box-none"
+                  >
+                    <Pressable
+                      style={{ flex: 1 }}
+                      onPress={onCanvasPress}
+                      android_ripple={{ color: "#00000010" }}
+                      hitSlop={8}
+                    />
+                  </View>
+                )}
+                {/* Blocks live here */}
+                {children}
+              </Animated.View>
+            </GestureDetector>
+          </ScrollView>
         </ScrollView>
-      </ScrollView>
-    </View>
+      </View>
+    </GestureDetector>
   );
 }
 
