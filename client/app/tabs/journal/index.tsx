@@ -54,6 +54,7 @@ export default function JournalScreen() {
     setChapterSliderVisible,
     saveJournal,
     loadJournal,
+    date,
   } = useJournal();
 
   const { refreshJourneys } = useJourney();
@@ -254,14 +255,64 @@ export default function JournalScreen() {
   // Show toolbar only for selected text blocks
   const showToolbar = selectedBlock !== undefined;
 
+  // Format YYYY-MM-DD → "20th January 2025" and "Saturday"
+  const formatJournalDate = (dateStr: string | null) => {
+    if (!dateStr) {
+      const now = new Date();
+      return formatJournalDate(now.toISOString().split("T")[0]);
+    }
+    const d = new Date(dateStr + "T00:00:00"); // force local time
+    const day = d.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+          ? "nd"
+          : day % 10 === 3 && day !== 13
+            ? "rd"
+            : "th";
+    const month = d.toLocaleString("en-US", { month: "long" });
+    const year = d.getFullYear();
+    const weekday = d.toLocaleString("en-US", { weekday: "long" });
+    return { day: `${day}${suffix} ${month} ${year}`, weekday };
+  };
+
+  const formattedDate = formatJournalDate(date);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
+        {/* Date Header */}
+        <View
+          style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4 }}
+        >
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: "700",
+              color: "#111",
+              letterSpacing: 0.2,
+            }}
+          >
+            {typeof formattedDate === "object" ? formattedDate.day : ""}
+          </Text>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "400",
+              color: "#888",
+              marginTop: 2,
+            }}
+          >
+            {typeof formattedDate === "object" ? formattedDate.weekday : ""}
+          </Text>
+        </View>
+
         {/* Canvas container with margins — Toolbar sits inside here */}
         <View
           style={{
             flex: 1,
-            marginTop: 120,
+            marginTop: 30,
             marginBottom: 4,
             marginHorizontal: 12,
             borderRadius: 16,
