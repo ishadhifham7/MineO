@@ -286,6 +286,11 @@ export default function JournalScreen() {
     deselectBlock();
   };
 
+  const handleCanvasLongPress = (x: number, y: number) => {
+    // Open context menu on empty canvas — pasteOnly mode (blockId = null)
+    openContextMenu(null, x, y);
+  };
+
   const selectedBlock = blocks.find(
     (b: JournalBlock) => b.id === selectedBlockId && isTextBlock(b),
   ) as TextBlockType | undefined;
@@ -411,7 +416,10 @@ export default function JournalScreen() {
             onChangeLetterSpacing={handleChangeLetterSpacing}
           />
 
-          <Canvas onCanvasPress={handleCanvasPress}>
+          <Canvas
+            onCanvasPress={handleCanvasPress}
+            onCanvasLongPress={handleCanvasLongPress}
+          >
             {sortedBlocks.map((block) => {
               if (isTextBlock(block)) {
                 return (
@@ -488,6 +496,7 @@ export default function JournalScreen() {
             onPaste={handlePaste}
             onDelete={handleDelete}
             onClose={handleCloseContextMenu}
+            pasteOnly={!contextMenu.blockId}
           />
         )}
       </View>
