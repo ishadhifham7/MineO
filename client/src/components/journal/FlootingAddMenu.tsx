@@ -1,4 +1,4 @@
-import { View, Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -18,33 +18,33 @@ export function FloatingAddMenu({
   onAddImage,
 }: FloatingAddMenuProps) {
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(20);
+  const translateX = useSharedValue(20);
 
-  // animate in / out
+  // animate in / out — slide in from right
   if (visible) {
-    opacity.value = withTiming(1, { duration: 150 });
-    translateY.value = withTiming(0, { duration: 150 });
+    opacity.value = withTiming(1, { duration: 180 });
+    translateX.value = withTiming(0, { duration: 180 });
   } else {
     opacity.value = withTiming(0, { duration: 150 });
-    translateY.value = withTiming(20, { duration: 150 });
+    translateX.value = withTiming(20, { duration: 150 });
   }
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
+    transform: [{ translateX: translateX.value }],
     pointerEvents: visible ? "auto" : "none",
   }));
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
-      {/* Add Text */}
-      <Pressable style={styles.button} onPress={onAddText}>
-        <MaterialIcons name="text-fields" size={22} color="#fff" />
-      </Pressable>
-
       {/* Add Image */}
       <Pressable style={styles.button} onPress={onAddImage}>
         <MaterialIcons name="image" size={22} color="#fff" />
+      </Pressable>
+
+      {/* Add Text */}
+      <Pressable style={styles.button} onPress={onAddText}>
+        <MaterialIcons name="text-fields" size={22} color="#fff" />
       </Pressable>
     </Animated.View>
   );
@@ -53,9 +53,11 @@ export function FloatingAddMenu({
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    bottom: 90,
-    right: 24,
+    bottom: 29, // vertically centres 44 px buttons with the 56 px + button (bottom: 24)
+    right: 92, // sits just to the left of the + button (56 wide + 12 gap + 24 inset)
+    flexDirection: "row",
     alignItems: "center",
+    gap: 10,
   },
   button: {
     width: 44,
@@ -64,7 +66,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
     elevation: 4,
   },
 });

@@ -1,6 +1,13 @@
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from "react-native-reanimated";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
@@ -20,6 +27,47 @@ import type {
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
+
+/* ---------------- Add Button with rotation ---------------- */
+
+function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
+  const rotation = useSharedValue(0);
+
+  if (open) {
+    rotation.value = withTiming(1, { duration: 200 });
+  } else {
+    rotation.value = withTiming(0, { duration: 200 });
+  }
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        rotate: `${interpolate(rotation.value, [0, 1], [0, 45])}deg`,
+      },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        position: "absolute",
+        bottom: 24,
+        right: 24,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#000",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Animated.View style={animatedStyle}>
+        <MaterialIcons name="add" size={28} color="#fff" />
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 /* ---------------- SCREEN ---------------- */
 
@@ -420,23 +468,11 @@ export default function JournalScreen() {
           }}
         />
 
-        {/* Add Block Button */}
-        <Pressable
+        {/* Add Block Button — rotates to × when menu is open */}
+        <AddButton
+          open={addMenuVisible}
           onPress={() => setAddMenuVisible(!addMenuVisible)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            right: 24,
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            backgroundColor: "#000",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
-        </Pressable>
+        />
 
         <ChapterSlider
           visible={chapterSliderVisible}
