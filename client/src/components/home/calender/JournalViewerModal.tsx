@@ -9,12 +9,14 @@ import {
   StyleSheet,
   Dimensions,
   TextStyle,
+  ScrollView,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Reanimated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  runOnJS,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,8 +30,11 @@ import type {
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const VIEWER_PADDING = 32;
+// Extra scrollable space appended beyond the content bounding box so the user
+// can freely pan around without hitting a hard wall immediately.
+const CANVAS_EXTRA = 600;
 const MIN_SCALE = 0.3;
-const MAX_SCALE = 5;
+const MAX_SCALE = 3;
 
 // ---- helpers ---------------------------------------------------------------
 
@@ -85,23 +90,26 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Canvas pan + zoom — Reanimated shared values
+  // Native ScrollView refs — handle horizontal + vertical pan exactly like Canvas.tsx
+  const horizontalScrollRef = useRef<ScrollView>(null);
+  const verticalScrollRef = useRef<ScrollView>(null);
+
+  // Pinch zoom — Reanimated shared values (same as Canvas.tsx)
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
-  const transX = useSharedValue(0);
-  const transY = useSharedValue(0);
-  const savedTransX = useSharedValue(0);
-  const savedTransY = useSharedValue(0);
 
-  // Reset transform whenever a new entry opens
+  // Called from worklet via runOnJS to reset scroll position
+  const scrollToCenter = useCallback(() => {
+    const half = CANVAS_EXTRA / 2;
+    horizontalScrollRef.current?.scrollTo({ x: half, animated: true });
+    verticalScrollRef.current?.scrollTo({ y: half, animated: true });
+  }, []);
+
+  // Reset zoom + scroll whenever a new entry opens
   useEffect(() => {
     if (visible) {
       scale.value = 1;
       savedScale.value = 1;
-      transX.value = 0;
-      transY.value = 0;
-      savedTransX.value = 0;
-      savedTransY.value = 0;
 
       // Slide modal in
       slideAnim.setValue(SCREEN_HEIGHT);
@@ -118,7 +126,14 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
           duration: 180,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        // Scroll so content is centered in the viewport after the modal settles
+        requestAnimationFrame(() => {
+          const half = CANVAS_EXTRA / 2;
+          horizontalScrollRef.current?.scrollTo({ x: half, animated: false });
+          verticalScrollRef.current?.scrollTo({ y: half, animated: false });
+        });
+      });
     }
   }, [visible, entry?.id]);
 
@@ -139,68 +154,31 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
 
   // ---- gestures ------------------------------------------------------------
 
-  // Pan — tracks two-finger pan simultaneously with pinch
-  const panGesture = Gesture.Pan()
-    .averageTouches(true)
-    .onBegin(() => {
-      savedTransX.value = transX.value;
-      savedTransY.value = transY.value;
-    })
-    .onUpdate((e) => {
-      transX.value = savedTransX.value + e.translationX;
-      transY.value = savedTransY.value + e.translationY;
-    })
-    .onEnd(() => {
-      savedTransX.value = transX.value;
-      savedTransY.value = transY.value;
-    });
-
-  // Pinch — focal-point zoom: the point under the fingers stays fixed
+  // Pinch to zoom — same implementation as Canvas.tsx
   const pinchGesture = Gesture.Pinch()
-    .onBegin(() => {
-      savedScale.value = scale.value;
-      savedTransX.value = transX.value;
-      savedTransY.value = transY.value;
-    })
     .onUpdate((e) => {
-      const newScale = clamp(savedScale.value * e.scale, MIN_SCALE, MAX_SCALE);
-      const ratio = newScale / savedScale.value;
-      // Shift translation so the focal point stays under the fingers
-      transX.value = e.focalX - ratio * (e.focalX - savedTransX.value);
-      transY.value = e.focalY - ratio * (e.focalY - savedTransY.value);
-      scale.value = newScale;
+      scale.value = clamp(savedScale.value * e.scale, MIN_SCALE, MAX_SCALE);
     })
     .onEnd(() => {
       savedScale.value = scale.value;
-      savedTransX.value = transX.value;
-      savedTransY.value = transY.value;
     });
 
-  // Double-tap — spring back to 1:1 fit
+  // Double-tap — spring scale back to 1:1 and scroll to origin
   const doubleTap = Gesture.Tap()
     .numberOfTaps(2)
     .maxDuration(300)
     .onEnd(() => {
       scale.value = withSpring(1, { damping: 14, stiffness: 120 });
-      transX.value = withSpring(0, { damping: 14, stiffness: 120 });
-      transY.value = withSpring(0, { damping: 14, stiffness: 120 });
       savedScale.value = 1;
-      savedTransX.value = 0;
-      savedTransY.value = 0;
+      runOnJS(scrollToCenter)();
     });
 
-  // Pan + pinch happen simultaneously; double-tap has exclusion priority
-  const composed = Gesture.Exclusive(
-    doubleTap,
-    Gesture.Simultaneous(panGesture, pinchGesture),
-  );
+  // Double-tap has exclusion priority over pinch — they are distinct gestures
+  // so they will not interfere with normal single-finger scrolling.
+  const composed = Gesture.Exclusive(doubleTap, pinchGesture);
 
   const canvasAnimStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: transX.value },
-      { translateY: transY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ scale: scale.value }],
   }));
 
   // ---- render --------------------------------------------------------------
@@ -210,6 +188,11 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
   const sortedBlocks = [...entry.blocks].sort((a, b) => a.zIndex - b.zIndex);
   const { minX, minY, contentWidth, contentHeight } =
     computeBoundingBox(sortedBlocks);
+
+  // Canvas dimensions: content bounding box + generous extra space to pan into,
+  // mirroring the approach used in Canvas.tsx (which uses a fixed 4000×4000 space).
+  const canvasWidth = Math.max(contentWidth, SCREEN_WIDTH) + CANVAS_EXTRA;
+  const canvasHeight = Math.max(contentHeight, 300) + CANVAS_EXTRA;
 
   return (
     <Modal
@@ -250,95 +233,136 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
 
         {/* Hint */}
         <Text style={styles.hint}>
-          Pinch to zoom · drag to pan · double-tap to reset
+          Pinch to zoom · scroll to pan · double-tap to reset
         </Text>
 
-        {/* Pan + zoom viewport */}
-        <GestureDetector gesture={composed}>
-          <View style={styles.viewport}>
-            <Reanimated.View style={[styles.canvas, canvasAnimStyle]}>
-              {/* Fixed-size content surface */}
-              <View
-                style={{
-                  width: Math.max(contentWidth, SCREEN_WIDTH),
-                  height: Math.max(contentHeight, 300),
-                }}
-                pointerEvents="none"
-              >
-                {sortedBlocks.length === 0 && (
-                  <Text style={styles.emptyText}>
-                    No content in this entry.
-                  </Text>
-                )}
+        {/* ----------------------------------------------------------------
+            Viewport — nested ScrollViews handle horizontal + vertical pan
+            (identical pattern to Canvas.tsx); GestureDetector handles pinch
+            zoom and double-tap reset.
+        ---------------------------------------------------------------- */}
+        <View style={styles.viewport}>
+          {/* Vertical pan */}
+          <ScrollView
+            ref={verticalScrollRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ minHeight: canvasHeight }}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            bounces
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Horizontal pan */}
+            <ScrollView
+              ref={horizontalScrollRef}
+              horizontal
+              contentContainerStyle={{ minWidth: canvasWidth }}
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              bounces
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* Pinch zoom + double-tap reset */}
+              <GestureDetector gesture={composed}>
+                <Reanimated.View
+                  style={[
+                    {
+                      width: canvasWidth,
+                      height: canvasHeight,
+                      backgroundColor: "#FAF8F5",
+                    },
+                    canvasAnimStyle,
+                  ]}
+                >
+                  {/* Read-only content surface — centered within the canvas */}
+                  <View
+                    style={{
+                      position: "absolute",
+                      left: CANVAS_EXTRA / 2,
+                      top: CANVAS_EXTRA / 2,
+                      width: Math.max(contentWidth, SCREEN_WIDTH),
+                      height: Math.max(contentHeight, 300),
+                    }}
+                    pointerEvents="none"
+                  >
+                    {sortedBlocks.length === 0 && (
+                      <Text style={styles.emptyText}>
+                        No content in this entry.
+                      </Text>
+                    )}
 
-                {sortedBlocks.map((block) => {
-                  const adjX = block.x - minX;
-                  const adjY = block.y - minY;
+                    {sortedBlocks.map((block) => {
+                      const adjX = block.x - minX;
+                      const adjY = block.y - minY;
 
-                  if (block.type === "text") {
-                    const tb = block as TextBlockType;
-                    const textStyle: TextStyle = {
-                      fontSize: tb.fontSize,
-                      lineHeight: tb.lineHeight,
-                      letterSpacing: tb.letterSpacing,
-                      fontWeight: tb.isBold ? "bold" : "normal",
-                      fontStyle: tb.isItalic ? "italic" : "normal",
-                      textDecorationLine: tb.isUnderline ? "underline" : "none",
-                      color: tb.textColor,
-                      textAlign: tb.textAlign,
-                    };
-                    return (
-                      <View
-                        key={block.id}
-                        style={[
-                          styles.blockBase,
-                          {
-                            left: adjX,
-                            top: adjY,
-                            width: block.width,
-                            height: block.height,
-                            zIndex: block.zIndex,
-                            transform: [{ rotate: `${block.rotation}deg` }],
-                          },
-                        ]}
-                      >
-                        <Text style={textStyle}>{tb.text}</Text>
-                      </View>
-                    );
-                  }
+                      if (block.type === "text") {
+                        const tb = block as TextBlockType;
+                        const textStyle: TextStyle = {
+                          fontSize: tb.fontSize,
+                          lineHeight: tb.lineHeight,
+                          letterSpacing: tb.letterSpacing,
+                          fontWeight: tb.isBold ? "bold" : "normal",
+                          fontStyle: tb.isItalic ? "italic" : "normal",
+                          textDecorationLine: tb.isUnderline
+                            ? "underline"
+                            : "none",
+                          color: tb.textColor,
+                          textAlign: tb.textAlign,
+                        };
+                        return (
+                          <View
+                            key={block.id}
+                            style={[
+                              styles.blockBase,
+                              {
+                                left: adjX,
+                                top: adjY,
+                                width: block.width,
+                                height: block.height,
+                                zIndex: block.zIndex,
+                                transform: [{ rotate: `${block.rotation}deg` }],
+                              },
+                            ]}
+                          >
+                            <Text style={textStyle}>{tb.text}</Text>
+                          </View>
+                        );
+                      }
 
-                  if (block.type === "image") {
-                    const ib = block as ImageBlockType;
-                    return (
-                      <View
-                        key={block.id}
-                        style={[
-                          styles.imageBlockBase,
-                          {
-                            left: adjX,
-                            top: adjY,
-                            width: block.width,
-                            height: block.height,
-                            zIndex: block.zIndex,
-                            transform: [{ rotate: `${block.rotation}deg` }],
-                          },
-                        ]}
-                      >
-                        <Image
-                          source={{ uri: ib.imageUri }}
-                          style={styles.blockImage}
-                          resizeMode="cover"
-                        />
-                      </View>
-                    );
-                  }
+                      if (block.type === "image") {
+                        const ib = block as ImageBlockType;
+                        return (
+                          <View
+                            key={block.id}
+                            style={[
+                              styles.imageBlockBase,
+                              {
+                                left: adjX,
+                                top: adjY,
+                                width: block.width,
+                                height: block.height,
+                                zIndex: block.zIndex,
+                                transform: [{ rotate: `${block.rotation}deg` }],
+                              },
+                            ]}
+                          >
+                            <Image
+                              source={{ uri: ib.imageUri }}
+                              style={styles.blockImage}
+                              resizeMode="cover"
+                            />
+                          </View>
+                        );
+                      }
 
-                  return null;
-                })}
-              </View>
-            </Reanimated.View>
-          </View>
-        </GestureDetector>
+                      return null;
+                    })}
+                  </View>
+                </Reanimated.View>
+              </GestureDetector>
+            </ScrollView>
+          </ScrollView>
+        </View>
       </Animated.View>
     </Modal>
   );
@@ -401,9 +425,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: "hidden",
     backgroundColor: "#FAF8F5",
-  },
-  canvas: {
-    // The content surface sits inside here and is transformed
   },
   emptyText: {
     color: "#9CA3AF",
