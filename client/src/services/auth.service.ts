@@ -8,7 +8,7 @@ import { saveToken, removeToken } from "../utils/tokenStorage";
  */
 const authClient = axios.create({
   baseURL: env.API_BASE_URL,
-  timeout: 30000, // 30 seconds for auth requests
+  timeout: 60000, // 60 seconds for auth requests (increased for Firebase operations)
   headers: {
     "Content-Type": "application/json",
   },
@@ -40,12 +40,26 @@ export const signupUser = async (data: {
     }
     return response.data;
   } catch (error: any) {
-    console.error("Signup error:", error.message);
+    console.error("❌ Signup error:", error.message);
+    console.error("📡 Backend URL:", env.API_BASE_URL);
+    
     if (error.response) {
+      // Server responded with an error
+      console.error("❌ Server responded with error:", error.response.status);
       throw new Error(error.response.data?.message || "Signup failed");
     } else if (error.request) {
+      // Request was made but no response received
+      console.error("❌ No response from server - Backend may not be running!");
+      console.error("💡 Solution:");
+      console.error("   1. Make sure backend server is running on port 3001");
+      console.error("   2. Run: cd server && npm run dev");
+      console.error("   3. Check firewall settings");
+      console.error("   4. Both devices must be on the same WiFi network");
       throw new Error(
-        "Network error. Please check your connection and ensure backend is running.",
+        `Cannot connect to server at ${env.API_URL}.\nPlease ensure:\n` +
+        "1. Backend server is running (cd server && npm run dev)\n" +
+        "2. You're on the same WiFi network\n" +
+        "3. Firewall allows connections on port 3001"
       );
     } else {
       throw new Error(error.message || "Signup failed");
@@ -74,6 +88,7 @@ export const loginUser = async (email: string, password: string) => {
     return response.data;
   } catch (error: any) {
     console.error("❌ Login error:", error);
+    console.error("📡 Backend URL:", env.API_BASE_URL);
 
     if (error.response) {
       // Server responded with error
@@ -89,9 +104,16 @@ export const loginUser = async (email: string, password: string) => {
         "❌ No response from server. Backend URL:",
         env.API_BASE_URL,
       );
+      console.error("💡 Solution:");
+      console.error("   1. Make sure backend server is running on port 3001");
+      console.error("   2. Run: cd server && npm run dev");
+      console.error("   3. Check firewall settings");
+      console.error("   4. Both devices must be on the same WiFi network");
       throw new Error(
-        "Cannot reach server. Please check if backend is running at " +
-          env.API_URL,
+        `Cannot connect to server at ${env.API_URL}.\nPlease ensure:\n` +
+        "1. Backend server is running (cd server && npm run dev)\n" +
+        "2. You're on the same WiFi network\n" +
+        "3. Firewall allows connections on port 3001"
       );
     } else {
       // Request setup error

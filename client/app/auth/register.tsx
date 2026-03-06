@@ -79,10 +79,16 @@ export default function SignupDetailsScreen() {
   const validate = () => {
     let newErrors: any = {};
 
-    if (!bio) newErrors.bio = "Bio is required";
-    if (!year || !month || !day) newErrors.dob = "Complete birthday selection";
-    if (!gender) newErrors.gender = "Gender is required";
-    if (!country) newErrors.country = "Country is required";
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Only date of birth is required - other fields are optional
+    if (!year || !month || !day) {
+      newErrors.dob = "Please select your date of birth";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -96,16 +102,22 @@ export default function SignupDetailsScreen() {
     try {
       setLoading(true);
 
-      await signupUser({
+      const signupData: any = {
         name,
         email,
         password,
-        bio,
         dob: formatDate(),
-        gender,
-        country,
-        profilePhoto: profilePhoto ?? undefined,
-      });
+      };
+
+      // Only add optional fields if they have values
+      if (bio && bio.trim()) signupData.bio = bio.trim();
+      if (gender && gender.trim()) signupData.gender = gender.trim();
+      if (country && country.trim()) signupData.country = country.trim();
+      if (profilePhoto) signupData.profilePhoto = profilePhoto;
+
+      console.log('📤 Sending signup data:', { ...signupData, password: '***' });
+
+      await signupUser(signupData);
 
       // Refresh auth context to load user data
       await refreshAuth();
@@ -113,6 +125,7 @@ export default function SignupDetailsScreen() {
       Alert.alert("Success", "Account created");
       router.replace("/onboarding/step1");
     } catch (error: any) {
+      console.error('❌ Signup failed:', error);
       Alert.alert("Signup Failed", error.message);
     } finally {
       setLoading(false);
