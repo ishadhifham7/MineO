@@ -13,9 +13,11 @@ import Svg, { Circle, G } from "react-native-svg";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "../../src/hooks/useAuth";
 import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
+import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
+import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -106,6 +108,7 @@ function DonutChart({
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const [sheetDate, setSheetDate] = useState<string | null>(null);
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -250,8 +253,24 @@ export default function HomeScreen() {
       {/* ===== Journal Calendar ===== */}
       {user && (
         <View style={styles.sectionPadding}>
-          <JournalCalendar userId={user.userId} />
+          <JournalCalendar
+            userId={user.userId}
+            onMarkedDatePress={(date) => setSheetDate(date)}
+          />
         </View>
+      )}
+
+      {/* ===== Journal Preview Bottom Sheet ===== */}
+      {user && sheetDate && (
+        <JournalPreviewBottomSheet
+          visible={sheetDate !== null}
+          date={sheetDate}
+          onClose={() => setSheetDate(null)}
+          onSelectEntry={(_entry: JournalEntryWithBlocks) => {
+            // TODO: open full journal viewer
+            setSheetDate(null);
+          }}
+        />
       )}
 
       {/* ===== Life Moments & Daily Wins ===== */}

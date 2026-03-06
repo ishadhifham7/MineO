@@ -12,11 +12,15 @@ interface MarkedDates {
 
 interface JournalCalendarProps {
   userId: string;
+  onMarkedDatePress?: (date: string) => void;
 }
 
 const DOT_COLOR = "#7C6F5B";
 
-export default function JournalCalendar({ userId }: JournalCalendarProps) {
+export default function JournalCalendar({
+  userId,
+  onMarkedDatePress,
+}: JournalCalendarProps) {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +61,11 @@ export default function JournalCalendar({ userId }: JournalCalendarProps) {
         <Calendar
           markingType="dot"
           markedDates={markedDates}
+          onDayPress={(day) => {
+            if (markedDates[day.dateString]?.marked && onMarkedDatePress) {
+              onMarkedDatePress(day.dateString);
+            }
+          }}
           theme={{
             backgroundColor: "#ffffff",
             calendarBackground: "#ffffff",
