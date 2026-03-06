@@ -47,3 +47,10 @@ export const getJournalsByDate = async (
   const res = await api.get(`/all-by-date?date=${encodeURIComponent(date)}`);
   return res.data;
 };
+
+export const getAllJournals = async (): Promise<
+  import("./journal.types").JournalEntryWithBlocks[]
+> => {
+  const res = await api.get("/all");
+  return res.data;
+};

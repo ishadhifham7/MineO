@@ -137,6 +137,17 @@ export class JournalController {
     }
   }
 
+  // 🔹 GET all journal entries with blocks - SECURE
+  static async getAllJournals(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user?.uid;
+    if (!userId) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    const entries = await JournalService.getAllJournals(userId);
+    reply.send(entries);
+  }
+
   // 🔹 GET all dates with journal entries - SECURE
   static async getJournalDates(request: FastifyRequest, reply: FastifyReply) {
     const userId = request.user?.uid;
