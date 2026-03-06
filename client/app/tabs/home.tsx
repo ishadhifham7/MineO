@@ -18,6 +18,8 @@ import { useAuth } from "../../src/hooks/useAuth";
 import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
 import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
 import JournalViewerModal from "../../src/components/home/calender/JournalViewerModal";
+import JournalSearchResults from "../../src/components/home/calender/JournalSearchResults";
+import { getAllJournals } from "../../src/features/journal/journal.api";
 import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
 
 // ---------- Types ----------
@@ -112,6 +114,8 @@ export default function HomeScreen() {
   const [sheetDate, setSheetDate] = useState<string | null>(null);
   const [selectedEntry, setSelectedEntry] =
     useState<JournalEntryWithBlocks | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allJournals, setAllJournals] = useState<JournalEntryWithBlocks[]>([]);
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -139,7 +143,14 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchGoals();
-    }, [fetchGoals]),
+      // Fetch all journal entries once per focus so search works in-memory.
+      // This does NOT affect the calendar, which fetches its own dates separately.
+      if (user) {
+        getAllJournals()
+          .then(setAllJournals)
+          .catch(() => {}); // silent failure — search just shows nothing
+      }
+    }, [fetchGoals, user]),
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
@@ -179,7 +190,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.scrollView}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
       {/* ===== Scenic Header ===== */}
       <View style={styles.headerBg}>
         {/* Sky */}
@@ -249,9 +264,32 @@ export default function HomeScreen() {
             style={styles.searchInput}
             placeholder="Search your moments..."
             placeholderTextColor="#bbb"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="close-circle" size={18} color="#bbb" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
+
+      {/* ===== Journal Search Results ===== */}
+      {/* Appears between the search bar and calendar; pushes calendar down */}
+      <JournalSearchResults
+        query={searchQuery}
+        journals={allJournals}
+        onSelect={(entry) => {
+          setSearchQuery("");
+          setSelectedEntry(entry);
+        }}
+      />
 
       {/* ===== Journal Calendar ===== */}
       {user && (

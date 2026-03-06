@@ -160,6 +160,27 @@ export class JournalService {
     return entries;
   }
 
+  // 🔹 get ALL journal entries with blocks - SECURE: filtered by userId
+  static async getAllJournals(userId: string) {
+    const snap = await JournalRepository.entries().where('userId', '==', userId).get();
+
+    if (snap.empty) return [];
+
+    const entries = await Promise.all(
+      snap.docs.map(async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+        const entry = doc.data() as JournalEntry;
+        const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
+        return {
+          ...entry,
+          blocks: blocksSnap.docs.map((b: any) => b.data()),
+        };
+      })
+    );
+
+    // Sort in-memory — avoids requiring a composite Firestore index
+    return entries.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+  }
+
   // 🔹 get all dates that have journal entries - SECURE: filtered by userId
   static async getJournalDates(userId: string): Promise<string[]> {
     const snap = await JournalRepository.entries()
