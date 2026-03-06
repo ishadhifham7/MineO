@@ -16,6 +16,18 @@ const journalRoutes: FastifyPluginAsync = async (fastify) => {
     handler: JournalController.createJournal,
   });
 
+  // Get all dates with journal entries (user-specific)
+  fastify.get('/dates', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.getJournalDates,
+  });
+
+  // Get ALL journal entries for a specific date (user-specific, with blocks)
+  fastify.get('/all-by-date', {
+    preHandler: [fastify.authenticate],
+    handler: JournalController.getJournalsByDate,
+  });
+
   // Get journal by ID (ownership verified)
   fastify.get('/:entryId', {
     preHandler: [fastify.authenticate],
