@@ -17,6 +17,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "../../src/hooks/useAuth";
 import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
 import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
+import JournalViewerModal from "../../src/components/home/calender/JournalViewerModal";
 import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
 
 // ---------- Types ----------
@@ -109,6 +110,8 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const [sheetDate, setSheetDate] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] =
+    useState<JournalEntryWithBlocks | null>(null);
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -266,12 +269,19 @@ export default function HomeScreen() {
           visible={sheetDate !== null}
           date={sheetDate}
           onClose={() => setSheetDate(null)}
-          onSelectEntry={(_entry: JournalEntryWithBlocks) => {
-            // TODO: open full journal viewer
-            setSheetDate(null);
+          onSelectEntry={(entry: JournalEntryWithBlocks) => {
+            setSelectedEntry(entry);
+            // Bottom sheet animates out and calls setSheetDate(null) via onClose
           }}
         />
       )}
+
+      {/* ===== Journal Viewer Modal ===== */}
+      <JournalViewerModal
+        visible={selectedEntry !== null}
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+      />
 
       {/* ===== Life Moments & Daily Wins ===== */}
       <View style={styles.twoCardRow}>
