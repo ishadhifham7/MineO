@@ -9,12 +9,13 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
 import Svg, { Circle, G } from "react-native-svg";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useMemo } from "react";
+import { useAuth } from "../../src/hooks/useAuth";
+import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -51,7 +52,14 @@ function DonutChart({
   let cumulativePercent = 0;
 
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Svg width={size} height={size}>
         {/* Background circle */}
         <Circle
@@ -97,8 +105,7 @@ function DonutChart({
 // ---------- Main Screen ----------
 export default function HomeScreen() {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState(15);
-  const currentMonth = "December 2024";
+  const { user } = useAuth();
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -113,14 +120,6 @@ export default function HomeScreen() {
     { name: "Goal Path", percentage: 20, color: "#FFE0B2" },
   ];
 
-  // December 2024 starts on Sunday → offset = 0
-  const firstDayOffset = 0;
-  const totalDays = 31;
-  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
-
-  // Dates that have photo-circle markers
-  const photoDates = [5, 8, 12, 20];
-
   const milestones = [
     { done: true, color: "#81C784" },
     { done: true, color: "#64B5F6" },
@@ -134,42 +133,44 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchGoals();
-    }, [fetchGoals])
+    }, [fetchGoals]),
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
 
   const allGoalsCompleted = useMemo(() => {
-  if (!goals || goals.length === 0) return false;
-  return goals.every((g) => g.stages?.length > 0 && g.stages.every((s) => s.completed));
+    if (!goals || goals.length === 0) return false;
+    return goals.every(
+      (g) => g.stages?.length > 0 && g.stages.every((s) => s.completed),
+    );
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-  if (!total || total <= 0) return "#F3F4F6"; // gray
-  if (completed <= 0) return "#F3F4F6";
+    if (!total || total <= 0) return "#F3F4F6"; // gray
+    if (completed <= 0) return "#F3F4F6";
 
-  // Convert any total into a 1..6 bucket
-  const ratio = completed / total;
-  const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
+    // Convert any total into a 1..6 bucket
+    const ratio = completed / total;
+    const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
 
-  // setting background colors for the goals based on the progress
-  switch (bucket) {
-    case 1:
-      return "#DCFCE7"; 
-    case 2:
-      return "#DBEAFE"; 
-    case 3:
-      return "#EDE9FE";
-    case 4:
-      return "#FEF3C7"; 
-    case 5:
-      return "#FFE4E6"; 
-    case 6:
-      return "#D1FAE5";
-    default:
-      return "#F3F4F6";
-  }
-};
+    // setting background colors for the goals based on the progress
+    switch (bucket) {
+      case 1:
+        return "#DCFCE7";
+      case 2:
+        return "#DBEAFE";
+      case 3:
+        return "#EDE9FE";
+      case 4:
+        return "#FEF3C7";
+      case 5:
+        return "#FFE4E6";
+      case 6:
+        return "#D1FAE5";
+      default:
+        return "#F3F4F6";
+    }
+  };
 
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -187,7 +188,17 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { left: 80, bottom: 65 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#66BB6A", width: 28, height: 28, borderRadius: 14 }]} />
+          <View
+            style={[
+              styles.treeTop,
+              {
+                backgroundColor: "#66BB6A",
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+              },
+            ]}
+          />
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 70, bottom: 50 }]}>
@@ -195,7 +206,17 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
+          <View
+            style={[
+              styles.treeTop,
+              {
+                backgroundColor: "#FF8A65",
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+              },
+            ]}
+          />
           <View style={styles.treeTrunk} />
         </View>
         {/* Profile Icon - Top Right */}
@@ -226,65 +247,12 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* ===== Calendar ===== */}
-      <View style={styles.sectionPadding}>
-        <View style={styles.card}>
-          {/* Month nav */}
-          <View style={styles.calendarNav}>
-            <TouchableOpacity>
-              <Ionicons name="chevron-back" size={22} color="#555" />
-            </TouchableOpacity>
-            <Text style={styles.monthText}>{currentMonth}</Text>
-            <TouchableOpacity>
-              <Ionicons name="chevron-forward" size={22} color="#555" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Day headers */}
-          <View style={styles.dayHeaderRow}>
-            {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-              <Text key={d} style={styles.dayHeader}>{d}</Text>
-            ))}
-          </View>
-
-          {/* Calendar grid */}
-          <View style={styles.calGrid}>
-            {/* Offset empty cells */}
-            {Array.from({ length: firstDayOffset }).map((_, i) => (
-              <View key={`e${i}`} style={styles.calCell} />
-            ))}
-            {daysInMonth.map((day) => {
-              const isSelected = selectedDate === day;
-              const hasPhoto = photoDates.includes(day);
-              return (
-                <TouchableOpacity
-                  key={day}
-                  style={styles.calCell}
-                  onPress={() => setSelectedDate(day)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      styles.calDayCircle,
-                      isSelected && styles.calDaySelected,
-                      hasPhoto && !isSelected && styles.calDayPhoto,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.calDayText,
-                        isSelected && styles.calDayTextSelected,
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+      {/* ===== Journal Calendar ===== */}
+      {user && (
+        <View style={styles.sectionPadding}>
+          <JournalCalendar userId={user.userId} />
         </View>
-      </View>
+      )}
 
       {/* ===== Life Moments & Daily Wins ===== */}
       <View style={styles.twoCardRow}>
@@ -355,7 +323,9 @@ export default function HomeScreen() {
             <View style={styles.legendList}>
               {winCategories.map((cat) => (
                 <View key={cat.name} style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: cat.color }]} />
+                  <View
+                    style={[styles.legendDot, { backgroundColor: cat.color }]}
+                  />
                   <Text style={styles.legendName}>{cat.name}</Text>
                   <Text style={styles.legendPct}>{cat.percentage}%</Text>
                 </View>
@@ -382,7 +352,9 @@ export default function HomeScreen() {
 
           {/* all completed */}
           {goals && goals.length > 0 && allGoalsCompleted && (
-            <Text style={styles.goalEmptyText}>All Goals completed - create a new Goal</Text>
+            <Text style={styles.goalEmptyText}>
+              All Goals completed - create a new Goal
+            </Text>
           )}
 
           {/* list (max 5) */}
@@ -390,7 +362,8 @@ export default function HomeScreen() {
             <View style={{ gap: 10 }}>
               {displayGoals.map((g) => {
                 const total = g.stages?.length ?? 0;
-                const completed = g.stages?.filter((s) => s.completed).length ?? 0;
+                const completed =
+                  g.stages?.filter((s) => s.completed).length ?? 0;
                 const remaining = Math.max(0, total - completed);
 
                 const isCompleted = total > 0 && completed === total;
@@ -420,7 +393,11 @@ export default function HomeScreen() {
                       </Text>
                     </View>
 
-                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                    <Ionicons
+                      name="chevron-forward"
+                      size={18}
+                      color="#9CA3AF"
+                    />
                   </TouchableOpacity>
                 );
               })}
@@ -829,7 +806,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    
   },
   goalRowTitle: {
     fontSize: 15,

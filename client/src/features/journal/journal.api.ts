@@ -35,3 +35,8 @@ export const updateMeta = async (
   const res = await api.patch(`/${id}/meta`, meta);
   return res.data;
 };
+
+export const getJournalDates = async (): Promise<string[]> => {
+  const res = await api.get<{ dates: string[] }>("/dates");
+  return res.data.dates;
+};

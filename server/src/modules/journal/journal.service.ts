@@ -136,4 +136,22 @@ export class JournalService {
       blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
+
+  // 🔹 get all dates that have journal entries - SECURE: filtered by userId
+  static async getJournalDates(userId: string): Promise<string[]> {
+    const snap = await JournalRepository.entries()
+      .where('userId', '==', userId)
+      .select('date')
+      .get();
+
+    const uniqueDates = new Set<string>();
+    snap.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+      const data = doc.data();
+      if (data.date) {
+        uniqueDates.add(data.date);
+      }
+    });
+
+    return Array.from(uniqueDates);
+  }
 }
