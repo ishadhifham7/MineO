@@ -1,7 +1,32 @@
 // Environment configuration
-// This file reads from .env variables set by Expo
+// Auto-detects the correct backend URL for web, Android emulator, and physical devices
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.103:3001";
+import { Platform } from "react-native";
+
+const LAN_IP = process.env.EXPO_PUBLIC_API_URL?.replace(/^https?:\/\//, "").replace(/:\d+$/, "") || "192.168.8.100";
+const PORT = "3001";
+
+function getApiUrl(): string {
+  if (Platform.OS === "web") {
+    // Web: use the same hostname the browser is on (works for both localhost and LAN)
+    if (typeof window !== "undefined" && window.location) {
+      return `http://${window.location.hostname}:${PORT}`;
+    }
+    return `http://localhost:${PORT}`;
+  }
+
+  if (Platform.OS === "android") {
+    // Android emulator uses 10.0.2.2 to reach host machine
+    // Physical devices use the LAN IP
+    // We use LAN IP by default since Expo Go = physical device
+    return `http://${LAN_IP}:${PORT}`;
+  }
+
+  // iOS / other: use LAN IP
+  return `http://${LAN_IP}:${PORT}`;
+}
+
+const API_URL = getApiUrl();
 
 export const env = {
   API_URL, // Full base URL: http://IP:3001
@@ -15,6 +40,7 @@ export const API_BASE_URL = env.API_BASE_URL;
 console.log("\n========================================");
 console.log("📡 API CONFIGURATION");
 console.log("========================================");
+console.log("Platform:", Platform.OS);
 console.log("API_URL:", env.API_URL);
 console.log("API_BASE_URL:", env.API_BASE_URL);
 console.log("========================================\n");

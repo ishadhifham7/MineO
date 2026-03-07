@@ -27,7 +27,7 @@ export const signupUser = async (data: {
   country?: string;
   profilePhoto?: string;
 }) => {
-    const response = await fetch(`${env.API_BASE_URL}/api/v1/auth/signup`, {
+    const response = await fetch(`${env.API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export const signupUser = async (data: {
 // ======================= user login =============================
 export const loginUser = async (email: string, password: string) => {
   try {
-    const response = await authClient.post("/api/v1/auth/login", { email, password });
+    const response = await authClient.post("/auth/login", { email, password });
 
     console.log("✅ Login successful:", response.data);
 

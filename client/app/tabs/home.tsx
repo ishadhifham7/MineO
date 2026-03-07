@@ -849,6 +849,63 @@ const styles = StyleSheet.create({
     color: "#222",
   },
 
+  /* ---- Calendar ---- */
+  calendarNav: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  monthText: {
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#333",
+  },
+  dayHeaderRow: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  dayHeader: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#aaa",
+    letterSpacing: 0.5,
+  },
+  calGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  calCell: {
+    width: `${100 / 7}%` as any,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 6,
+  },
+  calDayCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  calDaySelected: {
+    backgroundColor: "#64B5F6",
+  },
+  calDayPhoto: {
+    backgroundColor: "#e8e8e8",
+  },
+  calDayText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#444",
+  },
+  calDayTextSelected: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+
   /* ---- Two-card row ---- */
   twoCardRow: {
     flexDirection: "row",

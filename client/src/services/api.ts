@@ -1,6 +1,7 @@
 // src/services/api.ts
 import axios from "axios";
 import { Platform } from "react-native";
+import { getToken } from "../utils/tokenStorage";
 
 // Backend URL configuration
 // For Android emulator: use 10.0.2.2
@@ -13,7 +14,7 @@ export const API_BASE_URL = `http://${BACKEND_IP}:${BACKEND_PORT}`;
 
 // Base URL for journal API
 const getBaseURL = () => {
-  return `${env.API_BASE_URL}/journal`;
+  return `${API_BASE_URL}/api/v1/journal`;
 };
 
 export const api = axios.create({
@@ -63,7 +64,7 @@ api.interceptors.response.use(
       );
     } else if (error.request) {
       // Request made but no response
-      console.error("❌ No Response - Is backend running?", env.API_URL);
+      console.error("❌ No Response - Is backend running?", API_BASE_URL);
       console.error("Request:", error.request);
     } else {
       // Something else happened
