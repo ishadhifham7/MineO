@@ -1,7 +1,6 @@
 import { Tabs, Slot, usePathname, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform, View, Text, Pressable, StyleSheet } from "react-native";
-import { GoalProvider } from "../../src/features/goal/goal.context";
 
 // ---- Sidebar item definition ----
 const NAV_ITEMS = [
@@ -58,15 +57,10 @@ function WebTabsLayout() {
 // ---- Root Export ----
 export default function TabsLayout() {
   if (Platform.OS === "web") {
-    return (
-      <GoalProvider>
-        <WebTabsLayout />
-      </GoalProvider>
-    );
+    return <WebTabsLayout />;
   }
 
   return (
-    <GoalProvider>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -121,7 +115,6 @@ export default function TabsLayout() {
       />
       <Tabs.Screen name="goals" options={{ href: null }} />
     </Tabs>
-    </GoalProvider>
   );
 }
 
