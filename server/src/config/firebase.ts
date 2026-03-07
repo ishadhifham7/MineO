@@ -1,6 +1,12 @@
 import admin from 'firebase-admin';
 import { env } from './env';
 
+const isDevelopment = env.NODE_ENV === 'development';
+const hasValidCredentials = 
+  env.FIREBASE_PROJECT_ID !== 'dev-project' && 
+  env.FIREBASE_CLIENT_EMAIL !== 'dev@example.com' &&
+  env.FIREBASE_PRIVATE_KEY !== 'dev-key';
+
 /**
  * Initialize Firebase Admin SDK
  */
@@ -11,15 +17,15 @@ if (!admin.apps.length) {
       clientEmail: env.FIREBASE_CLIENT_EMAIL,
       privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     }),
-    storageBucket: env.FIREBASE_STORAGE_BUCKET,
   });
 }
 
 export const firebaseAdmin = admin;
 export const firestore = admin.firestore();
 export const auth = admin.auth();
-export const storage = admin.storage();
 export const Timestamp = admin.firestore.Timestamp;
 
-// Ensure Firestore ignores undefined fields
-firestore.settings({ ignoreUndefinedProperties: true });
+// Ensure Firestore ignores undefined fields if initialized
+if (admin.apps.length) {
+  firestore.settings({ ignoreUndefinedProperties: true });
+}

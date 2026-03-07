@@ -3,9 +3,13 @@ import { JournalEntry, JournalBlock, TextBlock } from './journal.types';
 import { v4 as uuid } from 'uuid';
 
 export class JournalService {
-  // 🔹 get by date (NO auto create)
-  static async getJournalByDate(date: string) {
-    const snap = await JournalRepository.entries().where('date', '==', date).limit(1).get();
+  // 🔹 get by date (NO auto create) - SECURE: filtered by userId
+  static async getJournalByDate(date: string, userId: string) {
+    const snap = await JournalRepository.entries()
+      .where('userId', '==', userId)
+      .where('date', '==', date)
+      .limit(1)
+      .get();
 
     if (snap.empty) return null;
 
@@ -14,18 +18,20 @@ export class JournalService {
 
     return {
       ...entry,
-      blocks: blocksSnap.docs.map((d) => d.data()),
+      blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
 
-  // 🔹 create entry (upsert – one entry per date)
+  // 🔹 create entry (first save)
   static async createJournal({
+    userId,
     date,
     title,
     chapters,
     isPinnedToTimeline = false,
     blocks,
   }: {
+    userId: string; // REQUIRED: from authenticated user
     date: string;
     title?: string;
     chapters?: string[];
@@ -64,6 +70,7 @@ export class JournalService {
 
     const entry: JournalEntry = {
       id: entryId,
+      userId, // Attach userId from JWT
       date,
       title,
       chapters: chapters || [],
@@ -85,12 +92,19 @@ export class JournalService {
     return entry;
   }
 
-  // 🔹 update canvas only
-  static async updateCanvas(entryId: string, blocks: JournalBlock[]) {
+  // 🔹 update canvas only - SECURE: ownership verified
+  static async updateCanvas(entryId: string, blocks: JournalBlock[], userId?: string) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
     if (!snap.exists) throw new Error('Entry not found');
+
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership (skip if called internally without userId)
+    if (userId && entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
 
     // Derive summary from first text block
     const firstText = blocks.find((b) => b.type === 'text') as TextBlock | undefined;
@@ -101,7 +115,7 @@ export class JournalService {
     const batch = entryRef.firestore.batch();
 
     const oldBlocks = await JournalRepository.canvasBlocks(entryId).get();
-    oldBlocks.docs.forEach((doc) => batch.delete(doc.ref));
+    oldBlocks.docs.forEach((doc: any) => batch.delete(doc.ref));
 
     blocks.forEach((block) => {
       batch.set(JournalRepository.canvasBlockById(entryId, block.id), block);
@@ -112,11 +126,18 @@ export class JournalService {
   }
 
   // 🔹 update metadata only
-  static async updateMeta(entryId: string, meta: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean }) {
+  static async updateMeta(entryId: string, meta: { title?: string; isPinnedToTimeline?: boolean }, userId?: string) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
     if (!snap.exists) throw new Error('Entry not found');
+
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
 
     await entryRef.update({
       ...meta,
@@ -124,18 +145,25 @@ export class JournalService {
     });
   }
 
-  // 🔹 get full journal by id
-  static async getFullJournal(entryId: string) {
+  // 🔹 get full journal by id - SECURE: ownership verified
+  static async getFullJournal(entryId: string, userId: string) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
     if (!snap.exists) throw new Error('Entry not found');
 
+    const entry = snap.data() as JournalEntry;
+
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
+      throw new Error('FORBIDDEN');
+    }
+
     const blocksSnap = await JournalRepository.canvasBlocks(entryId).get();
 
     return {
       entry: snap.data(),
-      blocks: blocksSnap.docs.map((d) => d.data()),
+      blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
 

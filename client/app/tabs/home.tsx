@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,13 @@ import {
   Animated,
   Easing,
   useWindowDimensions,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G } from "react-native-svg";
-import { CalendarContainer } from "../../src/features/calendar";
+import { useFocusEffect } from "expo-router";
+import { useGoal } from "../../src/features/goal/goal.context";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -215,6 +218,68 @@ export default function HomeScreen() {
     { done: false, isEnd: true, color: "#E0E0E0" },
   ];
 
+  // ── Calendar state ──
+  const now = new Date();
+  const [currentMonthDate, setCurrentMonthDate] = useState(now);
+  const currentMonth = currentMonthDate.toLocaleString("default", { month: "long", year: "numeric" });
+  const [selectedDate, setSelectedDate] = useState<number | null>(now.getDate());
+  const photoDates: number[] = []; // placeholder — wire up to real data later
+
+  const daysInMonth = useMemo(() => {
+    const year = currentMonthDate.getFullYear();
+    const month = currentMonthDate.getMonth();
+    const count = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: count }, (_, i) => i + 1);
+  }, [currentMonthDate]);
+
+  const firstDayOffset = useMemo(() => {
+    const year = currentMonthDate.getFullYear();
+    const month = currentMonthDate.getMonth();
+    return new Date(year, month, 1).getDay();
+  }, [currentMonthDate]);
+
+  //fetch goals whenever Home is opened (keeps up to date)
+  const { goals, fetchGoals } = useGoal();
+  useFocusEffect(
+    useCallback(() => {
+      fetchGoals();
+    }, [fetchGoals])
+  );
+
+  const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
+
+  const allGoalsCompleted = useMemo(() => {
+  if (!goals || goals.length === 0) return false;
+  return goals.every((g) => g.stages?.length > 0 && g.stages.every((s) => s.completed));
+  }, [goals]);
+
+  const getGoalRowBg = (completed: number, total: number) => {
+  if (!total || total <= 0) return "#F3F4F6"; // gray
+  if (completed <= 0) return "#F3F4F6";
+
+  // Convert any total into a 1..6 bucket
+  const ratio = completed / total;
+  const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
+
+  // setting background colors for the goals based on the progress
+  switch (bucket) {
+    case 1:
+      return "#DCFCE7"; 
+    case 2:
+      return "#DBEAFE"; 
+    case 3:
+      return "#EDE9FE";
+    case 4:
+      return "#FEF3C7"; 
+    case 5:
+      return "#FFE4E6"; 
+    case 6:
+      return "#D1FAE5";
+    default:
+      return "#F3F4F6";
+  }
+};
+
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       <View style={[styles.pageWrapper, isWide && styles.pageWrapperWide]}>
@@ -309,38 +374,87 @@ export default function HomeScreen() {
           <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
           <View style={styles.treeTrunk} />
         </Animated.View>
-        <Animated.View
-          style={[
-            styles.tree,
-            { right: "12%", bottom: 40 },
-            { transform: [
-                { rotate: tree2Rotate },
-                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
-              ] 
-            },
-          ]}
-        >
-          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 34, height: 34, borderRadius: 17 }]} />
+        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
+          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
           <View style={styles.treeTrunk} />
-        </Animated.View>
-        {/* Animated Header Text */}
-        <Animated.View
-          style={[
-            styles.headerTextWrap,
-            {
-              opacity: textFade,
-              transform: [{ translateY: textSlide }],
-            },
-          ]}
-        >
+        </View>
+        {/* Header Text */}
+        <View style={styles.headerTextWrap}>
           <Text style={styles.headerHello}>Hello,</Text>
           <Text style={styles.headerSub}>Nice to Meet You</Text>
-        </Animated.View>
+        </View>
+      </View>
+
+      {/* ===== Search Bar ===== */}
+      <View style={styles.searchWrapper}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#bbb" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search your moments..."
+            placeholderTextColor="#bbb"
+          />
+        </View>
       </View>
 
       {/* ===== Calendar ===== */}
-      <View style={styles.calendarSection}>
-        <CalendarContainer />
+      <View style={styles.sectionPadding}>
+        <View style={styles.card}>
+          {/* Month nav */}
+          <View style={styles.calendarNav}>
+            <TouchableOpacity>
+              <Ionicons name="chevron-back" size={22} color="#555" />
+            </TouchableOpacity>
+            <Text style={styles.monthText}>{currentMonth}</Text>
+            <TouchableOpacity>
+              <Ionicons name="chevron-forward" size={22} color="#555" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Day headers */}
+          <View style={styles.dayHeaderRow}>
+            {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
+              <Text key={d} style={styles.dayHeader}>{d}</Text>
+            ))}
+          </View>
+
+          {/* Calendar grid */}
+          <View style={styles.calGrid}>
+            {/* Offset empty cells */}
+            {Array.from({ length: firstDayOffset }).map((_, i) => (
+              <View key={`e${i}`} style={styles.calCell} />
+            ))}
+            {daysInMonth.map((day) => {
+              const isSelected = selectedDate === day;
+              const hasPhoto = photoDates.includes(day);
+              return (
+                <TouchableOpacity
+                  key={day}
+                  style={styles.calCell}
+                  onPress={() => setSelectedDate(day)}
+                  activeOpacity={0.7}
+                >
+                  <View
+                    style={[
+                      styles.calDayCircle,
+                      isSelected && styles.calDaySelected,
+                      hasPhoto && !isSelected && styles.calDayPhoto,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.calDayText,
+                        isSelected && styles.calDayTextSelected,
+                      ]}
+                    >
+                      {day}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
       </View>
 
       {/* ===== Life Moments & Daily Wins ===== */}
@@ -479,21 +593,41 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <View style={styles.goalHeader}>
             <View>
-              <Text style={styles.goalTitle}>Goal Path</Text>
-              <Text style={styles.cardSubtitle}>MILESTONES</Text>
-            </View>
-            <View style={styles.completeBadge}>
-              <Text style={styles.completeBadgeText}>3 / 5 Complete</Text>
+              <Text style={styles.goalTitle}>Goal Plan</Text>
+              <Text style={styles.cardSubtitle}>YOUR GOALS</Text>
             </View>
           </View>
+
+          {/* Milestones */}
           <View style={styles.milestonesRow}>
             {milestones.map((m, i) => (
               <View key={i} style={styles.milestoneCol}>
+                {/* Connecting line to the right */}
                 {i < milestones.length - 1 && (
-                  <View style={[styles.milestoneLineRight, { backgroundColor: m.done ? m.color : "#e0e0e0" }]} />
+                  <View
+                    style={[
+                      styles.milestoneLineRight,
+                      { backgroundColor: m.done ? m.color : "#e0e0e0" },
+                    ]}
+                  />
                 )}
-                <View style={[styles.milestoneCircle, { backgroundColor: m.done ? m.color : "#fff", borderColor: m.done ? m.color : "#ccc", borderStyle: m.isEnd ? "dashed" : "solid" }]}>
-                  {m.done ? (<Ionicons name="checkmark" size={20} color="#fff" />) : m.isStar ? (<Ionicons name="star-outline" size={18} color="#bbb" />) : (<View style={styles.endDot} />)}
+                <View
+                  style={[
+                    styles.milestoneCircle,
+                    {
+                      backgroundColor: m.done ? m.color : "#fff",
+                      borderColor: m.done ? m.color : "#ccc",
+                      borderStyle: m.isEnd ? "dashed" : "solid",
+                    },
+                  ]}
+                >
+                  {m.done ? (
+                    <Ionicons name="checkmark" size={20} color="#fff" />
+                  ) : m.isStar ? (
+                    <Ionicons name="star-outline" size={18} color="#bbb" />
+                  ) : (
+                    <View style={styles.endDot} />
+                  )}
                 </View>
                 {m.isEnd && <Text style={styles.endLabel}>END</Text>}
               </View>
@@ -956,14 +1090,63 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#64B5F6",
+    color: "#000000",
   },
-  completeBadge: {
+  goalEmptyText: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginTop: 6,
+  },
+  goalRow: {
     borderWidth: 1,
-    borderColor: "#c8e6c9",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    borderColor: "#EEF2F7",
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    
+  },
+  goalRowTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  goalRowSub: {
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
+
+  /* ---- Profile Icon ---- */
+  profileIconButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 10,
+  },
+  profileIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  /* ---- Milestones ---- */
+  completeBadge: {
+    backgroundColor: "#E8F5E9",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   completeBadgeText: {
     fontSize: 12,
@@ -972,43 +1155,43 @@ const styles = StyleSheet.create({
   },
   milestonesRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 4,
-    paddingBottom: 8,
+    justifyContent: "center",
+    gap: 0,
   },
   milestoneCol: {
     alignItems: "center",
+    flex: 1,
     position: "relative",
-  },
-  milestoneCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
   },
   milestoneLineRight: {
     position: "absolute",
-    top: 22,
-    left: 46,
-    width: 30,
+    top: 18,
+    left: "50%",
+    right: "-50%",
     height: 3,
     borderRadius: 2,
-    zIndex: -1,
+  },
+  milestoneCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
   },
   endDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: "#ccc",
   },
   endLabel: {
-    marginTop: 6,
     fontSize: 10,
-    fontWeight: "600",
-    color: "#bbb",
+    fontWeight: "700",
+    color: "#aaa",
+    marginTop: 4,
     letterSpacing: 1,
   },
 });

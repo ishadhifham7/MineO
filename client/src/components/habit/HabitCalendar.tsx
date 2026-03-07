@@ -1,52 +1,53 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../constants/colors";
 
 const backgrounds = {
-  spiritual: ["#8B5CF6", "#6366F1"] as [string, string],
-  mental: ["#3B82F6", "#06B6D4"] as [string, string],
-  physical: ["#F59E0B", "#EF4444"] as [string, string],
-};
-
-const monthLabel = () => {
-  const d = new Date();
-  return d.toLocaleString("default", { month: "long", year: "numeric" });
+  spiritual: ["#8B5CF6", "#6366F1"] as const,
+  mental: ["#3B82F6", "#06B6D4"] as const,
+  physical: ["#F59E0B", "#EF4444"] as const,
 };
 
 export default function HabitCalendar({
   category,
   data,
 }: {
-  category: string;
-  data: Record<string, number>;
+  category: "spiritual" | "mental" | "physical";
+  data: Record<string, number | undefined>;
 }) {
-  const gradientColors = backgrounds[category as keyof typeof backgrounds] ?? backgrounds.spiritual;
-  const entries = Object.entries(data);
-
   return (
-    <View style={styles.wrapper}>
+    <View className="px-4 mt-4">
       <LinearGradient
-        colors={gradientColors}
+        colors={
+          backgrounds[category as keyof typeof backgrounds] ||
+          backgrounds.spiritual
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.gradient}
+        style={{ borderRadius: 20, padding: 16 }}
       >
-        <Text style={styles.monthLabel}>{monthLabel()}</Text>
+        <Text className="text-white mb-3 font-semibold">February 2026</Text>
 
-        {entries.length === 0 ? (
-          <Text style={styles.emptyText}>No habit data recorded yet.</Text>
-        ) : (
-          <View style={styles.dotGrid}>
-            {entries.map(([date, score]) => {
-              const dotColor = score === 1 ? colors.good : score === 0.5 ? colors.average : colors.bad;
-              return (
-                <View key={date} style={[styles.dot, { backgroundColor: dotColor }]}>
-                  <Text style={styles.dotText}>{date.split("-")[2]}</Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
+        <View className="flex-row flex-wrap gap-3">
+          {Object.entries(data).map(([date, score]) => {
+            let color =
+              score === 1
+                ? colors.good
+                : score === 0.5
+                  ? colors.average
+                  : colors.bad;
+
+            return (
+              <View
+                key={date}
+                className="w-8 h-8 rounded-full items-center justify-center"
+                style={{ backgroundColor: color }}
+              >
+                <Text className="text-white text-xs">{date.split("-")[2]}</Text>
+              </View>
+            );
+          })}
+        </View>
       </LinearGradient>
     </View>
   );
@@ -90,5 +91,25 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 11,
     fontWeight: "600",
+  },
+});
+
+const styles = StyleSheet.create({
+  sectionPadding: {
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+    elevation: 5,
+  },
+  calendar: {
+    borderRadius: 10,
   },
 });

@@ -1,63 +1,37 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { colors } from "../../constants/colors";
 
-export default function HabitStatusCard({
-  title,
-  onSelect,
-}: {
-  title: string;
+export default function HabitStatusCard({ 
+  title, 
+  onSelect, 
+  selectedValue 
+}: { 
+  title: string; 
   onSelect: (value: number) => void;
+  selectedValue?: number;
 }) {
   const options = [
-    { label: "Good", value: 1, color: colors.good },
-    { label: "Average", value: 0.5, color: colors.average },
-    { label: "Bad", value: 0, color: colors.bad },
+    { label: "Good", val: 1, color: "bg-[#87FF65]", textColor: "text-green-800" },
+    { label: "Average", val: 0.5, color: "bg-[#4B56FF]", textColor: "text-blue-800" },
+    { label: "Bad", val: 0, color: "bg-[#FF3B30]", textColor: "text-red-800" },
   ];
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{title.charAt(0).toUpperCase() + title.slice(1)}</Text>
-      <View style={styles.row}>
+    <View className="bg-white rounded-2xl p-4">
+      <Text className="font-semibold mb-3">{title.charAt(0).toUpperCase() + title.slice(1)}</Text>
+
+      <View className="flex-row justify-between">
         {options.map((s) => (
           <Pressable
             key={s.label}
-            style={[styles.dot, { backgroundColor: s.color }]}
+            className="w-16 h-16 rounded-full items-center justify-center"
+            style={{ backgroundColor: s.color }}
             onPress={() => onSelect(s.value)}
           >
-            <Text style={styles.dotLabel}>{s.label}</Text>
+            <Text className="text-white text-xs">{s.label}</Text>
           </Pressable>
         ))}
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-  },
-  title: {
-    fontWeight: "600",
-    fontSize: 15,
-    marginBottom: 12,
-    color: "#222",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  dot: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dotLabel: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-});

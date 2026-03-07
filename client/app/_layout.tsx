@@ -1,31 +1,17 @@
+import "../src/styles/global.css";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Platform, View, StyleSheet } from "react-native";
-import {
-  configureReanimatedLogger,
-  ReanimatedLogLevel,
-} from "react-native-reanimated";
-
-// Suppress "Reading from `value` during component render" strict-mode warning
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: false,
-});
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        {Platform.OS === "web" ? (
-          <View style={styles.webRoot}>
-            <View style={styles.webApp}>
-              <Stack screenOptions={{ headerShown: false }} />
-            </View>
-          </View>
-        ) : (
-          <Stack screenOptions={{ headerShown: false }} />
-        )}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

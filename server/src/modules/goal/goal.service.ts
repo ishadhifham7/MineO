@@ -5,6 +5,7 @@ import { Goal, GoalStage } from './goal.model';
 import { randomUUID } from 'crypto';
 
 interface GenerateGoalInput {
+  userId: string; // REQUIRED: from authenticated user
   title: string;
   description: string;
   stages: {
@@ -27,6 +28,7 @@ export async function generateGoal(data: GenerateGoalInput) {
 
   const goal: Goal = {
     id: goalId,
+    userId: data.userId, // Attach userId from JWT
     title: data.title,
     description: data.description,
     stages,
@@ -38,6 +40,7 @@ export async function generateGoal(data: GenerateGoalInput) {
   // Return the created goal with createdAt as ISO string for frontend
   return {
     id: goal.id,
+    userId: goal.userId,
     title: goal.title,
     description: goal.description,
     createdAt:
@@ -46,15 +49,19 @@ export async function generateGoal(data: GenerateGoalInput) {
   };
 }
 
-// ...existing code...
-export async function getGoals(): Promise<any[]> {
-  const snapshot = await firestore.collection('goals').orderBy('createdAt', 'desc').get();
+// SECURE: Get goals filtered by authenticated user
+export async function getGoals(userId: string): Promise<any[]> {
+  const snapshot = await firestore
+    .collection('goals')
+    .where('userId', '==', userId)
+    .orderBy('createdAt', 'desc')
+    .get();
 
   if (snapshot.empty) {
     return [];
   }
 
-  const goals = snapshot.docs.map((doc) => {
+  const goals = snapshot.docs.map((doc: any) => {
     const data = doc.data();
 
     // Convert Firestore Timestamp to ISO string
@@ -74,6 +81,7 @@ export async function getGoals(): Promise<any[]> {
     // Return a plain object (not typed as Goal) to ensure proper serialization
     return {
       id: doc.id,
+      userId: data.userId,
       title: data.title,
       description: data.description,
       createdAt: createdAtString,
@@ -91,9 +99,9 @@ export async function getGoals(): Promise<any[]> {
   return JSON.parse(JSON.stringify(goals));
 }
 /**
- * Get a specific goal by ID
+ * Get a specific goal by ID (with ownership verification)
  */
-export async function getGoalById(goalId: string): Promise<any | null> {
+export async function getGoalById(goalId: string, userId: string): Promise<any | null> {
   const doc = await firestore.collection('goals').doc(goalId).get();
 
   if (!doc.exists) {
@@ -103,6 +111,11 @@ export async function getGoalById(goalId: string): Promise<any | null> {
   const data = doc.data();
 
   if (!data) return null;
+
+  // SECURITY: Verify ownership
+  if (data.userId !== userId) {
+    throw new Error('FORBIDDEN');
+  }
 
   // Convert Firestore Timestamp to ISO string
   let createdAtString: string;
@@ -121,6 +134,7 @@ export async function getGoalById(goalId: string): Promise<any | null> {
   // Return plain object for proper serialization
   const goal = {
     id: doc.id,
+    userId: data.userId,
     title: data.title,
     description: data.description ?? null,
     createdAt: createdAtString,
@@ -138,15 +152,17 @@ export async function getGoalById(goalId: string): Promise<any | null> {
 }
 
 /**
- * Toggle a stage's completion status
+ * Toggle a stage's completion status (with ownership verification)
  * @param goalId - The goal ID
  * @param stageId - The stage ID
  * @param completed - The new completion status (true/false)
+ * @param userId - The authenticated user ID
  */
 export async function toggleGoalStageCompletion(
   goalId: string,
   stageId: string,
-  completed: boolean
+  completed: boolean,
+  userId: string
 ): Promise<any | null> {
   const goalRef = firestore.collection('goals').doc(goalId);
   const goalSnap = await goalRef.get();
@@ -157,6 +173,11 @@ export async function toggleGoalStageCompletion(
 
   const data = goalSnap.data();
   if (!data) return null;
+
+  // SECURITY: Verify ownership
+  if (data.userId !== userId) {
+    throw new Error('FORBIDDEN');
+  }
 
   let stageFound = false;
 
@@ -197,6 +218,7 @@ export async function toggleGoalStageCompletion(
   // Return updated goal
   const updatedGoal = {
     id: goalSnap.id,
+    userId: data.userId,
     title: data.title,
     description: data.description ?? null,
     createdAt: createdAtString,
@@ -206,12 +228,19 @@ export async function toggleGoalStageCompletion(
   return JSON.parse(JSON.stringify(updatedGoal));
 }
 
-export async function deleteGoal(goalId: string) {
+export async function deleteGoal(goalId: string, userId: string) {
   const goalRef = firestore.collection('goals').doc(goalId);
   const snapshot = await goalRef.get();
 
   if (!snapshot.exists) {
     throw new Error('GOAL_NOT_FOUND');
+  }
+
+  const data = snapshot.data();
+
+  // SECURITY: Verify ownership
+  if (data && data.userId !== userId) {
+    throw new Error('FORBIDDEN');
   }
 
   await goalRef.delete();

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import { fetchGoalsApi } from "./goal.api";
 
 /* ========================= */
@@ -48,6 +48,10 @@ interface GoalContextType {
 
   currentGoal: Goal | null;
   setCurrentGoal: (goal: Goal | null) => void;
+
+  /* When a stage is checked/unchecked in the roadmap screen,
+   the backend returns the updated goal.*/
+  upsertGoal: (goal: Goal) => void;
 }
 
 /* ========================= */
@@ -68,7 +72,7 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentGoal, setCurrentGoal] = useState<Goal | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchGoals = async () => {
+  const fetchGoals = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchGoalsApi();
@@ -79,6 +83,19 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const upsertGoal = (updated: Goal) => {
+    setGoals((prev) => {
+      const idx = prev.findIndex((g) => g.id === updated.id);
+      if (idx === -1) return [updated, ...prev];
+      const copy = [...prev];
+      copy[idx] = updated;
+      return copy;
+    });
+
+    // keep currentGoal in sync too (optional but useful)
+    setCurrentGoal((prev) => (prev?.id === updated.id ? updated : prev));
   };
 
   return (
@@ -92,6 +109,7 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
         setCurrentGoal,
         fetchGoals,
         loading,
+        upsertGoal,
       }}
     >
       {children}

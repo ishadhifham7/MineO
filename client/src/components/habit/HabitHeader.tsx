@@ -1,32 +1,24 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { colors } from "../../constants/colors";
 
-const categories = ["spiritual", "mental", "physical"] as const;
+const tabs: Category[] = ["spiritual", "mental", "physical"];
 
-export default function HabitHeader({
-  active,
-  onChange,
-}: {
-  active: string;
-  onChange: (v: any) => void;
-}) {
+export default function HabitHeader({ active, onChange }: { active: Category; onChange: (c: Category) => void }) {
   return (
-    <View style={styles.container}>
-      <View style={styles.titleBadge}>
-        <Text style={styles.titleText}>Habit Tracker</Text>
+    <View className="px-4 pt-12">
+      <View className="self-start bg-white px-5 py-2 rounded-full mb-4">
+        <Text className="font-semibold text-base">Habit Tracker</Text>
       </View>
 
-      <View style={styles.tabRow}>
+      <View className="flex-row space-x-3">
         {categories.map((cat) => (
           <Pressable
             key={cat}
             onPress={() => onChange(cat)}
-            style={[
-              styles.tab,
-              { backgroundColor: active === cat ? colors.textDark : colors.cream },
-            ]}
+            className="px-4 py-2 rounded-full"
+            style={{ backgroundColor: active === cat ? colors.textDark : colors.cream }}
           >
-            <Text style={{ color: active === cat ? "#fff" : colors.textMuted, fontWeight: "500" }}>
+            <Text style={{ color: active === cat ? "#fff" : colors.textMuted }}>
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </Text>
           </Pressable>
@@ -35,32 +27,3 @@ export default function HabitHeader({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 52,
-    paddingBottom: 8,
-  },
-  titleBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#fff",
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 999,
-    marginBottom: 16,
-  },
-  titleText: {
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  tabRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  tab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 999,
-  },
-});

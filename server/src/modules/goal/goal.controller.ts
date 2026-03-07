@@ -27,6 +27,12 @@ export async function generateGoalController(
 ) {
   const { title, description, stages } = req.body;
 
+  // SECURITY: Extract userId from authenticated user (JWT)
+  const userId = req.user?.uid;
+  if (!userId) {
+    throw new AppError('Unauthorized', 401);
+  }
+
   // Validate input
   if (!title || title.trim().length === 0) {
     throw new AppError('Title cannot be empty', 400);
@@ -53,7 +59,9 @@ export async function generateGoalController(
     }
   });
 
+  // SECURITY: userId from JWT, NOT from request body
   const createdGoal = await generateGoal({
+    userId,
     title,
     description,
     stages,
@@ -63,7 +71,14 @@ export async function generateGoalController(
 }
 
 export async function getGoalsController(req: FastifyRequest, reply: FastifyReply) {
-  const goals = await getGoals();
+  // SECURITY: Extract userId from authenticated user (JWT)
+  const userId = req.user?.uid;
+  if (!userId) {
+    throw new AppError('Unauthorized', 401);
+  }
+
+  // SECURITY: Only return goals for this specific user
+  const goals = await getGoals(userId);
 
   return reply.code(200).send({
     goals,
@@ -77,16 +92,32 @@ export async function getGoalByIdController(
 ) {
   const { id } = req.params;
 
-  const goal = await getGoalById(id);
-
-  if (!goal) {
-    return reply.code(404).send({
-      error: 'Not Found',
-      message: 'Goal not found',
-    });
+  // SECURITY: Extract userId from authenticated user (JWT)
+  const userId = req.user?.uid;
+  if (!userId) {
+    throw new AppError('Unauthorized', 401);
   }
 
-  return reply.code(200).send({ goal });
+  try {
+    const goal = await getGoalById(id, userId);
+
+    if (!goal) {
+      return reply.code(404).send({
+        error: 'Not Found',
+        message: 'Goal not found',
+      });
+    }
+
+    return reply.code(200).send({ goal });
+  } catch (error: any) {
+    if (error.message === 'FORBIDDEN') {
+      return reply.code(403).send({
+        error: 'Forbidden',
+        message: 'You do not have permission to access this goal',
+      });
+    }
+    throw error;
+  }
 }
 
 export async function toggleGoalStageController(
@@ -104,22 +135,38 @@ export async function toggleGoalStageController(
   const { goalId, stageId } = req.params;
   const { completed } = req.body;
 
+  // SECURITY: Extract userId from authenticated user (JWT)
+  const userId = req.user?.uid;
+  if (!userId) {
+    throw new AppError('Unauthorized', 401);
+  }
+
   // Validate the completed field
   if (typeof completed !== 'boolean') {
     throw new AppError('Field "completed" must be a boolean', 400);
   }
 
-  const { toggleGoalStageCompletion } = await import('./goal.service');
-  const updatedGoal = await toggleGoalStageCompletion(goalId, stageId, completed);
+  try {
+    const { toggleGoalStageCompletion } = await import('./goal.service');
+    const updatedGoal = await toggleGoalStageCompletion(goalId, stageId, completed, userId);
 
-  if (!updatedGoal) {
-    throw new AppError('Goal or stage not found', 404);
+    if (!updatedGoal) {
+      throw new AppError('Goal or stage not found', 404);
+    }
+
+    return reply.code(200).send({
+      message: `Stage marked as ${completed ? 'completed' : 'incomplete'}`,
+      goal: updatedGoal,
+    });
+  } catch (error: any) {
+    if (error.message === 'FORBIDDEN') {
+      return reply.code(403).send({
+        error: 'Forbidden',
+        message: 'You do not have permission to modify this goal',
+      });
+    }
+    throw error;
   }
-
-  return reply.code(200).send({
-    message: `Stage marked as ${completed ? 'completed' : 'incomplete'}`,
-    goal: updatedGoal,
-  });
 }
 
 export async function deleteGoalController(
@@ -128,8 +175,14 @@ export async function deleteGoalController(
 ) {
   const { goalId } = request.params;
 
+  // SECURITY: Extract userId from authenticated user (JWT)
+  const userId = request.user?.uid;
+  if (!userId) {
+    throw new AppError('Unauthorized', 401);
+  }
+
   try {
-    await deleteGoal(goalId);
+    await deleteGoal(goalId, userId);
 
     return reply.status(200).send({
       message: 'Goal deleted successfully',
@@ -140,6 +193,12 @@ export async function deleteGoalController(
       return reply.status(404).send({
         error: 'Not Found',
         message: 'Goal not found',
+      });
+    }
+    if (error.message === 'FORBIDDEN') {
+      return reply.status(403).send({
+        error: 'Forbidden',
+        message: 'You do not have permission to delete this goal',
       });
     }
 
