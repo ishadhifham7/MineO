@@ -12,6 +12,17 @@ export const getJournalsByRange = async (
   startDate: string,
   endDate: string,
 ): Promise<JournalEntry[]> => {
-  const res = await api.get(`/range?startDate=${startDate}&endDate=${endDate}`);
-  return res.data;
+  console.log("🌐 API Call: getJournalsByRange");
+  console.log("🌐 Start date:", startDate);
+  console.log("🌐 End date:", endDate);
+  
+  try {
+    const res = await api.get(`/range?startDate=${startDate}&endDate=${endDate}`);
+    console.log("✅ API Response received:", res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error("❌ API Error:", error.message);
+    console.error("❌ Error details:", error.response?.data);
+    throw error;
+  }
 };

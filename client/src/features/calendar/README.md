@@ -10,6 +10,7 @@ A reusable Calendar module that displays a monthly calendar with dot indicators 
 /src/features/calendar/
 ├── CalendarContainer.tsx    # Logic orchestrator
 ├── CalendarView.tsx         # Pure presentational component
+├── MomentPreviewSheet.tsx   # Preview bottom sheet (NEW)
 ├── useCalendarData.ts       # Data fetching & transformation hook
 ├── calendar.api.ts          # API service layer
 ├── types.ts                 # TypeScript interfaces
@@ -24,6 +25,16 @@ CalendarContainer (State Management)
 useCalendarData(year, month) → API → Server → Firebase
          ↓
 CalendarView (Presentation)
+         ↓
+User presses marked date
+         ↓
+CalendarContainer searches monthly cache
+         ↓
+MomentPreviewSheet (Preview Layer)
+    Interactive preview layer** - bottom sheet on date press (NEW)  
+✅ **Zero-fetch preview** - uses monthly cache (NEW)  
+✅ **     ↓
+User clicks "View Full Moment" → Emit journal ID
 ```
 
 ## 🎯 Features
@@ -150,6 +161,7 @@ interface JournalEntry {
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;
+  summary?: string; // Preview text (NEW)
 }
 ```
 
@@ -163,6 +175,16 @@ type MarkedDatesType = Record<string, {
 }>;
 ```
 
+### MomentPreviewSheetProps
+```typescript
+interface MomentPreviewSheetProps {
+  visible: boolean;
+  journal: JournalEntry | null;
+  onClose: () => void;
+  onViewFull: (journalId: string) => void;
+}
+```
+
 ## 🔒 Technical Constraints
 
 - ✅ Uses **TypeScript** strictly
@@ -170,31 +192,64 @@ type MarkedDatesType = Record<string, {
 - ✅ Fetches **only the visible month** (optimized)
 - ✅ Uses **Firestore range queries** on backend
 - ✅ **Future dates disabled** via `maxDate={today}`
-- ✅ Supports **dynamic month switching**
+- ✅🎬 Preview Layer (Group 2)
+
+### Overview
+
+When a user presses a marked calendar date, a **MomentPreviewSheet** slides up from the bottom displaying:
+- 📅 Formatted date
+- 📝 Journal title (if exists)
+- 📄 Preview text (summary or placeholder)
+- ➡️ "View Full Moment" button
+
+### Key Design Principles
+
+✅ **NO data fetching** - uses already-fetched monthly cache  
+✅ **NO navigation** - only emits journal ID (currently console logs)  
+✅ **Pure UI component** - MomentPreviewSheet has zero business logic  
+✅ **Controller pattern** - CalendarContainer manages state and logic  
+
+### Preview Flow
+
+```tsx
+1. User presses date → CalendarContainer.handleDayPress
+2. Search monthly journals array for matching date
+3. If found:
+   - setSelectedJournal(journal)
+   - setIsPreviewVisible(true)
+4. If not found:
+   - Do nothing (no preview shown)
+5. User presses "View Full Moment":
+   - handleViewFull(journal.id)
+   - Currently: console.log("🚀 Navigate to journal:", id)
+   - Future: Will integrate with navigation layer
+```
+
+### MomentPreviewSheet Props
+
+```typescript
+interface MomentPreviewSheetProps {
+  visible: boolean;              // Control sheet visibility
+  journal: JournalEntry | null;  // Journal from monthly cache
+  onClose: () => void;           // Close handler
+  onViewFull: (journalId: string) => void; // View full handler
+}
+```
+
+### Integration Example
+
+Already integrated in CalendarContainer - see [CalendarContainer.tsx](CalendarContainer.tsx#L24-L96)
 
 ## 🚀 Future Enhancements
 
 The module is designed for easy extension:
 
-1. **Bottom Sheet Integration**: Handle journal view on date press
-2. **Navigation**: Navigate to journal detail screen
-3. **Creating Entries**: Quick-create from calendar
+1. ~~**Bottom Sheet Integration**: Handle journal view on date press~~ ✅ **COMPLETED (Group 2)**
+2. **Navigation Integration**: Connect preview layer to journal detail screen (Group 3 - Next)
+3. **Creating Entries**: Quick-create from calendar on unmarked dates
 4. **Multi-select**: Select multiple dates
 5. **Custom Markers**: Support different marker types
-
-### Example Future Enhancement
-
-```tsx
-const handleDayPress = (day: { dateString: string }) => {
-  const journal = journals.find(j => j.date === day.dateString);
-  
-  if (journal) {
-    // Open existing journal
-    navigation.navigate('JournalDetail', { id: journal.id });
-  } else {
-    // Create new journal
-    navigation.navigate('CreateJournal', { date: day.dateString });
-  }
+6. **Animations**: Enhanced preview sheet transitions
 };
 ```
 
@@ -205,9 +260,10 @@ const handleDayPress = (day: { dateString: string }) => {
 The module includes debug logging:
 
 ```
-📅 Selected Journal: { id, date, title, ... }
-📅 No journal entry for: 2026-02-15
+📅 Journal found for: 2026-02-15
+📅 No journal entry for: 2026-02-16
 📆 Month changed to: 2026-3
+🚀 Navigate to journal: abc123
 🔵 API Request: GET /range?startDate=2026-03-01&endDate=2026-03-31
 ```
 
@@ -223,18 +279,25 @@ The module includes debug logging:
 - Check journal entries exist in Firestore
 - Inspect `markedDates` object in console
 
+**Preview sheet not showing:**
+- Ensure date has a journal entry (check blue/gold dot)
+- Verify GestureHandlerRootView wraps CalendarContainer
+- Check console for "Journal found" message
+
 ## 📦 Dependencies
 
 ```json
 {
-  "react-native-calendars": "^1.x.x"
+  "react-native-calendars": "^1.x.x",
+  "@gorhom/bottom-sheet": "^4.x.x",
+  "react-native-gesture-handler": "^2.x.x"
 }
 ```
 
 ## 🔗 Related Files
 
-- [Journal Types](../journal/journal.types.ts) - Shared JournalEntry interface
-- [API Service](../../services/api.ts) - Axios configuration
+- [Journal Types](../journal4, 2026  
+**Version:** 2.0.0 (Preview Layer Added)/../services/api.ts) - Axios configuration
 - [Colors](../../constants/colors.ts) - Theme colors
 
 ---

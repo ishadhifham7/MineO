@@ -81,7 +81,6 @@ export const CalendarContainer: React.FC = () => {
    * Triggers new data fetch for the selected month
    */
   const handleMonthChange = useCallback((month: { year: number; month: number }) => {
-    console.log(`📆 Month changed to: ${month.year}-${month.month}`);
     setCalendarState({
       currentYear: month.year,
       currentMonth: month.month,
