@@ -27,30 +27,42 @@ export const signupUser = async (data: {
   country?: string;
   profilePhoto?: string;
 }) => {
-    const response = await fetch(`${env.API_BASE_URL}/auth/signup`, {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+  try {
+    console.log("🔵 Attempting signup to:", `${env.API_BASE_URL}/auth/signup`);
+    const response = await authClient.post("/auth/signup", data);
 
-    });
+    console.log("Signup successful:", response.data);
 
-    const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || "Signup failed");
+    //auto-login after signup
+    if (response.data?.token) {
+      await saveToken(response.data.token);
+      console.log("Token saved after signup");
+    }
+    return response.data;
+  } catch (error: any) {
+    console.error("Signup error:", error.message);
+    if (error.response) {
+      throw new Error(error.response.data?.message || "Signup failed");
+    } else if (error.request) {
+      throw new Error(
+        "Network error. Please check your connection and ensure backend is running.",
+      );
+    } else {
+      throw new Error(error.message || "Signup failed");
+    }
   }
-
-  return result;
 };
-
-
 
 // ======================= user login =============================
 export const loginUser = async (email: string, password: string) => {
   try {
-    const response = await authClient.post("/auth/login", { email, password });
+    const url = `${env.API_BASE_URL}/auth/login`;
+    console.log("🔵 Attempting login to:", url);
+
+    const response = await authClient.post("/auth/login", {
+      email,
+      password,
+    });
 
     console.log("✅ Login successful:", response.data);
 

@@ -36,3 +36,22 @@ export const updateMeta = async (
   const res = await api.patch(`/${id}/meta`, meta);
   return res.data;
 };
+
+export const getJournalDates = async (): Promise<string[]> => {
+  const res = await api.get<{ dates: string[] }>("/dates");
+  return res.data.dates;
+};
+
+export const getJournalsByDate = async (
+  date: string,
+): Promise<import("./journal.types").JournalEntryWithBlocks[]> => {
+  const res = await api.get(`/all-by-date?date=${encodeURIComponent(date)}`);
+  return res.data;
+};
+
+export const getAllJournals = async (): Promise<
+  import("./journal.types").JournalEntryWithBlocks[]
+> => {
+  const res = await api.get("/all");
+  return res.data;
+};

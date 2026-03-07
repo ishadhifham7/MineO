@@ -1,8 +1,13 @@
-import { View, Text, Pressable, Alert, ActivityIndicator } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useCallback, useRef, useEffect } from "react";
-import { useFocusEffect } from "expo-router";
-import { getLocalToday } from "../../../src/utils/date";
+import { useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from "react-native-reanimated";
 import { Canvas } from "../../../src/components/journal/Canvas";
 import { TextBlock as TextBlockComponent } from "../../../src/components/journal/blocks/TextBlock";
 import { ImageBlockComponent } from "../../../src/components/journal/blocks/ImageBlock";
@@ -15,14 +20,54 @@ import {
   isTextBlock,
   isImageBlock,
 } from "../../../src/features/journal/journal.context";
+import { useJourney } from "../../../src/providers/JourneyProvider";
 import type {
   JournalBlock,
   TextBlock as TextBlockType,
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
-import { Platform } from "react-native";
-import { API_BASE_URL } from "../../../src/services/api";
+
+/* ---------------- Add Button with rotation ---------------- */
+
+function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
+  const rotation = useSharedValue(0);
+
+  if (open) {
+    rotation.value = withTiming(1, { duration: 200 });
+  } else {
+    rotation.value = withTiming(0, { duration: 200 });
+  }
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        rotate: `${interpolate(rotation.value, [0, 1], [0, 45])}deg`,
+      },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        position: "absolute",
+        bottom: 24,
+        right: 24,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#000",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Animated.View style={animatedStyle}>
+        <MaterialIcons name="add" size={28} color="#fff" />
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 /* ---------------- SCREEN ---------------- */
 
@@ -33,12 +78,6 @@ export default function JournalScreen() {
     addMenuVisible,
     contextMenu,
     chapterSliderVisible,
-    title,
-    chapters: savedChapters,
-    isPinnedToTimeline,
-    isNew,
-    isLoading,
-    date: loadedDate,
     addBlock,
     moveBlock,
     changeText,
@@ -63,60 +102,27 @@ export default function JournalScreen() {
     setChapterSliderVisible,
     saveJournal,
     loadJournal,
-    resetJournal,
+    date,
   } = useJournal();
 
-  const [savedVisible, setSavedVisible] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { refreshJourneys } = useJourney();
 
-  // Keep a stable ref to loadJournal so the memoised focus-callback
-  // always calls the latest version (avoids stale-closure issues).
-  const loadJournalRef = useRef(loadJournal);
+  // Initialize today's journal on mount
   useEffect(() => {
-    loadJournalRef.current = loadJournal;
-  });
-
-  // Always load today's journal on focus (handles tab switches, day changes, etc.)
-  useFocusEffect(
-    useCallback(() => {
-      const today = getLocalToday();
-      loadJournalRef.current(today);
-
-      // Check every 30s if midnight has passed while user stays on this screen
-      const interval = setInterval(() => {
-        const now = getLocalToday();
-        if (now !== today) {
-          loadJournalRef.current(now);
-        }
-      }, 30_000);
-
-      return () => clearInterval(interval);
-    }, []),
-  );
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    loadJournal(today);
+  }, []);
 
   // Handle save with metadata from ChapterSlider
   const handleSaveWithMetadata = async (metadata: {
     title: string;
-    chapters: string[];
     isPinnedToTimeline: boolean;
   }) => {
     await saveJournal(metadata);
-    // Show "Saved!" message for 2 seconds
-    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-    setSavedVisible(true);
-    savedTimerRef.current = setTimeout(() => setSavedVisible(false), 2000);
+    await refreshJourneys();
+    console.log("✅ Journey map refreshed after journal save");
   };
 
-  const chapters = [
-    { id: "1", title: "Life" },
-    { id: "2", title: "Health" },
-    { id: "3", title: "Mind" },
-    { id: "4", title: "Career" },
-    { id: "5", title: "Relationships" },
-  ];
-
-  // CREATE BLOCK
   const addTextBlock = () => {
     const id = Date.now().toString();
     const maxZ =
@@ -151,84 +157,42 @@ export default function JournalScreen() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      Alert.alert("Permission required", "Allow access to your photo library to add images.");
+      alert("Permission required");
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: false,
-      quality: 0.8,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false, // ✅ correct (no crop UI)
+      quality: 1,
     });
 
     if (result.canceled || !result.assets || result.assets.length === 0) return;
 
-    const asset = result.assets[0];
+    const imageUri = result.assets[0].uri;
 
-    // ── Upload to server → Firebase Storage ──────────────────────────────────
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      const filename = asset.fileName || `image_${Date.now()}.jpg`;
-      const mimeType = asset.mimeType || "image/jpeg";
+    const id = Date.now().toString();
 
-      if (Platform.OS === "web") {
-        // On web, {uri, type, name} is treated as a plain field, not a file.
-        // We must fetch the blob URI and append an actual File/Blob object.
-        const response = await fetch(asset.uri);
-        const blob = await response.blob();
-        const file = new File([blob], filename, { type: mimeType });
-        formData.append("image", file);
-      } else {
-        // On native (iOS/Android), RN's FormData polyfill handles {uri,type,name}
-        formData.append("image", {
-          uri: asset.uri,
-          type: mimeType,
-          name: filename,
-        } as any);
-      }
-
-      console.log("📸 Uploading image:", filename, "platform:", Platform.OS);
-      const uploadRes = await fetch(`${API_BASE_URL}/journal/upload-image`, {
-        method: "POST",
-        body: formData,
-      });
-
-      console.log("📥 Response status:", uploadRes.status);
-
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json().catch(() => ({}));
-        throw new Error(err.message || `Upload failed (${uploadRes.status})`);
-      }
-
-      const { url: imageUri } = await uploadRes.json();
-
-      // ── Add block with permanent URL ────────────────────────────────────────
-      const id = Date.now().toString();
-      const maxZ =
-        blocks.length > 0
-          ? Math.max(...blocks.map((b: JournalBlock) => b.zIndex))
-          : 0;
-      const CANVAS_SIZE = 4000;
-      const imageWidth = 240;
-      const imageHeight = 240;
-      const newBlock: ImageBlockType = {
-        id,
-        type: "image",
-        imageUri,
-        x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
-        y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
-        width: imageWidth,
-        height: imageHeight,
-        rotation: 0,
-        zIndex: maxZ + 1,
-      };
-      addBlock(newBlock);
-    } catch (err: any) {
-      Alert.alert("Upload failed", err.message || "Could not upload image. Try again.");
-    } finally {
-      setUploadingImage(false);
-    }
+    // Center the image in the canvas (4000x4000)
+    const maxZ =
+      blocks.length > 0
+        ? Math.max(...blocks.map((b: JournalBlock) => b.zIndex))
+        : 0;
+    const CANVAS_SIZE = 4000;
+    const imageWidth = 200;
+    const imageHeight = 200;
+    const newBlock: ImageBlockType = {
+      id,
+      type: "image",
+      imageUri,
+      x: Math.round(CANVAS_SIZE / 2 - imageWidth / 2),
+      y: Math.round(CANVAS_SIZE / 2 - imageHeight / 2),
+      width: imageWidth,
+      height: imageHeight,
+      rotation: 0,
+      zIndex: maxZ + 1,
+    };
+    addBlock(newBlock);
   };
 
   // BLOCK ACTIONS
@@ -316,15 +280,15 @@ export default function JournalScreen() {
 
   /* ---------- RENDER ---------- */
 
-  const today = getLocalToday();
-  // If context still has a different date's data (e.g. coming back from [date].tsx),
-  // treat it as loading so we never flash stale past-day content
-  const isStaleDate = loadedDate !== undefined && loadedDate !== today;
-
   const sortedBlocks = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
 
   const handleCanvasPress = () => {
     deselectBlock();
+  };
+
+  const handleCanvasLongPress = (x: number, y: number) => {
+    // Open context menu on empty canvas — pasteOnly mode (blockId = null)
+    openContextMenu(null, x, y);
   };
 
   const selectedBlock = blocks.find(
@@ -334,72 +298,171 @@ export default function JournalScreen() {
   // Show toolbar only for selected text blocks
   const showToolbar = selectedBlock !== undefined;
 
+  // Format YYYY-MM-DD → "20th January 2025" and "Saturday"
+  const formatJournalDate = (dateStr: string | null) => {
+    if (!dateStr) {
+      const now = new Date();
+      return formatJournalDate(now.toISOString().split("T")[0]);
+    }
+    const d = new Date(dateStr + "T00:00:00"); // force local time
+    const day = d.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+          ? "nd"
+          : day % 10 === 3 && day !== 13
+            ? "rd"
+            : "th";
+    const month = d.toLocaleString("en-US", { month: "long" });
+    const year = d.getFullYear();
+    const weekday = d.toLocaleString("en-US", { weekday: "long" });
+    return { day: `${day}${suffix} ${month} ${year}`, weekday };
+  };
+
+  const formattedDate = formatJournalDate(date);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {isLoading || isStaleDate ? (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#444" />
-        </View>
-      ) : (
       <View style={{ flex: 1 }}>
-        <Toolbar
-          visible={showToolbar}
-          onToggleBold={handleToggleBold}
-          onToggleItalic={handleToggleItalic}
-          onToggleUnderline={handleToggleUnderline}
-          onChangeColor={handleChangeColor}
-          onAlign={handleAlignText}
-          fontSize={selectedBlock?.fontSize || 16}
-          lineHeight={selectedBlock?.lineHeight || 22}
-          letterSpacing={selectedBlock?.letterSpacing || 0}
-          onChangeFontSize={handleChangeFontSize}
-          onChangeLineHeight={handleChangeLineHeight}
-          onChangeLetterSpacing={handleChangeLetterSpacing}
-        />
+        {/* Date Header + Save Button */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 4,
+          }}
+        >
+          {/* Date (left) */}
+          <View>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "700",
+                color: "#111",
+                letterSpacing: 0.2,
+              }}
+            >
+              {typeof formattedDate === "object" ? formattedDate.day : ""}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "400",
+                color: "#888",
+                marginTop: 2,
+              }}
+            >
+              {typeof formattedDate === "object" ? formattedDate.weekday : ""}
+            </Text>
+          </View>
 
-        <Canvas onCanvasPress={handleCanvasPress}>
-          {sortedBlocks.map((block) => {
-            if (isTextBlock(block)) {
-              return (
-                <TextBlockComponent
-                  key={block.id}
-                  {...block}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={handleSelectBlock}
-                  onMove={handleMoveBlock}
-                  onTextChange={handleChangeText}
-                  onResize={handleResizeBlock}
-                  onRotate={handleRotateBlock}
-                  onLongPress={handleOpenContextMenu}
-                />
-              );
-            }
+          {/* Save button (right) */}
+          <Pressable
+            onPress={() => setChapterSliderVisible(true)}
+            style={{
+              paddingHorizontal: 22,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: "#111",
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 3,
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 15,
+                fontWeight: "600",
+                letterSpacing: 0.5,
+              }}
+            >
+              Save
+            </Text>
+          </Pressable>
+        </View>
 
-            if (isImageBlock(block)) {
-              return (
-                <ImageBlockComponent
-                  key={block.id}
-                  id={block.id}
-                  imageUri={block.imageUri}
-                  x={block.x}
-                  y={block.y}
-                  width={block.width}
-                  height={block.height}
-                  rotation={block.rotation}
-                  zIndex={block.zIndex}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={handleSelectBlock}
-                  onMove={handleMoveBlock}
-                  onResize={handleResizeBlock}
-                  onRotate={handleRotateBlock}
-                  onLongPress={handleOpenContextMenu}
-                />
-              );
-            }
+        {/* Canvas container with margins — Toolbar sits inside here */}
+        <View
+          style={{
+            flex: 1,
+            marginTop: 30,
+            marginBottom: 4,
+            marginHorizontal: 12,
+            borderRadius: 16,
+            overflow: "hidden",
+          }}
+        >
+          <Toolbar
+            visible={showToolbar}
+            onToggleBold={handleToggleBold}
+            onToggleItalic={handleToggleItalic}
+            onToggleUnderline={handleToggleUnderline}
+            onChangeColor={handleChangeColor}
+            onAlign={handleAlignText}
+            fontSize={selectedBlock?.fontSize || 16}
+            lineHeight={selectedBlock?.lineHeight || 22}
+            letterSpacing={selectedBlock?.letterSpacing || 0}
+            onChangeFontSize={handleChangeFontSize}
+            onChangeLineHeight={handleChangeLineHeight}
+            onChangeLetterSpacing={handleChangeLetterSpacing}
+          />
 
-            return null;
-          })}
-        </Canvas>
+          <Canvas
+            onCanvasPress={handleCanvasPress}
+            onCanvasLongPress={handleCanvasLongPress}
+          >
+            {sortedBlocks.map((block) => {
+              if (isTextBlock(block)) {
+                return (
+                  <TextBlockComponent
+                    key={block.id}
+                    {...block}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={handleSelectBlock}
+                    onMove={handleMoveBlock}
+                    onTextChange={handleChangeText}
+                    onResize={handleResizeBlock}
+                    onRotate={handleRotateBlock}
+                    onLongPress={handleOpenContextMenu}
+                  />
+                );
+              }
+
+              if (isImageBlock(block)) {
+                return (
+                  <ImageBlockComponent
+                    key={block.id}
+                    id={block.id}
+                    imageUri={block.imageUri}
+                    x={block.x}
+                    y={block.y}
+                    width={block.width}
+                    height={block.height}
+                    rotation={block.rotation}
+                    zIndex={block.zIndex}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={handleSelectBlock}
+                    onMove={handleMoveBlock}
+                    onResize={handleResizeBlock}
+                    onRotate={handleRotateBlock}
+                    onLongPress={handleOpenContextMenu}
+                  />
+                );
+              }
+
+              return null;
+            })}
+          </Canvas>
+        </View>
 
         <FloatingAddMenu
           visible={addMenuVisible}
@@ -413,119 +476,17 @@ export default function JournalScreen() {
           }}
         />
 
-        <Pressable
+        {/* Add Block Button — rotates to × when menu is open */}
+        <AddButton
+          open={addMenuVisible}
           onPress={() => setAddMenuVisible(!addMenuVisible)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            right: 24,
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            backgroundColor: "#000",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontSize: 28 }}>+</Text>
-        </Pressable>
-
-        {/* Save Button - Bottom Left */}
-        <Pressable
-          onPress={() => setChapterSliderVisible(true)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            left: 24,
-            paddingHorizontal: 28,
-            height: 44,
-            borderRadius: 24,
-            backgroundColor: "#000", // green-400
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "row",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: "bold",
-              letterSpacing: 1,
-            }}
-          >
-            {isNew ? "Save" : "Edit & Save"}
-          </Text>
-        </Pressable>
+        />
 
         <ChapterSlider
           visible={chapterSliderVisible}
-          chapters={chapters}
           onClose={() => setChapterSliderVisible(false)}
           onSave={handleSaveWithMetadata}
-          initialTitle={title}
-          initialSelectedChapters={savedChapters}
-          initialIsPinnedToTimeline={isPinnedToTimeline}
-          isExistingEntry={!isNew}
         />
-
-        {/* Uploading image overlay */}
-        {uploadingImage && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: "absolute",
-              top: 60,
-              alignSelf: "center",
-              backgroundColor: "rgba(0,0,0,0.75)",
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              borderRadius: 24,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <ActivityIndicator color="#fff" size="small" />
-            <Text style={{ color: "#fff", fontSize: 14, fontWeight: "600" }}>
-              Uploading image…
-            </Text>
-          </View>
-        )}
-
-        {/* Saved toast */}
-        {savedVisible && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: "rgba(0,0,0,0.78)",
-                paddingHorizontal: 32,
-                paddingVertical: 14,
-                borderRadius: 28,
-              }}
-            >
-              <Text style={{ color: "#fff", fontSize: 17, fontWeight: "700" }}>
-                ✓ Saved!
-              </Text>
-            </View>
-          </View>
-        )}
 
         {contextMenu.visible && (
           <ContextMenu
@@ -535,10 +496,10 @@ export default function JournalScreen() {
             onPaste={handlePaste}
             onDelete={handleDelete}
             onClose={handleCloseContextMenu}
+            pasteOnly={!contextMenu.blockId}
           />
         )}
       </View>
-      )}
     </SafeAreaView>
   );
 }

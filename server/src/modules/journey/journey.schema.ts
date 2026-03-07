@@ -1,7 +1,9 @@
+// Journey API Schemas
+
 export const getTimelineSchema = {
   tags: ['Journey Map'],
   summary: 'Get journey map timeline',
-  description: 'Returns all pinned journal entries ordered by date',
+  description: 'Returns all journal entries ordered by date',
   security: [{ bearerAuth: [] }],
 
   response: {
@@ -13,10 +15,9 @@ export const getTimelineSchema = {
           id: { type: 'string' },
           date: { type: 'string', format: 'date' },
           title: { type: 'string', nullable: true },
-          isPinnedToTimeline: { type: 'boolean' },
           updatedAt: { type: 'number' },
         },
-        required: ['id', 'date', 'isPinnedToTimeline', 'updatedAt'],
+        required: ['id', 'date', 'updatedAt'],
       },
     },
   },

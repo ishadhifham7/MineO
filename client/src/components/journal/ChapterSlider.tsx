@@ -9,54 +9,20 @@ import {
   Dimensions,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import Checkbox from "expo-checkbox";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-const SLIDER_HEIGHT = SCREEN_HEIGHT * 0.4;
-
-type Chapter = {
-  id: string;
-  title: string;
-};
+const SLIDER_HEIGHT = SCREEN_HEIGHT * 0.2;
 
 type Props = {
   visible: boolean;
-  chapters: Chapter[];
   onClose: () => void;
-  onSave?: (metadata: { title: string; chapters: string[]; isPinnedToTimeline: boolean }) => void;
-  initialTitle?: string;
-  initialSelectedChapters?: string[];
-  initialIsPinnedToTimeline?: boolean;
-  isExistingEntry?: boolean;
+  onSave?: (metadata: { title: string; isPinnedToTimeline: boolean }) => void;
 };
 
-export function ChapterSlider({
-  visible,
-  chapters,
-  onClose,
-  onSave,
-  initialTitle = "",
-  initialSelectedChapters = [],
-  initialIsPinnedToTimeline = false,
-  isExistingEntry = false,
-}: Props) {
+export function ChapterSlider({ visible, onClose, onSave }: Props) {
   const translateY = useRef(new Animated.Value(SLIDER_HEIGHT)).current;
 
-  const [subject, setSubject] = useState(initialTitle);
-  const [addToTimeline, setAddToTimeline] = useState(initialIsPinnedToTimeline);
-  const [selectedChapters, setSelectedChapters] = useState<string[]>(initialSelectedChapters);
-
-  // Stable string for comparing chapter arrays without causing infinite re-renders
-  const chaptersKey = JSON.stringify(initialSelectedChapters);
-
-  // Sync with saved values whenever the slider becomes visible
-  useEffect(() => {
-    if (visible) {
-      setSubject(initialTitle);
-      setAddToTimeline(initialIsPinnedToTimeline);
-      setSelectedChapters(JSON.parse(chaptersKey));
-    }
-  }, [visible, initialTitle, initialIsPinnedToTimeline, chaptersKey]);
+  const [subject, setSubject] = useState("");
 
   /* ---------------- animation ---------------- */
 
@@ -72,18 +38,11 @@ export function ChapterSlider({
 
   /* ---------------- logic ---------------- */
 
-  const toggleChapter = (id: string) => {
-    setSelectedChapters((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
-    );
-  };
-
   const handleSave = async () => {
     if (onSave) {
       await onSave({
         title: subject,
-        chapters: selectedChapters,
-        isPinnedToTimeline: addToTimeline,
+        isPinnedToTimeline: false,
       });
     }
     onClose();
@@ -108,54 +67,13 @@ export function ChapterSlider({
           placeholder="Enter subject"
           value={subject}
           onChangeText={setSubject}
-          style={[
-            styles.input,
-            isExistingEntry && subject ? styles.inputWithValue : null,
-          ]}
+          style={styles.input}
           placeholderTextColor="#999"
         />
 
-        {/* Chapters label */}
-        <Text style={styles.sectionLabel}>Select chapters</Text>
-
-        {/* Chapters */}
-        <View
-          style={[styles.chapterGrid, !addToTimeline && styles.disabledGrid]}
-          pointerEvents={addToTimeline ? "auto" : "none"}
-        >
-          {chapters.map((chapter) => {
-            const selected = selectedChapters.includes(chapter.id);
-
-            return (
-              <Pressable
-                key={chapter.id}
-                onPress={() => toggleChapter(chapter.id)}
-                style={[styles.chapterPill, selected && styles.chapterSelected]}
-              >
-                <Text
-                  style={[
-                    styles.chapterText,
-                    selected && styles.chapterTextSelected,
-                  ]}
-                >
-                  {chapter.title}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* Add to timeline (right aligned) */}
-        <View style={styles.checkboxRow}>
-          <Text style={styles.checkboxText}>Add to timeline</Text>
-          <Checkbox value={addToTimeline} onValueChange={setAddToTimeline} />
-        </View>
-
         {/* Save button */}
         <Pressable style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>
-            {isExistingEntry ? "Update" : "Save"}
-          </Text>
+          <Text style={styles.saveButtonText}>Save</Text>
         </Pressable>
       </Animated.View>
     </View>
@@ -191,57 +109,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f4",
     color: "#000",
     marginBottom: 18,
-  },
-
-  inputWithValue: {
-    borderWidth: 1,
-    borderColor: "#4A90E2",
-    backgroundColor: "#f0f6ff",
-  },
-
-  chapterGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-    marginBottom: 20,
-  },
-
-  disabledGrid: {
-    opacity: 0.35,
-  },
-
-  chapterPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#e6e6ea",
-  },
-
-  chapterSelected: {
-    backgroundColor: "#4A90E2",
-  },
-
-  chapterText: {
-    color: "#555",
-    fontSize: 13,
-  },
-
-  chapterTextSelected: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-
-  checkboxRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: 20,
-    gap: 8,
-  },
-
-  checkboxText: {
-    color: "#333",
-    fontSize: 14,
   },
 
   saveButton: {

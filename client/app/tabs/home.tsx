@@ -1,19 +1,26 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
-  Animated,
-  Easing,
-  useWindowDimensions,
-  TextInput,
   TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  Dimensions,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G } from "react-native-svg";
-import { useFocusEffect } from "expo-router";
-import { useGoal } from "../../src/features/goal/goal.context";
+
+import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useMemo, useState } from "react";
+import { useAuth } from "../../src/hooks/useAuth";
+import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
+import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
+import JournalViewerModal from "../../src/components/home/calender/JournalViewerModal";
+import JournalSearchResults from "../../src/components/home/calender/JournalSearchResults";
+import { getAllJournals } from "../../src/features/journal/journal.api";
+import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -50,7 +57,14 @@ function DonutChart({
   let cumulativePercent = 0;
 
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Svg width={size} height={size}>
         {/* Background circle */}
         <Circle
@@ -95,107 +109,13 @@ function DonutChart({
 
 // ---------- Main Screen ----------
 export default function HomeScreen() {
-  const { width } = useWindowDimensions();
-  const isWide = width >= 768;
-
-  // ── Animations ──
-  const textFade = useRef(new Animated.Value(0)).current;
-  const textSlide = useRef(new Animated.Value(20)).current;
-  const cloudDrift = useRef(new Animated.Value(0)).current;
-  const tree1Sway = useRef(new Animated.Value(0)).current;
-  const tree2Sway = useRef(new Animated.Value(0)).current;
-  const hillScale = useRef(new Animated.Value(0.95)).current;
-
-  useEffect(() => {
-    // Text fade + slide in
-    Animated.parallel([
-      Animated.timing(textFade, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(textSlide, {
-        toValue: 0,
-        duration: 800,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // Hills gently scale in
-    Animated.spring(hillScale, {
-      toValue: 1,
-      tension: 20,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
-
-    // Cloud drifting loop - seamless infinite scrolling
-    Animated.loop(
-      Animated.timing(cloudDrift, {
-        toValue: 1, // Represents 1 full cycle
-        duration: 35000, // Very slow and peaceful
-        easing: Easing.linear, // Linear easing for constant speed
-        useNativeDriver: true,
-      }),
-    ).start();
-
-    // Tree sway loops
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(tree1Sway, {
-          toValue: 1,
-          duration: 2500,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-        Animated.timing(tree1Sway, {
-          toValue: -1,
-          duration: 2500,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-        Animated.timing(tree1Sway, {
-          toValue: 0,
-          duration: 2500,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(tree2Sway, {
-          toValue: -1,
-          duration: 3000,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-        Animated.timing(tree2Sway, {
-          toValue: 1,
-          duration: 3000,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-        Animated.timing(tree2Sway, {
-          toValue: 0,
-          duration: 3000,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, []);
-
-  const tree1Rotate = tree1Sway.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ["-3deg", "0deg", "3deg"],
-  });
-  const tree2Rotate = tree2Sway.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ["-4deg", "0deg", "4deg"],
-  });
+  const router = useRouter();
+  const { user } = useAuth();
+  const [sheetDate, setSheetDate] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] =
+    useState<JournalEntryWithBlocks | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allJournals, setAllJournals] = useState<JournalEntryWithBlocks[]>([]);
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
@@ -218,166 +138,117 @@ export default function HomeScreen() {
     { done: false, isEnd: true, color: "#E0E0E0" },
   ];
 
-  // ── Calendar state ──
-  const now = new Date();
-  const [currentMonthDate, setCurrentMonthDate] = useState(now);
-  const currentMonth = currentMonthDate.toLocaleString("default", { month: "long", year: "numeric" });
-  const [selectedDate, setSelectedDate] = useState<number | null>(now.getDate());
-  const photoDates: number[] = []; // placeholder — wire up to real data later
-
-  const daysInMonth = useMemo(() => {
-    const year = currentMonthDate.getFullYear();
-    const month = currentMonthDate.getMonth();
-    const count = new Date(year, month + 1, 0).getDate();
-    return Array.from({ length: count }, (_, i) => i + 1);
-  }, [currentMonthDate]);
-
-  const firstDayOffset = useMemo(() => {
-    const year = currentMonthDate.getFullYear();
-    const month = currentMonthDate.getMonth();
-    return new Date(year, month, 1).getDay();
-  }, [currentMonthDate]);
-
   //fetch goals whenever Home is opened (keeps up to date)
   const { goals, fetchGoals } = useGoal();
   useFocusEffect(
     useCallback(() => {
       fetchGoals();
-    }, [fetchGoals])
+      // Fetch all journal entries once per focus so search works in-memory.
+      // This does NOT affect the calendar, which fetches its own dates separately.
+      if (user) {
+        getAllJournals()
+          .then(setAllJournals)
+          .catch(() => {}); // silent failure — search just shows nothing
+      }
+    }, [fetchGoals, user]),
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
 
   const allGoalsCompleted = useMemo(() => {
-  if (!goals || goals.length === 0) return false;
-  return goals.every((g) => g.stages?.length > 0 && g.stages.every((s) => s.completed));
+    if (!goals || goals.length === 0) return false;
+    return goals.every(
+      (g) => g.stages?.length > 0 && g.stages.every((s) => s.completed),
+    );
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-  if (!total || total <= 0) return "#F3F4F6"; // gray
-  if (completed <= 0) return "#F3F4F6";
+    if (!total || total <= 0) return "#F3F4F6"; // gray
+    if (completed <= 0) return "#F3F4F6";
 
-  // Convert any total into a 1..6 bucket
-  const ratio = completed / total;
-  const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
+    // Convert any total into a 1..6 bucket
+    const ratio = completed / total;
+    const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
 
-  // setting background colors for the goals based on the progress
-  switch (bucket) {
-    case 1:
-      return "#DCFCE7"; 
-    case 2:
-      return "#DBEAFE"; 
-    case 3:
-      return "#EDE9FE";
-    case 4:
-      return "#FEF3C7"; 
-    case 5:
-      return "#FFE4E6"; 
-    case 6:
-      return "#D1FAE5";
-    default:
-      return "#F3F4F6";
-  }
-};
+    // setting background colors for the goals based on the progress
+    switch (bucket) {
+      case 1:
+        return "#DCFCE7";
+      case 2:
+        return "#DBEAFE";
+      case 3:
+        return "#EDE9FE";
+      case 4:
+        return "#FEF3C7";
+      case 5:
+        return "#FFE4E6";
+      case 6:
+        return "#D1FAE5";
+      default:
+        return "#F3F4F6";
+    }
+  };
 
   return (
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-      <View style={[styles.pageWrapper, isWide && styles.pageWrapperWide]}>
-      {/* ===== Animated Scenic Header ===== */}
+    <ScrollView
+      style={styles.scrollView}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* ===== Scenic Header ===== */}
       <View style={styles.headerBg}>
         {/* Sky */}
         <View style={styles.skyLayer} />
-        {/* Sun */}
-        <Animated.View
-          style={[
-            styles.sun,
-            {
-              transform: [
-                { translateY: cloudDrift.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -10, 0] }) },
-                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0.8, 1] }) }
-              ]
-            }
-          ]}
-        />
-        {/* Drifting clouds */}
-        <Animated.View
-          style={[
-            styles.cloudLayer,
-            { transform: [{ translateX: cloudDrift.interpolate({ inputRange: [0, 1], outputRange: [width, -200] }) }] },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.cloudLayer2,
-            { transform: [{ translateX: cloudDrift.interpolate({ inputRange: [0, 1], outputRange: [-150, width + 50] }) }] },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.cloudLayer3,
-            { transform: [{ translateX: cloudDrift.interpolate({ inputRange: [0, 1], outputRange: [width / 2, -width] }) }] },
-          ]}
-        />
-        {/* Hills with gentle scale */}
-        <Animated.View
-          style={[
-            styles.hillBack,
-            { transform: [{ scaleX: hillScale }, { translateY: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [10, 0] }) }] },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.hillFront,
-            { transform: [{ translateY: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [15, 0] }) }] },
-          ]}
-        />
-        {/* Trees with sway and scale */}
-        <Animated.View
-          style={[
-            styles.tree,
-            { left: "15%", bottom: 55 },
-            { transform: [
-                { rotate: tree1Rotate },
-                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
-              ] 
-            },
-          ]}
-        >
+        <View style={styles.cloudLayer} />
+        {/* Hills */}
+        <View style={styles.hillBack} />
+        <View style={styles.hillFront} />
+        {/* Trees */}
+        <View style={[styles.tree, { left: 40, bottom: 55 }]}>
           <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
           <View style={styles.treeTrunk} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.tree,
-            { left: "30%", bottom: 65 },
-            { transform: [
-                { rotate: tree2Rotate },
-                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
-              ] 
-            },
-          ]}
-        >
-          <View style={[styles.treeTop, { backgroundColor: "#66BB6A", width: 28, height: 28, borderRadius: 14 }]} />
-          <View style={styles.treeTrunk} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.tree,
-            { right: "25%", bottom: 50 },
-            { transform: [
-                { rotate: tree1Rotate },
-                { scale: hillScale.interpolate({ inputRange: [0.95, 1], outputRange: [0, 1] }) }
-              ] 
-            },
-          ]}
-        >
-          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
-          <View style={styles.treeTrunk} />
-        </Animated.View>
-        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
+        </View>
+        <View style={[styles.tree, { left: 80, bottom: 65 }]}>
+          <View
+            style={[
+              styles.treeTop,
+              {
+                backgroundColor: "#66BB6A",
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+              },
+            ]}
+          />
           <View style={styles.treeTrunk} />
         </View>
+        <View style={[styles.tree, { right: 70, bottom: 50 }]}>
+          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
+          <View style={styles.treeTrunk} />
+        </View>
+        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
+          <View
+            style={[
+              styles.treeTop,
+              {
+                backgroundColor: "#FF8A65",
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+              },
+            ]}
+          />
+          <View style={styles.treeTrunk} />
+        </View>
+        {/* Profile Icon - Top Right */}
+        <TouchableOpacity
+          style={styles.profileIconButton}
+          onPress={() => router.push("/other/profile")}
+        >
+          <View style={styles.profileIconContainer}>
+            <Ionicons name="person" size={24} color="#333" />
+          </View>
+        </TouchableOpacity>
         {/* Header Text */}
         <View style={styles.headerTextWrap}>
           <Text style={styles.headerHello}>Hello,</Text>
@@ -393,72 +264,65 @@ export default function HomeScreen() {
             style={styles.searchInput}
             placeholder="Search your moments..."
             placeholderTextColor="#bbb"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="close-circle" size={18} color="#bbb" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* ===== Journal Search Results ===== */}
+      {/* Appears between the search bar and calendar; pushes calendar down */}
+      <JournalSearchResults
+        query={searchQuery}
+        journals={allJournals}
+        onSelect={(entry) => {
+          setSearchQuery("");
+          setSelectedEntry(entry);
+        }}
+      />
+
+      {/* ===== Journal Calendar ===== */}
+      {user && (
+        <View style={styles.sectionPadding}>
+          <JournalCalendar
+            userId={user.userId}
+            onMarkedDatePress={(date) => setSheetDate(date)}
           />
         </View>
-      </View>
+      )}
 
-      {/* ===== Calendar ===== */}
-      <View style={styles.sectionPadding}>
-        <View style={styles.card}>
-          {/* Month nav */}
-          <View style={styles.calendarNav}>
-            <TouchableOpacity>
-              <Ionicons name="chevron-back" size={22} color="#555" />
-            </TouchableOpacity>
-            <Text style={styles.monthText}>{currentMonth}</Text>
-            <TouchableOpacity>
-              <Ionicons name="chevron-forward" size={22} color="#555" />
-            </TouchableOpacity>
-          </View>
+      {/* ===== Journal Preview Bottom Sheet ===== */}
+      {user && sheetDate && (
+        <JournalPreviewBottomSheet
+          visible={sheetDate !== null}
+          date={sheetDate}
+          onClose={() => setSheetDate(null)}
+          onSelectEntry={(entry: JournalEntryWithBlocks) => {
+            setSelectedEntry(entry);
+            // Bottom sheet animates out and calls setSheetDate(null) via onClose
+          }}
+        />
+      )}
 
-          {/* Day headers */}
-          <View style={styles.dayHeaderRow}>
-            {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-              <Text key={d} style={styles.dayHeader}>{d}</Text>
-            ))}
-          </View>
-
-          {/* Calendar grid */}
-          <View style={styles.calGrid}>
-            {/* Offset empty cells */}
-            {Array.from({ length: firstDayOffset }).map((_, i) => (
-              <View key={`e${i}`} style={styles.calCell} />
-            ))}
-            {daysInMonth.map((day) => {
-              const isSelected = selectedDate === day;
-              const hasPhoto = photoDates.includes(day);
-              return (
-                <TouchableOpacity
-                  key={day}
-                  style={styles.calCell}
-                  onPress={() => setSelectedDate(day)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      styles.calDayCircle,
-                      isSelected && styles.calDaySelected,
-                      hasPhoto && !isSelected && styles.calDayPhoto,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.calDayText,
-                        isSelected && styles.calDayTextSelected,
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      </View>
+      {/* ===== Journal Viewer Modal ===== */}
+      <JournalViewerModal
+        visible={selectedEntry !== null}
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+      />
 
       {/* ===== Life Moments & Daily Wins ===== */}
-      <View style={[styles.twoCardRow, isWide && styles.twoCardRowWide]}>
+      <View style={styles.twoCardRow}>
         {/* Life Moments */}
         <View style={[styles.card, styles.halfCard]}>
           <Text style={styles.cardTitle}>Life Moments</Text>
@@ -507,61 +371,8 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* ===== Win Tracker + Goal Path on wide screens ===== */}
-      {isWide ? (
-        <View style={[styles.twoCardRow, styles.twoCardRowWide, { marginBottom: 16 }]}>
-          {/* Win Tracker */}
-          <View style={[styles.card, { flex: 1 }]}>
-            <View style={styles.trackerHeader}>
-              <Text style={styles.sectionTitle}>Win Tracker</Text>
-              <Text style={styles.monthlyLabel}>Monthly</Text>
-            </View>
-            <View style={styles.trackerBody}>
-              <DonutChart
-                data={winCategories.map((c) => ({ percentage: c.percentage, color: c.color }))}
-                centerLabel="82%"
-                centerSub="TOTAL"
-              />
-              <View style={styles.legendList}>
-                {winCategories.map((cat) => (
-                  <View key={cat.name} style={styles.legendItem}>
-                    <View style={[styles.legendDot, { backgroundColor: cat.color }]} />
-                    <Text style={styles.legendName}>{cat.name}</Text>
-                    <Text style={styles.legendPct}>{cat.percentage}%</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-          {/* Goal Path */}
-          <View style={[styles.card, { flex: 1 }]}>
-            <View style={styles.goalHeader}>
-              <View>
-                <Text style={styles.goalTitle}>Goal Path</Text>
-                <Text style={styles.cardSubtitle}>MILESTONES</Text>
-              </View>
-              <View style={styles.completeBadge}>
-                <Text style={styles.completeBadgeText}>3 / 5 Complete</Text>
-              </View>
-            </View>
-            <View style={styles.milestonesRow}>
-              {milestones.map((m, i) => (
-                <View key={i} style={styles.milestoneCol}>
-                  {i < milestones.length - 1 && (
-                    <View style={[styles.milestoneLineRight, { backgroundColor: m.done ? m.color : "#e0e0e0" }]} />
-                  )}
-                  <View style={[styles.milestoneCircle, { backgroundColor: m.done ? m.color : "#fff", borderColor: m.done ? m.color : "#ccc", borderStyle: m.isEnd ? "dashed" : "solid" }]}>
-                    {m.done ? (<Ionicons name="checkmark" size={20} color="#fff" />) : m.isStar ? (<Ionicons name="star-outline" size={18} color="#bbb" />) : (<View style={styles.endDot} />)}
-                  </View>
-                  {m.isEnd && <Text style={styles.endLabel}>END</Text>}
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-      ) : null}
-
-      {!isWide && <View style={styles.sectionPadding}>
+      {/* ===== Win Tracker ===== */}
+      <View style={styles.sectionPadding}>
         <View style={styles.card}>
           <View style={styles.trackerHeader}>
             <Text style={styles.sectionTitle}>Win Tracker</Text>
@@ -579,7 +390,9 @@ export default function HomeScreen() {
             <View style={styles.legendList}>
               {winCategories.map((cat) => (
                 <View key={cat.name} style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: cat.color }]} />
+                  <View
+                    style={[styles.legendDot, { backgroundColor: cat.color }]}
+                  />
                   <Text style={styles.legendName}>{cat.name}</Text>
                   <Text style={styles.legendPct}>{cat.percentage}%</Text>
                 </View>
@@ -587,9 +400,10 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-      </View>}
+      </View>
 
-      {!isWide && <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
+      {/* ===== Goal Path ===== */}
+      <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
         <View style={styles.card}>
           <View style={styles.goalHeader}>
             <View>
@@ -598,159 +412,120 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Milestones */}
-          <View style={styles.milestonesRow}>
-            {milestones.map((m, i) => (
-              <View key={i} style={styles.milestoneCol}>
-                {/* Connecting line to the right */}
-                {i < milestones.length - 1 && (
-                  <View
+          {/* no goals */}
+          {(!goals || goals.length === 0) && (
+            <Text style={styles.goalEmptyText}>No goal plans</Text>
+          )}
+
+          {/* all completed */}
+          {goals && goals.length > 0 && allGoalsCompleted && (
+            <Text style={styles.goalEmptyText}>
+              All Goals completed - create a new Goal
+            </Text>
+          )}
+
+          {/* list (max 5) */}
+          {goals && goals.length > 0 && !allGoalsCompleted && (
+            <View style={{ gap: 10 }}>
+              {displayGoals.map((g) => {
+                const total = g.stages?.length ?? 0;
+                const completed =
+                  g.stages?.filter((s) => s.completed).length ?? 0;
+                const remaining = Math.max(0, total - completed);
+
+                const isCompleted = total > 0 && completed === total;
+
+                return (
+                  <TouchableOpacity
+                    key={g.id}
                     style={[
-                      styles.milestoneLineRight,
-                      { backgroundColor: m.done ? m.color : "#e0e0e0" },
+                      styles.goalRow,
+                      { backgroundColor: getGoalRowBg(completed, total) },
                     ]}
-                  />
-                )}
-                <View
-                  style={[
-                    styles.milestoneCircle,
-                    {
-                      backgroundColor: m.done ? m.color : "#fff",
-                      borderColor: m.done ? m.color : "#ccc",
-                      borderStyle: m.isEnd ? "dashed" : "solid",
-                    },
-                  ]}
-                >
-                  {m.done ? (
-                    <Ionicons name="checkmark" size={20} color="#fff" />
-                  ) : m.isStar ? (
-                    <Ionicons name="star-outline" size={18} color="#bbb" />
-                  ) : (
-                    <View style={styles.endDot} />
-                  )}
-                </View>
-                {m.isEnd && <Text style={styles.endLabel}>END</Text>}
-              </View>
-            ))}
-          </View>
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/tabs/goal/roadmap",
+                        params: { goalId: g.id },
+                      });
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.goalRowTitle} numberOfLines={1}>
+                        {g.title}
+                      </Text>
+                      <Text style={styles.goalRowSub}>
+                        {isCompleted ? "Completed" : "In progress"}
+                        {total > 0 ? `  •  ${remaining}/${total}` : ""}
+                      </Text>
+                    </View>
+
+                    <Ionicons
+                      name="chevron-forward"
+                      size={18}
+                      color="#9CA3AF"
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </View>
-      </View>}
       </View>
     </ScrollView>
   );
 }
 
 // ---------- Styles ----------
+const { width: SCREEN_W } = Dimensions.get("window");
+
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#FAF7F2",
-  },
-  pageWrapper: {
-    width: "100%",
-  },
-  pageWrapperWide: {
-    maxWidth: 960,
-    alignSelf: "center" as const,
-    width: "100%",
+    backgroundColor: "#f7f7f7",
   },
 
   /* ---- Header ---- */
-  headerContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 8,
-  },
-  headerGreeting: {
-    fontSize: 15,
-    fontWeight: "400",
-    color: "#8A7F72",
-  },
-  headerName: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#2E2A26",
-    marginTop: 2,
-  },
   headerBg: {
     width: "100%",
-    height: 250,
+    height: 220,
     backgroundColor: "#dce9f5",
     overflow: "hidden",
     position: "relative",
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
   },
   skyLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#E3F2FD",
-  },
-  sun: {
-    position: "absolute",
-    top: 40,
-    right: 40,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#FFF9C4",
-    shadowColor: "#FFF59D",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-    elevation: 5,
+    backgroundColor: "#e8eef6",
   },
   cloudLayer: {
     position: "absolute",
-    top: 20,
-    right: -20,
-    width: 140,
-    height: 60,
-    backgroundColor: "rgba(255,255,255,0.8)",
-    borderRadius: 30,
-  },
-  cloudLayer2: {
-    position: "absolute",
-    top: 50,
-    left: 10,
-    width: 100,
-    height: 45,
-    backgroundColor: "rgba(255,255,255,0.6)",
-    borderRadius: 30,
-  },
-  cloudLayer3: {
-    position: "absolute",
-    top: 15,
-    left: "30%",
-    width: 80,
-    height: 35,
-    backgroundColor: "rgba(255,255,255,0.5)",
-    borderRadius: 20,
+    top: 0,
+    right: 0,
+    width: 180,
+    height: 100,
+    backgroundColor: "#f3d4d0",
+    borderBottomLeftRadius: 100,
+    opacity: 0.5,
   },
   hillBack: {
     position: "absolute",
     bottom: 0,
-    left: "-10%",
-    width: "120%",
-    height: 110,
-    backgroundColor: "#C8E6C9",
-    borderTopLeftRadius: 250,
-    borderTopRightRadius: 250,
+    left: -30,
+    width: SCREEN_W + 60,
+    height: 100,
+    backgroundColor: "#c5ddb8",
+    borderTopLeftRadius: 200,
+    borderTopRightRadius: 200,
   },
   hillFront: {
     position: "absolute",
     bottom: 0,
-    left: "-5%",
-    width: "110%",
-    height: 70,
-    backgroundColor: "#A5D6A7",
-    borderTopLeftRadius: 350,
-    borderTopRightRadius: 150,
+    left: 0,
+    width: SCREEN_W,
+    height: 60,
+    backgroundColor: "#d4c9a8",
+    borderTopLeftRadius: 300,
+    borderTopRightRadius: 100,
   },
   tree: {
     position: "absolute",
@@ -786,10 +561,6 @@ const styles = StyleSheet.create({
   },
 
   /* ---- Search ---- */
-  calendarSection: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
   searchWrapper: {
     paddingHorizontal: 20,
     marginTop: 16,
@@ -912,10 +683,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
     marginBottom: 16,
-  },
-  twoCardRowWide: {
-    gap: 20,
-    paddingHorizontal: 24,
   },
   halfCard: {
     flex: 1,
@@ -1106,7 +873,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    
   },
   goalRowTitle: {
     fontSize: 15,
@@ -1139,59 +905,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-
-  /* ---- Milestones ---- */
-  completeBadge: {
-    backgroundColor: "#E8F5E9",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  completeBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#66BB6A",
-  },
-  milestonesRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 0,
-  },
-  milestoneCol: {
-    alignItems: "center",
-    flex: 1,
-    position: "relative",
-  },
-  milestoneLineRight: {
-    position: "absolute",
-    top: 18,
-    left: "50%",
-    right: "-50%",
-    height: 3,
-    borderRadius: 2,
-  },
-  milestoneCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1,
-  },
-  endDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#ccc",
-  },
-  endLabel: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#aaa",
-    marginTop: 4,
-    letterSpacing: 1,
   },
 });

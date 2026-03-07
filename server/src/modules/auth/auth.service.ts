@@ -17,15 +17,13 @@ export const signupUser = async (data: {
   country?: string;
   profilePhoto?: string;
 }) => {
+  const usersRef = firestore.collection(USERS_COLLECTION);
 
-    const usersRef = firestore.collection(USERS_COLLECTION);
-
-    // check for an existing user with the same email.
-    const existing = await usersRef.where("email", "==", data.email).get();
-
-    if (!existing.empty) {
-        throw new Error("User already exists");
-    }
+  // Check email uniqueness
+  const existing = await usersRef.where("email", "==", data.email).get();
+  if (!existing.empty) {
+    throw new Error("User already exists");
+  }
 
   // Generate base username from name
   const baseUsername = data.name
@@ -51,13 +49,21 @@ export const signupUser = async (data: {
   // Hash password
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    const docRef = await usersRef.add({
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        dob: data.dob,
-        createdAt: new Date(),
-    });
+  //  Create user document
+  const docRef = await usersRef.add({
+    name: data.name,
+    email: data.email,
+    username, 
+    password: hashedPassword,
+    dob: data.dob,
+
+    bio: data.bio ?? "",
+    gender: data.gender ?? "",
+    country: data.country ?? "",
+    profilePhoto: data.profilePhoto ?? "",
+
+    createdAt: new Date(),
+  });
 
   return { id: docRef.id };
 };
@@ -65,9 +71,14 @@ export const signupUser = async (data: {
 //================= login user - verifies password and returns JWT ===================
 
 export const loginUser = async (email: string, password: string) => {
-    const usersRef = firestore.collection(USERS_COLLECTION);
+  console.log('🔵 loginUser called with email:', email);
 
-    const snapshot = await usersRef.where("email", "==", email).get();
+  const usersRef = firestore.collection(USERS_COLLECTION);
+  console.log('🔵 Got users collection reference');
+
+  console.log('🔵 Querying Firestore for user...');
+  const snapshot = await usersRef.where('email', '==', email).get();
+  console.log('🔵 Firestore query completed');
 
   // check for an existing user
   if (snapshot.empty) {
@@ -83,9 +94,9 @@ export const loginUser = async (email: string, password: string) => {
   const isMatch = await bcrypt.compare(password, user.password);
   console.log('🔵 Password comparison completed, match:', isMatch);
 
-    if (!isMatch) {
-        throw new Error("Invalid credentials");
-    }
+  if (!isMatch) {
+    throw new Error('Invalid credentials');
+  }
 
   console.log('🔵 Generating JWT token...');
   //create JWD token which expires in 3 days

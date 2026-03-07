@@ -8,7 +8,10 @@ export default async function journeyRoutes(
 
   fastify.get(
     '/timeline',
-    { schema: getTimelineSchema },
+    { 
+      schema: getTimelineSchema,
+      preHandler: [fastify.authenticate]
+    },
     getTimeline
   )
 }

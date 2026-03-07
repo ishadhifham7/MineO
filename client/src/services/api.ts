@@ -1,20 +1,19 @@
 // src/services/api.ts
 import axios from "axios";
-import { Platform } from "react-native";
+import { env } from "../../constants/env";
 import { getToken } from "../utils/tokenStorage";
 
-// Backend URL configuration
-// For Android emulator: use 10.0.2.2
-// For physical device: use your computer's IP address (e.g., 192.168.1.103)
-const BACKEND_IP = "192.168.1.103"; // Your computer's IP
-const BACKEND_PORT = "3001";
+/**
+ * Journal API Client
+ * Uses auto-detected backend URL - works on any network!
+ */
+export const API_BASE_URL = env.API_BASE_URL;
 
-// Base URL for API (without specific module path)
-export const API_BASE_URL = `http://${BACKEND_IP}:${BACKEND_PORT}`;
+console.log("🔧 API Service initialized with:", API_BASE_URL);
 
 // Base URL for journal API
 const getBaseURL = () => {
-  return `${API_BASE_URL}/api/v1/journal`;
+  return `${env.API_BASE_URL}/journal`;
 };
 
 export const api = axios.create({
@@ -22,7 +21,7 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000, // 30 seconds
+  timeout: 10000,
 });
 
 // Request interceptor - Automatically adds JWT token to Authorization header
@@ -64,7 +63,7 @@ api.interceptors.response.use(
       );
     } else if (error.request) {
       // Request made but no response
-      console.error("❌ No Response - Is backend running?", API_BASE_URL);
+      console.error("❌ No Response - Is backend running?", env.API_URL);
       console.error("Request:", error.request);
     } else {
       // Something else happened

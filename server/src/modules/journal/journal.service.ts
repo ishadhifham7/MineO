@@ -1,5 +1,5 @@
 import { JournalRepository } from './journal.repository';
-import { JournalEntry, JournalBlock, TextBlock } from './journal.types';
+import { JournalEntry, JournalBlock } from './journal.types';
 import { v4 as uuid } from 'uuid';
 
 export class JournalService {
@@ -22,62 +22,31 @@ export class JournalService {
     };
   }
 
-  // 🔹 create entry (first save)
+  // 🔹 create entry (first save) - SECURE: userId from JWT
   static async createJournal({
     userId,
     date,
     title,
-    chapters,
     isPinnedToTimeline = false,
     blocks,
   }: {
     userId: string; // REQUIRED: from authenticated user
     date: string;
     title?: string;
-    chapters?: string[];
     isPinnedToTimeline?: boolean;
     blocks: JournalBlock[];
   }) {
-    // ── Check if an entry already exists for this date ──────────────────────
-    const existing = await JournalRepository.entries()
-      .where('date', '==', date)
-      .limit(1)
-      .get();
-
-    if (!existing.empty) {
-      // Update the existing entry instead of creating a duplicate
-      const existingEntry = existing.docs[0].data() as JournalEntry;
-      const entryId = existingEntry.id;
-
-      await JournalService.updateCanvas(entryId, blocks);
-
-      if (title !== undefined || isPinnedToTimeline !== undefined) {
-        await JournalService.updateMeta(entryId, { title, isPinnedToTimeline });
-      }
-
-      return { ...existingEntry, updatedAt: Date.now() };
-    }
-
-    // ── No existing entry – create a fresh one ───────────────────────────────
     const now = Date.now();
     const entryId = uuid();
-
-    // Derive summary from first text block
-    const firstText = blocks.find((b) => b.type === 'text') as TextBlock | undefined;
-    const summary = firstText
-      ? firstText.text.slice(0, 120) + (firstText.text.length > 120 ? '...' : '')
-      : '';
 
     const entry: JournalEntry = {
       id: entryId,
       userId, // Attach userId from JWT
       date,
       title,
-      chapters: chapters || [],
       isPinnedToTimeline,
       createdAt: now,
       updatedAt: now,
-      summary,
     };
 
     const batch = JournalRepository.entries().firestore.batch();
@@ -93,7 +62,7 @@ export class JournalService {
   }
 
   // 🔹 update canvas only - SECURE: ownership verified
-  static async updateCanvas(entryId: string, blocks: JournalBlock[], userId?: string) {
+  static async updateCanvas(entryId: string, blocks: JournalBlock[], userId: string) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
@@ -101,16 +70,10 @@ export class JournalService {
 
     const entry = snap.data() as JournalEntry;
 
-    // SECURITY: Verify ownership (skip if called internally without userId)
-    if (userId && entry.userId !== userId) {
+    // SECURITY: Verify ownership
+    if (entry.userId !== userId) {
       throw new Error('FORBIDDEN');
     }
-
-    // Derive summary from first text block
-    const firstText = blocks.find((b) => b.type === 'text') as TextBlock | undefined;
-    const summary = firstText
-      ? firstText.text.slice(0, 120) + (firstText.text.length > 120 ? '...' : '')
-      : '';
 
     const batch = entryRef.firestore.batch();
 
@@ -121,12 +84,16 @@ export class JournalService {
       batch.set(JournalRepository.canvasBlockById(entryId, block.id), block);
     });
 
-    batch.update(entryRef, { updatedAt: Date.now(), summary });
+    batch.update(entryRef, { updatedAt: Date.now() });
     await batch.commit();
   }
 
-  // 🔹 update metadata only
-  static async updateMeta(entryId: string, meta: { title?: string; isPinnedToTimeline?: boolean }, userId?: string) {
+  // 🔹 update metadata only - SECURE: ownership verified
+  static async updateMeta(
+    entryId: string,
+    meta: { title?: string; isPinnedToTimeline?: boolean },
+    userId: string
+  ) {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
@@ -150,7 +117,9 @@ export class JournalService {
     const entryRef = JournalRepository.entryById(entryId);
     const snap = await entryRef.get();
 
-    if (!snap.exists) throw new Error('Entry not found');
+    if (!snap.exists) {
+      throw new Error('Entry not found');
+    }
 
     const entry = snap.data() as JournalEntry;
 
@@ -161,30 +130,72 @@ export class JournalService {
 
     const blocksSnap = await JournalRepository.canvasBlocks(entryId).get();
 
+    // Return flattened structure for frontend
     return {
-      entry: snap.data(),
+      ...entry,
       blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
 
-  // 🔹 get journals by date range (for calendar) – one entry per date, no block fetch
-  static async getJournalsByDateRange(startDate: string, endDate: string) {
+  // 🔹 get ALL journal entries for a date (with blocks) - SECURE: filtered by userId
+  static async getJournalsByDate(date: string, userId: string) {
     const snap = await JournalRepository.entries()
-      .where('date', '>=', startDate)
-      .where('date', '<=', endDate)
+      .where('userId', '==', userId)
+      .where('date', '==', date)
       .get();
 
-    // Deduplicate: keep only the earliest entry per date (createdAt asc)
-    const uniqueByDate = new Map<string, JournalEntry>();
-    for (const doc of snap.docs) {
-      const entry = doc.data() as JournalEntry;
-      const existing = uniqueByDate.get(entry.date);
-      if (!existing || entry.createdAt < existing.createdAt) {
-        uniqueByDate.set(entry.date, entry);
-      }
-    }
+    if (snap.empty) return [];
 
-    // Return entry metadata directly — summary is stored on the entry at save time
-    return Array.from(uniqueByDate.values());
+    const entries = await Promise.all(
+      snap.docs.map(async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+        const entry = doc.data() as JournalEntry;
+        const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
+        return {
+          ...entry,
+          blocks: blocksSnap.docs.map((b: any) => b.data()),
+        };
+      })
+    );
+
+    return entries;
+  }
+
+  // 🔹 get ALL journal entries with blocks - SECURE: filtered by userId
+  static async getAllJournals(userId: string) {
+    const snap = await JournalRepository.entries().where('userId', '==', userId).get();
+
+    if (snap.empty) return [];
+
+    const entries = await Promise.all(
+      snap.docs.map(async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+        const entry = doc.data() as JournalEntry;
+        const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
+        return {
+          ...entry,
+          blocks: blocksSnap.docs.map((b: any) => b.data()),
+        };
+      })
+    );
+
+    // Sort in-memory — avoids requiring a composite Firestore index
+    return entries.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+  }
+
+  // 🔹 get all dates that have journal entries - SECURE: filtered by userId
+  static async getJournalDates(userId: string): Promise<string[]> {
+    const snap = await JournalRepository.entries()
+      .where('userId', '==', userId)
+      .select('date')
+      .get();
+
+    const uniqueDates = new Set<string>();
+    snap.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+      const data = doc.data();
+      if (data.date) {
+        uniqueDates.add(data.date);
+      }
+    });
+
+    return Array.from(uniqueDates);
   }
 }

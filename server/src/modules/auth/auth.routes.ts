@@ -19,21 +19,16 @@ export async function authRoutes(app: FastifyInstance) {
         profilePhoto,
       });
 
-        return reply.send({
-            message: 'User created',
-            userId: result.id,
-
-        });
-        } catch (error: any) {
-        return reply.status(400).send({
-            message: error.message,
-
-        });
-        }
-
-    });
-
-
+      return reply.send({
+        message: 'User created',
+        userId: result.id,
+      });
+    } catch (error: any) {
+      return reply.status(400).send({
+        message: error.message,
+      });
+    }
+  });
 
   // login
   app.post('/login', async (request, reply) => {
@@ -52,12 +47,12 @@ export async function authRoutes(app: FastifyInstance) {
       const result = await loginUser(email, password);
       console.log('✅ Login successful, sending response');
 
-        return reply.send(result);
-        } catch (error: any) {
-        return reply.status(401).send({
-            message: error.message,
-        });
-        }
-        
-    });
+      return reply.send(result);
+    } catch (error: any) {
+      console.error('❌ Login route error:', error);
+      return reply.status(401).send({
+        message: error.message,
+      });
+    }
+  });
 }

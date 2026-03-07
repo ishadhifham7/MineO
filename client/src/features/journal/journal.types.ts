@@ -11,6 +11,10 @@ export interface JournalEntry {
   updatedAt: number;
 }
 
+export interface JournalEntryWithBlocks extends JournalEntry {
+  blocks: JournalBlock[];
+}
+
 export interface JournalState {
   entryId: string | null;
   date: string | null;

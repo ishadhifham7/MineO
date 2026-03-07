@@ -10,20 +10,107 @@ const hasValidCredentials =
 /**
  * Initialize Firebase Admin SDK
  */
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: env.FIREBASE_PROJECT_ID,
-      clientEmail: env.FIREBASE_CLIENT_EMAIL,
-      privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    }),
-  });
+if (!admin.apps.length && (hasValidCredentials || !isDevelopment)) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: env.FIREBASE_PROJECT_ID,
+        clientEmail: env.FIREBASE_CLIENT_EMAIL,
+        privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      }),
+    });
+    console.log('✅ Firebase initialized successfully');
+  } catch (error) {
+    if (isDevelopment) {
+      console.warn('⚠️ Firebase initialization failed in development mode');
+      console.warn('⚠️ Running without Firebase. Some features may not work.');
+    } else {
+      throw error;
+    }
+  }
 }
 
-export const firebaseAdmin = admin;
-export const firestore = admin.firestore();
-export const auth = admin.auth();
-export const Timestamp = admin.firestore.Timestamp;
+// Create mock implementations for development without Firebase
+const createMockFirestore = () => {
+  const mockCollection = () => ({
+    doc: () => mockDoc(),
+    where: () => mockQuery(),
+    add: async () => ({ id: 'mock-id' }),
+    get: async () => ({ docs: [], empty: true }),
+  });
+
+  const mockDoc = () => ({
+    get: async () => ({ exists: false, data: () => null }),
+    set: async () => {},
+    update: async () => {},
+    delete: async () => {},
+    collection: mockCollection,
+  });
+
+  const mockQuery = () => ({
+    get: async () => ({ docs: [], empty: true }),
+    where: () => mockQuery(),
+    orderBy: () => mockQuery(),
+    limit: () => mockQuery(),
+  });
+
+  return {
+    collection: mockCollection,
+    doc: mockDoc,
+    settings: () => {},
+    batch: () => ({
+      set: () => {},
+      update: () => {},
+      delete: () => {},
+      commit: async () => {},
+    }),
+  } as any;
+};
+
+const createMockAuth = () => ({
+  verifyIdToken: async () => ({ uid: 'mock-user' }),
+  createUser: async () => ({ uid: 'mock-user' }),
+  getUserByEmail: async () => ({ uid: 'mock-user' }),
+} as any);
+
+export const firebaseAdmin = admin.apps.length ? admin : null;
+export const firestore = admin.apps.length ? admin.firestore() : createMockFirestore();
+export const auth = admin.apps.length ? admin.auth() : createMockAuth();
+
+// Create a compatible Timestamp class for both real and mock Firebase
+class MockTimestamp {
+  seconds: number;
+  nanoseconds: number;
+
+  constructor(seconds: number, nanoseconds: number) {
+    this.seconds = seconds;
+    this.nanoseconds = nanoseconds;
+  }
+
+  toDate(): Date {
+    return new Date(this.seconds * 1000);
+  }
+
+  toMillis(): number {
+    return this.seconds * 1000;
+  }
+
+  isEqual(other: any): boolean {
+    return this.seconds === other.seconds && this.nanoseconds === other.nanoseconds;
+  }
+
+  static now(): MockTimestamp {
+    const now = Date.now();
+    return new MockTimestamp(Math.floor(now / 1000), (now % 1000) * 1000000);
+  }
+
+  static fromDate(date: Date): MockTimestamp {
+    const ms = date.getTime();
+    return new MockTimestamp(Math.floor(ms / 1000), (ms % 1000) * 1000000);
+  }
+}
+
+export const Timestamp = admin.apps.length ? admin.firestore.Timestamp : MockTimestamp as any;
 
 // Ensure Firestore ignores undefined fields if initialized
 if (admin.apps.length) {
