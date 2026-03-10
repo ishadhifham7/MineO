@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { signupUser } from "../../src/services/auth.service";
 import { useAuth } from "../../src/hooks/useAuth";
+import { colors } from "../../src/constants/colors";
 import * as ImagePicker from "expo-image-picker";
 
 import {
@@ -244,7 +245,7 @@ export default function SignupDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     flexGrow: 1,
   },
   title: {
@@ -252,72 +253,102 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 16,
     textAlign: "center",
+    color: colors.text.primary,
   },
   avatarContainer: {
     alignSelf: "center",
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: colors.cardAlt,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#ddd",
+    borderWidth: 2,
+    borderColor: colors.border,
   },
   avatar: { width: "100%", height: "100%" },
-  avatarPlaceholder: { fontSize: 40, color: "#999" },
+  avatarPlaceholder: { fontSize: 40, color: colors.text.muted },
 
   card: {
-    backgroundColor: "#fafafa",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 10,
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: colors.borderLight,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   label: {
     fontWeight: "600",
     marginBottom: 8,
-    color: "#444",
+    color: colors.text.secondary,
+    fontSize: 14,
   },
   input: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: colors.cardAlt,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    color: colors.text.primary,
+    fontSize: 15,
   },
 
   dobRow: {
     flexDirection: "row",
+    gap: 8,
   },
   dobPicker: {
     flex: 1,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   pickerContainer: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 10,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   error: {
-    color: "red",
+    color: colors.error,
     marginBottom: 10,
     marginLeft: 4,
+    fontSize: 13,
   },
 
   button: {
-    backgroundColor: "#E6E26A",
+    backgroundColor: colors.primary,
     padding: 18,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: "center",
     marginTop: 14,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  buttonText: { fontWeight: "600" },
+  buttonText: { 
+    fontWeight: "700",
+    fontSize: 16,
+    color: colors.text.light,
+  },
 
   backText: {
     marginTop: 20,
     textAlign: "center",
-    color: "#555",
+    color: colors.text.secondary,
+    fontSize: 14,
+    fontWeight: "500",
   },
 });

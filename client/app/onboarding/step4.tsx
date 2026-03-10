@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { colors } from '../../src/constants/colors';
 
 export default function Step4() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function Step4() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5E6", padding: 30 },
+  container: { flex: 1, backgroundColor: colors.background, padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   logo: {
     fontSize: 42,
@@ -52,25 +53,30 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     textAlign: "center",
-    color: "#444",
+    color: colors.text.muted,
     lineHeight: 24,
   },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D1D1C4" },
-  activeBar: { backgroundColor: "#000" },
+  progressBar: { height: 3, flex: 1, backgroundColor: colors.borderLight, borderRadius: 2 },
+  activeBar: { backgroundColor: colors.primary },
   button: {
-    backgroundColor: "#000",
+    backgroundColor: colors.primary,
     padding: 18,
-    borderRadius: 4,
+    borderRadius: 16,
     alignItems: "center",
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  buttonText: { color: colors.text.light, fontSize: 16, fontWeight: "700" },
 
-  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
+  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start", color: colors.text.primary },
   subHeaderText: {
     fontSize: 16,
-    color: "#666",
+    color: colors.text.secondary,
     alignSelf: "flex-start",
     marginBottom: 30,
   },

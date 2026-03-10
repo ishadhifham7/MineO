@@ -12,6 +12,7 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../../src/constants/colors";
 import CreateGoal from "../../src/components/goal/CreateGoal";
 import DailyCheckIn from "../../src/components/goal/DailyCheckIn";
 import ProgressView from "../../src/components/goal/ProgressView";
@@ -107,7 +108,7 @@ export default function GoalsRoute() {
           {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.headerIcon}>
-              <Ionicons name="sparkles-outline" size={18} color="#49B7D0" />
+              <Ionicons name="sparkles-outline" size={18} color={colors.primary} />
             </View>
             <View style={styles.headerText}>
               <Text style={styles.hTitle}>Your Goals</Text>
@@ -121,14 +122,14 @@ export default function GoalsRoute() {
               small="Daily"
               big="Check-in"
               icon="heart-outline"
-              gradientColors={["#63D1E6", "#44BBD4"]}
+              gradientColors={[colors.primary, colors.secondary]}
               onPress={handleDailyCheckIn}
             />
             <ActionCard
               small="Your"
               big="Progress"
               icon="trending-up-outline"
-              gradientColors={["#B39DDB", "#F7B7A3"]}
+              gradientColors={[colors.secondary, colors.accent]}
               onPress={handleProgressView}
             />
           </View>
@@ -154,15 +155,10 @@ export default function GoalsRoute() {
             onPress={handleCreateGoal}
             style={({ pressed }) => [pressed && { opacity: 0.92 }]}
           >
-            <LinearGradient
-              colors={["#63D1E6", "#B39DDB"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.createBtn}
-            >
-              <Ionicons name="add" size={20} color="#fff" />
+            <View style={styles.createBtn}>
+              <Ionicons name="add" size={20} color={colors.text.light} />
               <Text style={styles.createText}>Create New Goal</Text>
-            </LinearGradient>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -185,14 +181,9 @@ function ActionCard({
 }) {
   return (
     <Pressable onPress={onPress} style={styles.card}>
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.cardIconWrap}
-      >
+      <View style={[styles.cardIconWrap, { backgroundColor: gradientColors[0] }]}>
         <Ionicons name={icon} size={22} color="#fff" />
-      </LinearGradient>
+      </View>
 
       <View style={styles.cardTextWrap}>
         <Text style={styles.cardSmall}>{small}</Text>
@@ -244,7 +235,7 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
+  safe: { flex: 1, backgroundColor: colors.background },
 
   screen: { flex: 1 },
 
@@ -259,18 +250,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   headerText: { marginLeft: 12 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: colors.text.primary },
+  hSub: { marginTop: 6, fontSize: 14, color: colors.text.muted },
 
   /* Action cards */
   cardsRow: {
@@ -283,15 +276,17 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 78,
     borderRadius: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 14,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
     elevation: 5,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   cardIconWrap: {
     width: 48,
@@ -299,39 +294,46 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   cardTextWrap: { marginLeft: 12 },
-  cardSmall: { fontSize: 13, color: "#6B6B6B", fontWeight: "600" },
-  cardBig: { marginTop: 2, fontSize: 18, color: "#111", fontWeight: "800" },
+  cardSmall: { fontSize: 13, color: colors.text.muted, fontWeight: "600" },
+  cardBig: { marginTop: 2, fontSize: 18, color: colors.text.primary, fontWeight: "800" },
 
   /* Goals list */
   listWrap: { marginTop: 14 },
   goalCard: {
     marginTop: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 6,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   ring: {
     width: 54,
     height: 54,
     borderRadius: 27,
     borderWidth: 3,
-    borderColor: "#E6E6E6",
+    borderColor: colors.borderLight,
     alignItems: "center",
     justifyContent: "center",
   },
-  ringText: { fontSize: 12, fontWeight: "900", color: "#333" },
+  ringText: { fontSize: 12, fontWeight: "900", color: colors.text.primary },
 
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
+  goalTitle: { fontSize: 16, fontWeight: "900", color: colors.text.primary },
 
   metaRow: {
     marginTop: 6,
@@ -340,13 +342,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   pill: {
-    backgroundColor: "#9BE0B0",
+    backgroundColor: colors.accent,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
   },
-  pillText: { fontSize: 11, fontWeight: "900", color: "#1F4D2B" },
-  metaText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
+  pillText: { fontSize: 11, fontWeight: "900", color: colors.text.onBeige },
+  metaText: { fontSize: 12, fontWeight: "700", color: colors.text.muted },
 
   statusRow: {
     marginTop: 8,
@@ -354,8 +356,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#7ACD8C" },
-  statusText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.success },
+  statusText: { fontSize: 12, fontWeight: "700", color: colors.text.muted },
 
   /* Bottom create button */
   bottomBar: {
@@ -371,11 +373,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
     elevation: 7,
+    backgroundColor: colors.primary,
   },
-  createText: { fontSize: 17, fontWeight: "900", color: "#fff" },
+  createText: { fontSize: 17, fontWeight: "900", color: colors.text.light },
 });

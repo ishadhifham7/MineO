@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Dimensions, SafeAreaView, Text, ActivityIndicator, Pressable, TouchableOpacity, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../src/constants/colors';
 import { JourneyCanvas } from '../../src/components/journey/JourneyCanvas';
 import { JourneyNode } from '../../src/components/journey/JourneyNode';
 import { TimelinePath } from '../../src/components/journey/TimelinePath';
@@ -132,13 +133,13 @@ export default function JourneyScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
-            <Ionicons name="map" size={28} color="#6366F1" style={styles.headerIcon} />
+            <Ionicons name="map" size={28} color={colors.primary} style={styles.headerIcon} />
             <Text style={styles.headerTitle}>Journey Map</Text>
           </View>
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6366F1" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading your journey map...</Text>
         </View>
       </SafeAreaView>
@@ -233,8 +234,8 @@ export default function JourneyScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#6366F1"
-              colors={["#6366F1"]}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
             />
           }
         >
@@ -269,17 +270,17 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EFEFEF', // Match goal tracker background
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingTop: 48,
     paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.card,
     borderBottomWidth: 2,
-    borderBottomColor: '#6366F1',
-    shadowColor: '#6366F1',
+    borderBottomColor: colors.primary,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -296,19 +297,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text.primary,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#6366F1',
+    color: colors.primary,
     marginTop: 6,
     fontStyle: 'italic',
   },
   canvasWrapper: {
     flex: 1,
-    backgroundColor: '#EFEFEF',
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#6B7280',
+    color: colors.text.muted,
     fontWeight: '500',
   },
   emptyContainer: {
@@ -331,13 +332,13 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
-    shadowColor: '#6366F1',
+    borderColor: colors.borderLight,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -349,12 +350,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#111827',
+    color: colors.text.primary,
     marginBottom: 10,
   },
   emptySubtitle: {
     fontSize: 15,
-    color: '#6B7280',
+    color: colors.text.muted,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -362,18 +363,18 @@ const styles = StyleSheet.create({
     marginTop: 28,
     paddingHorizontal: 36,
     paddingVertical: 16,
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.primary,
     borderRadius: 14,
-    shadowColor: '#6366F1',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.35,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
     elevation: 6,
     borderWidth: 1,
-    borderColor: '#5558E3',
+    borderColor: colors.wood.darkest,
   },
   loginButtonText: {
-    color: '#FFFFFF',
+    color: colors.text.light,
     fontSize: 16,
     fontWeight: '700',
   },

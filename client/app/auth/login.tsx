@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { loginUser } from "../../src/services/auth.service";
 import { useAuth } from "../../src/hooks/useAuth";
+import { colors } from "../../src/constants/colors";
 
 import {
   View,
@@ -84,37 +85,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     justifyContent: "center",
   },
   title: {
     fontSize: 32,
     fontWeight: "600",
     marginBottom: 20,
+    color: colors.text.primary,
   },
   subtitle: {
-    color: "#777",
+    color: colors.text.muted,
     marginBottom: 30,
+    fontSize: 14,
   },
   createNew: {
-    color: "#000",
+    color: colors.primary,
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: colors.card,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    color: colors.text.primary,
+    fontSize: 16,
   },
   button: {
-    backgroundColor: "#E6E26A",
+    backgroundColor: colors.primary,
     padding: 18,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: "center",
     marginTop: 30,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonText: {
-    fontWeight: "600",
+    fontWeight: "700",
+    fontSize: 16,
+    color: colors.text.light,
   },
 });
 

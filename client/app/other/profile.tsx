@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { colors } from "../../src/constants/colors";
 
 import { useProfile } from "../../src/providers/ProfileProvider"; // ✅ adjust if your path differs
 
@@ -481,7 +482,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   
-  container: { flex: 1, backgroundColor: "#F5F5F5" },
+  container: { flex: 1, backgroundColor: colors.background },
 
   header: {
     flexDirection: "row",
@@ -490,9 +491,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: colors.borderLight,
   },
 
   backButton: { padding: 4 },
@@ -506,8 +507,8 @@ const styles = StyleSheet.create({
   errorBanner: {
     margin: 16,
     padding: 12,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    backgroundColor: colors.card,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: "#F44336",
   },
@@ -518,11 +519,11 @@ const styles = StyleSheet.create({
   retryBtn: { marginTop: 8 },
 
   retryText: { 
-    color: "#2196F3", 
+    color: colors.primary, 
     fontWeight: "600" },
 
   profileCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     marginBottom: 20,
     paddingVertical: 32,
     paddingHorizontal: 20,
@@ -535,37 +536,37 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: colors.cardAlt,
     alignItems: "center",
     justifyContent: "center",
   },
   profileName: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#000",
+    color: colors.text.primary,
     marginBottom: 4,
   },
   profileUsername: {
     fontSize: 14,
-    color: "#2196F3",
+    color: colors.primary,
     marginBottom: 12,
   },
   profileBio: {
     fontSize: 14,
-    color: "#757575",
+    color: colors.text.secondary,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 20,
     paddingHorizontal: 20,
   },
   editProfileButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
     paddingHorizontal: 80,
     paddingVertical: 12,
-    borderRadius: 25,
+    borderRadius: 16,
   },
   editProfileButtonText: {
-    color: "#fff",
+    color: colors.text.light,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -573,7 +574,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     paddingHorizontal: 20,
     paddingVertical: 16,
     marginBottom: 20,
@@ -587,14 +588,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colors.cardAlt,
     alignItems: "center",
     justifyContent: "center",
   },
   statusText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: colors.text.primary,
   },
   statusRight: {
     flexDirection: "row",
@@ -616,7 +617,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#9E9E9E",
+    color: colors.text.muted,
     paddingHorizontal: 20,
     marginBottom: 8,
     letterSpacing: 0.5,
@@ -625,11 +626,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: colors.borderLight,
   },
   menuLeft: {
     flexDirection: "row",
@@ -639,17 +640,17 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: colors.text.primary,
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     marginHorizontal: 20,
     paddingVertical: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     marginTop: 12,
   },
   logoutText: {
@@ -664,7 +665,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderRadius: 16,
     width: "90%",
     maxHeight: "80%",
@@ -677,12 +678,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: colors.borderLight,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
   },
   modalBody: {
     padding: 20,
@@ -693,13 +694,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 16,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 8,
   },
   statusOptionSelected: {
-    backgroundColor: "#E3F2FD",
+    backgroundColor: colors.warmTan,
     borderWidth: 2,
-    borderColor: "#2196F3",
+    borderColor: colors.primary,
   },
   statusOptionLeft: {
     flexDirection: "row",
@@ -709,7 +710,7 @@ const styles = StyleSheet.create({
   statusOptionText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: colors.text.primary,
   },
   editFormScroll: {
     padding: 20,
@@ -722,9 +723,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
     marginBottom: 20,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: colors.cardAlt,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   tipIcon: {
     width: 48,
@@ -739,25 +740,25 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
     marginBottom: 4,
   },
   tipDescription: {
     fontSize: 14,
-    color: "#757575",
+    color: colors.text.secondary,
     lineHeight: 20,
   },
   gotItButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
     paddingVertical: 14,
-    borderRadius: 25,
+    borderRadius: 16,
     alignItems: "center",
     marginTop: 12,
   },
   gotItButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: colors.text.light,
   },
   faqScroll: {
     padding: 20,
@@ -766,8 +767,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: "#F9F9F9",
-    borderRadius: 8,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 16,
   },
   faqQuestion: {
     flexDirection: "row",
@@ -778,26 +779,26 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: "500",
-    color: "#000",
+    color: colors.text.primary,
   },
   faqAnswer: {
     fontSize: 14,
-    color: "#757575",
+    color: colors.text.secondary,
     lineHeight: 20,
     marginTop: 8,
     paddingRight: 20,
   },
   closeButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
     paddingVertical: 14,
-    borderRadius: 25,
+    borderRadius: 16,
     alignItems: "center",
     marginTop: 12,
   },
   closeButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: colors.text.light,
   },
   contactScroll: {
     padding: 20,
@@ -819,13 +820,13 @@ const styles = StyleSheet.create({
   contactLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#757575",
+    color: colors.text.secondary,
     marginBottom: 2,
   },
   contactValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
   },
   contactDivider: {
     fontSize: 14,
@@ -839,20 +840,20 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
     marginBottom: 8,
   },
   formInput: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: "#000",
+    color: colors.text.primary,
   },
   selectInput: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
     flexDirection: "row",
@@ -861,7 +862,7 @@ const styles = StyleSheet.create({
   },
   selectText: {
     fontSize: 15,
-    color: "#000",
+    color: colors.text.primary,
   },
   formButtons: {
     flexDirection: "row",
@@ -870,33 +871,33 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colors.cardAlt,
     paddingVertical: 14,
-    borderRadius: 25,
+    borderRadius: 16,
     alignItems: "center",
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#757575",
+    color: colors.text.secondary,
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
     paddingVertical: 14,
-    borderRadius: 25,
+    borderRadius: 16,
     alignItems: "center",
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: colors.text.light,
   },
   messageInput: {
     height: 120,
   },
   confirmModalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 24,
     width: "80%",
@@ -905,19 +906,19 @@ const styles = StyleSheet.create({
   confirmTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#000",
+    color: colors.text.primary,
     marginBottom: 12,
   },
   confirmMessage: {
     fontSize: 15,
-    color: "#757575",
+    color: colors.text.secondary,
     marginBottom: 24,
     textAlign: "center",
   },
   confirmLogoutButton: {
     width: "100%",
     paddingVertical: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     alignItems: "center",
     marginBottom: 12,
   },
@@ -929,16 +930,16 @@ const styles = StyleSheet.create({
   confirmCancelButton: {
     width: "100%",
     paddingVertical: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     alignItems: "center",
   },
   confirmCancelText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2196F3",
+    color: colors.primary,
   },
   photoModalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderRadius: 16,
     width: "90%",
     maxHeight: "40%",
@@ -953,33 +954,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
     paddingVertical: 16,
     paddingHorizontal: 80,
-    borderRadius: 8,
+    borderRadius: 16,
     marginBottom: 16,
     width: "100%",
   },
   uploadPhotoText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: colors.text.light,
   },
   uploadHint: {
     fontSize: 12,
-    color: "#9E9E9E",
+    color: colors.text.muted,
     textAlign: "center",
   },
   usernameInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 16,
     paddingLeft: 16,
   },
   usernamePrefix: {
     fontSize: 15,
-    color: "#000",
+    color: colors.text.primary,
     marginRight: 4,
   },
   usernameInput: {
@@ -987,7 +988,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingRight: 16,
     fontSize: 15,
-    color: "#000",
+    color: colors.text.primary,
   },
   bioInput: {
     height: 120,
@@ -995,7 +996,7 @@ const styles = StyleSheet.create({
   },
   charCounter: {
     fontSize: 12,
-    color: "#9E9E9E",
+    color: colors.text.muted,
     textAlign: "right",
     marginTop: 4,
   },

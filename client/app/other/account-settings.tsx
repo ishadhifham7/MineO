@@ -9,6 +9,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { colors } from "../../src/constants/colors";
 
 export default function AccountSettingsScreen() {
   const router = useRouter();
@@ -130,7 +131,7 @@ export default function AccountSettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: "row",
@@ -139,9 +140,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: colors.borderLight,
   },
   backButton: {
     padding: 4,
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
   },
   scrollView: {
     flex: 1,
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#9E9E9E",
+    color: colors.text.muted,
     paddingHorizontal: 20,
     marginBottom: 8,
     letterSpacing: 0.5,
@@ -169,16 +170,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: colors.borderLight,
   },
   menuText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: colors.text.primary,
   },
   menuRight: {
     flexDirection: "row",
@@ -187,17 +188,17 @@ const styles = StyleSheet.create({
   },
   menuValue: {
     fontSize: 15,
-    color: "#757575",
+    color: colors.text.secondary,
   },
   switchItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: colors.borderLight,
   },
   switchLeft: {
     flex: 1,
@@ -206,18 +207,18 @@ const styles = StyleSheet.create({
   switchTitle: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: colors.text.primary,
     marginBottom: 4,
   },
   switchDescription: {
     fontSize: 13,
-    color: "#757575",
+    color: colors.text.secondary,
   },
   dangerMenuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     paddingHorizontal: 20,
     paddingVertical: 16,
   },

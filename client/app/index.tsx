@@ -1,18 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 import { useRouter } from "expo-router";
+import { colors } from "../src/constants/colors";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.background,
     justifyContent: "center",
     alignItems: "center",
   },
   text: {
     fontSize: 40,
     fontWeight: "bold",
-    color: "#222",
+    color: colors.text.primary,
   },
 });
 

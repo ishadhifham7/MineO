@@ -1,7 +1,8 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import { colors } from "../../../src/constants/colors";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -50,20 +51,10 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
-      style={{
-        position: "absolute",
-        bottom: 24,
-        right: 24,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: "#000",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      style={journalStyles.addButton}
     >
       <Animated.View style={animatedStyle}>
-        <MaterialIcons name="add" size={28} color="#fff" />
+        <MaterialIcons name="add" size={28} color={colors.text.light} />
       </Animated.View>
     </Pressable>
   );
@@ -144,7 +135,7 @@ export default function JournalScreen() {
       isBold: false,
       isItalic: false,
       isUnderline: false,
-      textColor: "#111",
+      textColor: colors.text.primary,
       textAlign: "left",
       fontSize: 16,
       lineHeight: 22,
@@ -323,39 +314,16 @@ export default function JournalScreen() {
   const formattedDate = formatJournalDate(date);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
+    <SafeAreaView style={journalStyles.safeArea}>
+      <View style={journalStyles.container}>
         {/* Date Header + Save Button */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingHorizontal: 20,
-            paddingTop: 12,
-            paddingBottom: 4,
-          }}
-        >
+        <View style={journalStyles.header}>
           {/* Date (left) */}
           <View>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "700",
-                color: "#111",
-                letterSpacing: 0.2,
-              }}
-            >
+            <Text style={journalStyles.dateText}>
               {typeof formattedDate === "object" ? formattedDate.day : ""}
             </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: "400",
-                color: "#888",
-                marginTop: 2,
-              }}
-            >
+            <Text style={journalStyles.weekdayText}>
               {typeof formattedDate === "object" ? formattedDate.weekday : ""}
             </Text>
           </View>
@@ -363,44 +331,16 @@ export default function JournalScreen() {
           {/* Save button (right) */}
           <Pressable
             onPress={() => setChapterSliderVisible(true)}
-            style={{
-              paddingHorizontal: 22,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: "#111",
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 4,
-              elevation: 3,
-            }}
+            style={journalStyles.saveButton}
           >
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 15,
-                fontWeight: "600",
-                letterSpacing: 0.5,
-              }}
-            >
+            <Text style={journalStyles.saveButtonText}>
               Save
             </Text>
           </Pressable>
         </View>
 
         {/* Canvas container with margins — Toolbar sits inside here */}
-        <View
-          style={{
-            flex: 1,
-            marginTop: 30,
-            marginBottom: 4,
-            marginHorizontal: 12,
-            borderRadius: 16,
-            overflow: "hidden",
-          }}
-        >
+        <View style={journalStyles.canvasContainer}>
           <Toolbar
             visible={showToolbar}
             onToggleBold={handleToggleBold}
@@ -503,3 +443,75 @@ export default function JournalScreen() {
     </SafeAreaView>
   );
 }
+
+const journalStyles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 4,
+  },
+  dateText: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.text.primary,
+    letterSpacing: 0.2,
+  },
+  weekdayText: {
+    fontSize: 14,
+    fontWeight: "400",
+    color: colors.text.muted,
+    marginTop: 2,
+  },
+  saveButton: {
+    paddingHorizontal: 22,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  saveButtonText: {
+    color: colors.text.light,
+    fontSize: 15,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  canvasContainer: {
+    flex: 1,
+    marginTop: 30,
+    marginBottom: 4,
+    marginHorizontal: 12,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  addButton: {
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+});

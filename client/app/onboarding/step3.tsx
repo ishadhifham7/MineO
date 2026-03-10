@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { colors } from '../../src/constants/colors';
 
 export default function Step3() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function Step3() {
             marginVertical: 40,
           }}
         >
-          <View style={{ height: 2, flex: 1, backgroundColor: "#000" }} />
+          <View style={{ height: 2, flex: 1, backgroundColor: colors.text.primary }} />
           {/* Dots representation */}
           {[1, 2, 3, 4].map((i) => (
             <View
@@ -26,7 +27,7 @@ export default function Step3() {
                 width: 12,
                 height: 12,
                 borderRadius: 6,
-                backgroundColor: i === 4 ? "#000" : "#D1D1C4",
+                backgroundColor: i === 4 ? colors.text.primary : colors.borderLight,
                 marginHorizontal: 15,
               }}
             />
@@ -59,7 +60,7 @@ export default function Step3() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5E6", padding: 30 },
+  container: { flex: 1, backgroundColor: colors.background, padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   logo: {
     fontSize: 42,
@@ -76,42 +77,47 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     textAlign: "center",
-    color: "#444",
+    color: colors.text.muted,
     lineHeight: 24,
   },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D1D1C4" },
-  activeBar: { backgroundColor: "#000" },
+  progressBar: { height: 3, flex: 1, backgroundColor: colors.borderLight, borderRadius: 2 },
+  activeBar: { backgroundColor: colors.primary },
   button: {
-    backgroundColor: "#000",
+    backgroundColor: colors.primary,
     padding: 18,
-    borderRadius: 4,
+    borderRadius: 16,
     alignItems: "center",
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  buttonText: { color: colors.text.light, fontSize: 16, fontWeight: "700" },
 
-  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
+  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start", color: colors.text.primary },
   subHeaderText: {
     fontSize: 16,
-    color: "#666",
+    color: colors.text.secondary,
     alignSelf: "flex-start",
     marginBottom: 30,
   },
   diagramContainer: {
     width: "100%",
     padding: 20,
-    backgroundColor: "#E8E8D9",
-    borderRadius: 8,
+    backgroundColor: colors.cardAlt,
+    borderRadius: 16,
     marginVertical: 30,
     alignItems: "center",
   },
   diagramText: { fontSize: 14, fontWeight: "500" },
-  caption: { fontSize: 12, marginTop: 10, color: "#888" },
+  caption: { fontSize: 12, marginTop: 10, color: colors.text.muted },
   loopArrow: {
     width: 60,
     height: 4,
-    backgroundColor: "#333",
+    backgroundColor: colors.text.primary,
     borderRadius: 2,
     marginTop: 8,
   },

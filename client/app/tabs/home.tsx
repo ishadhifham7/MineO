@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import Svg, { Circle, G } from "react-native-svg";
+import { colors } from "../../src/constants/colors";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
@@ -101,16 +102,16 @@ export default function HomeScreen() {
   const currentMonth = "December 2024";
 
   const dailyWins: DailyWin[] = [
-    { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
-    { id: "2", emoji: "🧘", title: "Morning ex...", bgColor: "#F3E5F5" },
-    { id: "3", emoji: "📚", title: "Read book", bgColor: "#E3F2FD" },
+    { id: "1", emoji: "😊", title: "Gratitude", bgColor: colors.cardAlt },
+    { id: "2", emoji: "🧘", title: "Morning ex...", bgColor: colors.softBeige },
+    { id: "3", emoji: "📚", title: "Read book", bgColor: colors.warmTan },
   ];
 
   const winCategories: WinCategory[] = [
-    { name: "Mental", percentage: 35, color: "#FF8A80" },
-    { name: "Physical", percentage: 25, color: "#82B1FF" },
-    { name: "Spiritual", percentage: 20, color: "#B9F6CA" },
-    { name: "Goal Path", percentage: 20, color: "#FFE0B2" },
+    { name: "Mental", percentage: 35, color: colors.wood.dark },
+    { name: "Physical", percentage: 25, color: colors.wood.medium },
+    { name: "Spiritual", percentage: 20, color: colors.wood.light },
+    { name: "Goal Path", percentage: 20, color: colors.warmTan },
   ];
 
   // December 2024 starts on Sunday → offset = 0
@@ -122,11 +123,11 @@ export default function HomeScreen() {
   const photoDates = [5, 8, 12, 20];
 
   const milestones = [
-    { done: true, color: "#81C784" },
-    { done: true, color: "#64B5F6" },
-    { done: true, color: "#FF8A65" },
-    { done: false, isStar: true, color: "#E0E0E0" },
-    { done: false, isEnd: true, color: "#E0E0E0" },
+    { done: true, color: colors.wood.dark },
+    { done: true, color: colors.wood.medium },
+    { done: true, color: colors.warmTan },
+    { done: false, isStar: true, color: colors.borderLight },
+    { done: false, isEnd: true, color: colors.borderLight },
   ];
 
   //fetch goals whenever Home is opened (keeps up to date)
@@ -145,29 +146,29 @@ export default function HomeScreen() {
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-  if (!total || total <= 0) return "#F3F4F6"; // gray
-  if (completed <= 0) return "#F3F4F6";
+  if (!total || total <= 0) return colors.background; // No progress
+  if (completed <= 0) return colors.background;
 
   // Convert any total into a 1..6 bucket
   const ratio = completed / total;
   const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
 
-  // setting background colors for the goals based on the progress
+  // Wood-themed background colors that get warmer with progress
   switch (bucket) {
     case 1:
-      return "#DCFCE7"; 
+      return colors.background; // Cream
     case 2:
-      return "#DBEAFE"; 
+      return `${colors.cardAlt}CC`; // Soft beige with opacity
     case 3:
-      return "#EDE9FE";
+      return colors.cardAlt; // Soft beige
     case 4:
-      return "#FEF3C7"; 
+      return `${colors.warmTan}80`; // Warm tan light
     case 5:
-      return "#FFE4E6"; 
+      return `${colors.warmTan}B3`; // Warm tan medium
     case 6:
-      return "#D1FAE5";
+      return `${colors.warmTan}E6`; // Warm tan full (near complete)
     default:
-      return "#F3F4F6";
+      return colors.background;
   }
 };
 
@@ -183,19 +184,19 @@ export default function HomeScreen() {
         <View style={styles.hillFront} />
         {/* Trees */}
         <View style={[styles.tree, { left: 40, bottom: 55 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
+          <View style={[styles.treeTop, { backgroundColor: colors.wood.medium }]} />
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { left: 80, bottom: 65 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#66BB6A", width: 28, height: 28, borderRadius: 14 }]} />
+          <View style={[styles.treeTop, { backgroundColor: colors.wood.dark, width: 28, height: 28, borderRadius: 14 }]} />
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 70, bottom: 50 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
+          <View style={[styles.treeTop, { backgroundColor: colors.wood.light }]} />
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#FF8A65", width: 30, height: 30, borderRadius: 15 }]} />
+          <View style={[styles.treeTop, { backgroundColor: colors.warmTan, width: 30, height: 30, borderRadius: 15 }]} />
           <View style={styles.treeTrunk} />
         </View>
         {/* Profile Icon - Top Right */}
@@ -204,7 +205,7 @@ export default function HomeScreen() {
           onPress={() => router.push("/other/profile")}
         >
           <View style={styles.profileIconContainer}>
-            <Ionicons name="person" size={24} color="#333" />
+            <Ionicons name="person" size={24} color={colors.text.secondary} />
           </View>
         </TouchableOpacity>
         {/* Header Text */}
@@ -217,11 +218,11 @@ export default function HomeScreen() {
       {/* ===== Search Bar ===== */}
       <View style={styles.searchWrapper}>
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color="#bbb" />
+          <Ionicons name="search-outline" size={20} color={colors.text.muted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search your moments..."
-            placeholderTextColor="#bbb"
+            placeholderTextColor={colors.text.muted}
           />
         </View>
       </View>
@@ -232,11 +233,11 @@ export default function HomeScreen() {
           {/* Month nav */}
           <View style={styles.calendarNav}>
             <TouchableOpacity>
-              <Ionicons name="chevron-back" size={22} color="#555" />
+              <Ionicons name="chevron-back" size={22} color={colors.text.secondary} />
             </TouchableOpacity>
             <Text style={styles.monthText}>{currentMonth}</Text>
             <TouchableOpacity>
-              <Ionicons name="chevron-forward" size={22} color="#555" />
+              <Ionicons name="chevron-forward" size={22} color={colors.text.secondary} />
             </TouchableOpacity>
           </View>
 
@@ -295,10 +296,10 @@ export default function HomeScreen() {
           {/* Photo placeholder */}
           <View style={styles.momentImageWrap}>
             <View style={styles.momentImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#ccc" />
+              <Ionicons name="image-outline" size={40} color={colors.borderLight} />
             </View>
             <View style={styles.momentCaptionWrap}>
-              <Ionicons name="camera-outline" size={12} color="#fff" />
+              <Ionicons name="camera-outline" size={12} color={colors.text.light} />
               <Text style={styles.momentCaption}>Morning light</Text>
             </View>
           </View>
@@ -420,7 +421,7 @@ export default function HomeScreen() {
                       </Text>
                     </View>
 
-                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                    <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
                   </TouchableOpacity>
                 );
               })}
@@ -438,20 +439,20 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#f7f7f7",
+    backgroundColor: colors.background,
   },
 
   /* ---- Header ---- */
   headerBg: {
     width: "100%",
     height: 220,
-    backgroundColor: "#dce9f5",
+    backgroundColor: colors.cardAlt,
     overflow: "hidden",
     position: "relative",
   },
   skyLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#e8eef6",
+    backgroundColor: colors.softBeige,
   },
   cloudLayer: {
     position: "absolute",
@@ -459,9 +460,9 @@ const styles = StyleSheet.create({
     right: 0,
     width: 180,
     height: 100,
-    backgroundColor: "#f3d4d0",
+    backgroundColor: colors.warmTan,
     borderBottomLeftRadius: 100,
-    opacity: 0.5,
+    opacity: 0.4,
   },
   hillBack: {
     position: "absolute",
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
     left: -30,
     width: SCREEN_W + 60,
     height: 100,
-    backgroundColor: "#c5ddb8",
+    backgroundColor: colors.wood.lightest,
     borderTopLeftRadius: 200,
     borderTopRightRadius: 200,
   },
@@ -479,7 +480,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: SCREEN_W,
     height: 60,
-    backgroundColor: "#d4c9a8",
+    backgroundColor: colors.warmTan,
     borderTopLeftRadius: 300,
     borderTopRightRadius: 100,
   },
@@ -495,7 +496,7 @@ const styles = StyleSheet.create({
   treeTrunk: {
     width: 4,
     height: 14,
-    backgroundColor: "#8D6E63",
+    backgroundColor: colors.primary,
     borderRadius: 2,
   },
   headerTextWrap: {
@@ -507,12 +508,12 @@ const styles = StyleSheet.create({
   headerHello: {
     fontSize: 32,
     fontWeight: "300",
-    color: "#333",
+    color: colors.text.primary,
   },
   headerSub: {
     fontSize: 20,
     fontWeight: "300",
-    color: "#666",
+    color: colors.text.secondary,
     marginTop: 2,
   },
 
@@ -525,21 +526,23 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    backgroundColor: colors.card,
+    borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: "#333",
+    color: colors.text.primary,
   },
 
   /* ---- Shared ---- */
@@ -548,24 +551,26 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 4,
-    elevation: 1,
+    elevation: 2,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#222",
+    color: colors.text.primary,
   },
   cardSubtitle: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: colors.text.muted,
     letterSpacing: 1,
     marginTop: 2,
     marginBottom: 12,
@@ -573,7 +578,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#222",
+    color: colors.text.primary,
   },
 
   /* ---- Calendar ---- */
@@ -586,7 +591,7 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#333",
+    color: colors.text.primary,
   },
   dayHeaderRow: {
     flexDirection: "row",
@@ -597,7 +602,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: colors.text.muted,
     letterSpacing: 0.5,
   },
   calGrid: {
@@ -618,18 +623,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   calDaySelected: {
-    backgroundColor: "#64B5F6",
+    backgroundColor: colors.primary,
   },
   calDayPhoto: {
-    backgroundColor: "#e8e8e8",
+    backgroundColor: colors.cardAlt,
   },
   calDayText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#444",
+    color: colors.text.primary,
   },
   calDayTextSelected: {
-    color: "#fff",
+    color: colors.text.light,
     fontWeight: "700",
   },
 
@@ -654,7 +659,7 @@ const styles = StyleSheet.create({
   momentImagePlaceholder: {
     width: "100%",
     height: 130,
-    backgroundColor: "#f0ece4",
+    backgroundColor: colors.cardAlt,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -666,14 +671,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    backgroundColor: colors.overlay,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   momentCaption: {
     fontSize: 11,
-    color: "#fff",
+    color: colors.text.light,
     fontWeight: "600",
   },
   momentFooter: {
@@ -688,13 +693,13 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#ddd",
+    backgroundColor: colors.borderLight,
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: colors.card,
   },
   moreText: {
     fontSize: 11,
-    color: "#999",
+    color: colors.text.muted,
   },
 
   /* ---- Daily Wins ---- */
@@ -713,7 +718,7 @@ const styles = StyleSheet.create({
   winChipText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#444",
+    color: colors.text.primary,
   },
   doneRow: {
     flexDirection: "row",
@@ -725,24 +730,24 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#66BB6A",
+    backgroundColor: colors.accent,
   },
   doneText: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#666",
+    color: colors.text.secondary,
   },
   doneBarBg: {
     flex: 1,
     height: 6,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: colors.borderLight,
     borderRadius: 3,
     overflow: "hidden",
   },
   doneBarFill: {
     width: "80%" as any,
     height: "100%",
-    backgroundColor: "#66BB6A",
+    backgroundColor: colors.accent,
     borderRadius: 3,
   },
 
@@ -755,7 +760,8 @@ const styles = StyleSheet.create({
   },
   monthlyLabel: {
     fontSize: 14,
-    color: "#aaa",
+    color: colors.text.muted,
+    fontWeight: "500",
   },
   trackerBody: {
     flexDirection: "row",
@@ -768,12 +774,12 @@ const styles = StyleSheet.create({
   donutCenterLabel: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#333",
+    color: colors.text.primary,
   },
   donutCenterSub: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: colors.text.muted,
     letterSpacing: 1,
   },
   legendList: {
@@ -795,12 +801,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     fontWeight: "500",
-    color: "#555",
+    color: colors.text.secondary,
   },
   legendPct: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#555",
+    color: colors.text.primary,
   },
 
   /* ---- Goal Path ---- */
@@ -813,34 +819,34 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#000000",
+    color: colors.text.primary,
   },
   goalEmptyText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.text.muted,
     marginTop: 6,
   },
   goalRow: {
     borderWidth: 1,
-    borderColor: "#EEF2F7",
-    borderRadius: 14,
+    borderColor: colors.borderLight,
+    borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    
+    backgroundColor: colors.card,
   },
   goalRowTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text.primary,
   },
   goalRowSub: {
     marginTop: 4,
     fontSize: 12,
     fontWeight: "600",
-    color: "#6B7280",
+    color: colors.text.muted,
   },
 
   /* ---- Profile Icon ---- */
@@ -854,12 +860,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    borderWidth: 2,
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 3,
   },

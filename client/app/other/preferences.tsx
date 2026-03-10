@@ -8,6 +8,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { colors } from "../../src/constants/colors";
 
 type Theme = "Light" | "Dark" | "Auto";
 type Language = "English" | "Spanish" | "French" | "German";
@@ -72,7 +73,7 @@ export default function PreferencesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: "row",
@@ -81,9 +82,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: colors.borderLight,
   },
   backButton: {
     padding: 4,
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
   },
   scrollView: {
     flex: 1,
@@ -103,21 +104,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#9E9E9E",
+    color: colors.text.muted,
     paddingHorizontal: 20,
     marginBottom: 12,
     letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     marginHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: colors.text.primary,
     marginBottom: 16,
   },
   radioOption: {
@@ -128,14 +129,14 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: 16,
-    color: "#000",
+    color: colors.text.primary,
   },
   radioCircle: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#000",
+    borderColor: colors.text.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -143,12 +144,12 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
   },
   selectCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     marginHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
   },
   selectButton: {
@@ -158,6 +159,6 @@ const styles = StyleSheet.create({
   },
   selectText: {
     fontSize: 16,
-    color: "#000",
+    color: colors.text.primary,
   },
 });
