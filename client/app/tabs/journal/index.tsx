@@ -127,9 +127,7 @@ export default function JournalScreen() {
     const id = Date.now().toString();
     const maxZ =
       blocks.length > 0
-        ? Math.max(
-            ...blocks.filter(isTextBlock).map((b: JournalBlock) => b.zIndex),
-          )
+        ? Math.max(...blocks.map((b: JournalBlock) => b.zIndex))
         : 0;
     const newBlock: TextBlockType = {
       id,

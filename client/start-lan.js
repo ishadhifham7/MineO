@@ -1,5 +1,6 @@
 const { spawn } = require("child_process");
 const os = require("os");
+const path = require("path");
 
 const useLan = !process.argv.includes("--no-lan");
 
@@ -98,6 +99,11 @@ async function main() {
     );
     expoArgs.push("--offline");
   }
+
+  // Prepend local node_modules/.bin to PATH so the bundled Expo CLI
+  // (not a globally installed expo-cli) is always used.
+  const localBin = path.join(__dirname, "node_modules", ".bin");
+  process.env.PATH = `${localBin}${path.delimiter}${process.env.PATH || ""}`;
 
   const expo = spawn("npx", expoArgs, {
     env: process.env,
