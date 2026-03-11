@@ -182,7 +182,7 @@ function ActionCard({
   return (
     <Pressable onPress={onPress} style={styles.card}>
       <View style={[styles.cardIconWrap, { backgroundColor: gradientColors[0] }]}>
-        <Ionicons name={icon} size={22} color="#fff" />
+        <Ionicons name={icon} size={22} color={colors.text.light} />
       </View>
 
       <View style={styles.cardTextWrap}>
@@ -327,11 +327,12 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 27,
     borderWidth: 3,
-    borderColor: colors.borderLight,
+    borderColor: colors.wood.medium,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: colors.cardAlt,
   },
-  ringText: { fontSize: 12, fontWeight: "900", color: colors.text.primary },
+  ringText: { fontSize: 12, fontWeight: "900", color: colors.wood.dark },
 
   goalTitle: { fontSize: 16, fontWeight: "900", color: colors.text.primary },
 
