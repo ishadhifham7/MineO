@@ -90,6 +90,22 @@ export default function JournalPreviewBottomSheet({
     }).start(() => onClose());
   }, [slideAnim, onClose]);
 
+  // Animate out, then open the viewer — fires onSelectEntry AFTER the sheet
+  // is fully closed so there is never more than one Modal open at a time.
+  const handleSelectEntry = useCallback(
+    (selectedEntry: JournalEntryWithBlocks) => {
+      Animated.timing(slideAnim, {
+        toValue: SHEET_HEIGHT,
+        duration: 220,
+        useNativeDriver: true,
+      }).start(() => {
+        onClose();
+        onSelectEntry(selectedEntry);
+      });
+    },
+    [slideAnim, onClose, onSelectEntry],
+  );
+
   return (
     <Modal
       visible={visible}
@@ -149,10 +165,7 @@ export default function JournalPreviewBottomSheet({
                 key={entry.id}
                 style={styles.card}
                 activeOpacity={0.75}
-                onPress={() => {
-                  handleClose();
-                  onSelectEntry(entry);
-                }}
+                onPress={() => handleSelectEntry(entry)}
               >
                 <View style={styles.cardIconWrap}>
                   <Ionicons name="book-outline" size={20} color="#7C6F5B" />
