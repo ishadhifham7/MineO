@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { SafeAreaView, StyleSheet, Text, View, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../../constants/colors";
 
 type Goal = {
   id: string;
@@ -130,14 +131,14 @@ function StatCard({
 }
 
 const toneStyles = StyleSheet.create({
-  blue: { borderColor: "#BFE8F3" },
-  purple: { borderColor: "#D7D0F4" },
-  green: { borderColor: "#CFE9D7" },
-  orange: { borderColor: "#F1E2C9" },
+  blue: { borderColor: colors.wood.medium },
+  purple: { borderColor: colors.wood.light },
+  green: { borderColor: colors.warmTan },
+  orange: { borderColor: colors.accent },
 });
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
+  safe: { flex: 1, backgroundColor: colors.background },
 
   header: {
     flexDirection: "row",
@@ -150,19 +151,21 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   headerText: { marginLeft: 14, paddingTop: 2 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: colors.text.primary },
+  hSub: { marginTop: 6, fontSize: 14, color: colors.text.secondary },
 
   content: {
     flex: 1,
@@ -179,12 +182,12 @@ const styles = StyleSheet.create({
 
   statCard: {
     width: "48%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 14,
     padding: 14,
-    borderWidth: 1,
+    borderWidth: 2,
 
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.10,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
@@ -194,14 +197,14 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 26,
     fontWeight: "900",
-    color: "#111",
+    color: colors.text.primary,
   },
 
   statLabel: {
     marginTop: 6,
     fontSize: 12,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: colors.text.secondary,
   },
 
   sectionTitle: {
@@ -209,19 +212,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     fontWeight: "900",
-    color: "#111",
+    color: colors.text.primary,
   },
 
   /* Category card */
   categoryCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 14,
     padding: 14,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   categoryRow: {
@@ -233,52 +238,54 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#111",
+    color: colors.text.primary,
   },
 
   categoryCount: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: colors.text.secondary,
   },
 
   categorySub: {
     marginTop: 10,
     fontSize: 12,
     fontWeight: "700",
-    color: "#9A9A9A",
+    color: colors.text.muted,
     alignSelf: "flex-end",
   },
 
   /* Journey card */
   journeyCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 14,
     padding: 14,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   journeyTitle: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#111",
+    color: colors.text.primary,
   },
 
   progressTrack: {
     marginTop: 12,
     height: 8,
     borderRadius: 8,
-    backgroundColor: "#E6E6E6",
+    backgroundColor: colors.softBeige,
     overflow: "hidden",
   },
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#63D1E6",
+    backgroundColor: colors.wood.medium,
     borderRadius: 8,
   },
 
@@ -291,32 +298,32 @@ const styles = StyleSheet.create({
   journeyMeta: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: colors.text.secondary,
   },
 
   /* Motivation */
   motivationCard: {
     marginTop: 14,
-    backgroundColor: "#EAF7FB",
+    backgroundColor: colors.cardAlt,
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 14,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#BFE8F3",
+    borderWidth: 2,
+    borderColor: colors.wood.medium,
   },
 
   motivationIcon: { fontSize: 22, marginBottom: 6 },
   motivationTitle: {
     fontSize: 15,
     fontWeight: "900",
-    color: "#111",
+    color: colors.wood.dark,
   },
   motivationSub: {
     marginTop: 6,
     fontSize: 12,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: colors.text.secondary,
     textAlign: "center",
   },
 });
