@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../../constants/colors";
 
 type Mood = "good" | "okay" | "nope";
 
@@ -200,7 +201,7 @@ function MoodCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
+  safe: { flex: 1, backgroundColor: colors.background },
 
   header: {
     flexDirection: "row",
@@ -213,20 +214,22 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   headerText: { marginLeft: 14, paddingTop: 2 },
 
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: colors.text.primary },
+  hSub: { marginTop: 6, fontSize: 14, color: colors.text.secondary },
 
   content: {
     paddingHorizontal: 18,
@@ -235,15 +238,15 @@ const styles = StyleSheet.create({
 
   sectionLabel: {
     fontSize: 13,
-    color: "#6B6B6B",
+    color: colors.text.secondary,
     fontWeight: "800",
     marginBottom: 10,
   },
 
-  optional: { fontWeight: "700", color: "#8A8A8A" },
+  optional: { fontWeight: "700", color: colors.text.muted },
 
   goalItem: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -251,79 +254,89 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   goalItemActive: {
-    borderWidth: 1,
-    borderColor: "#BFE8F3",
-    backgroundColor: "#EAF7FB",
+    borderWidth: 2,
+    borderColor: colors.wood.medium,
+    backgroundColor: colors.cardAlt,
   },
 
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
-  goalSub: { marginTop: 4, fontSize: 12, color: "#6B6B6B", fontWeight: "600" },
+  goalTitle: { fontSize: 16, fontWeight: "900", color: colors.text.primary },
+  goalSub: { marginTop: 4, fontSize: 12, color: colors.text.secondary, fontWeight: "600" },
 
   moodRow: { flexDirection: "row", gap: 12 },
 
   moodCard: {
     flex: 1,
     height: 84,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.10,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 4,
     paddingTop: 6,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
-  moodCardActive: { backgroundColor: "#8DD7A1" },
+  moodCardActive: { 
+    backgroundColor: colors.wood.medium,
+    borderColor: colors.wood.dark,
+    borderWidth: 2,
+  },
 
   moodEmoji: { fontSize: 28, marginBottom: 8 },
-  moodLabel: { fontSize: 12, fontWeight: "900", color: "#333" },
+  moodLabel: { fontSize: 12, fontWeight: "900", color: colors.text.primary },
 
   noteWrap: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   noteInput: {
     minHeight: 54,
     fontSize: 13,
-    color: "#111",
+    color: colors.text.primary,
     fontWeight: "600",
     lineHeight: 18,
   },
 
   messagePill: {
     marginTop: 16,
-    backgroundColor: "#EAF7EE",
+    backgroundColor: colors.cardAlt,
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: "#CFE9D7",
+    borderWidth: 2,
+    borderColor: colors.wood.medium,
   },
 
   messageText: {
     textAlign: "center",
     fontSize: 13,
     fontWeight: "800",
-    color: "#2F6B3C",
+    color: colors.wood.dark,
   },
 
   bottomBar: {
@@ -336,17 +349,17 @@ const styles = StyleSheet.create({
   cta: {
     height: 58,
     borderRadius: 18,
-    backgroundColor: "#63D1E6",
+    backgroundColor: colors.wood.dark,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 9 },
     elevation: 7,
   },
 
-  ctaText: { fontSize: 16, fontWeight: "900", color: "#FFFFFF" },
+  ctaText: { fontSize: 16, fontWeight: "900", color: colors.text.light },
 });
