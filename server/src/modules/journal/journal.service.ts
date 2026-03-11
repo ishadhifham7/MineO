@@ -136,4 +136,66 @@ export class JournalService {
       blocks: blocksSnap.docs.map((d: any) => d.data()),
     };
   }
+
+  // 🔹 get ALL journal entries for a date (with blocks) - SECURE: filtered by userId
+  static async getJournalsByDate(date: string, userId: string) {
+    const snap = await JournalRepository.entries()
+      .where('userId', '==', userId)
+      .where('date', '==', date)
+      .get();
+
+    if (snap.empty) return [];
+
+    const entries = await Promise.all(
+      snap.docs.map(async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+        const entry = doc.data() as JournalEntry;
+        const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
+        return {
+          ...entry,
+          blocks: blocksSnap.docs.map((b: any) => b.data()),
+        };
+      })
+    );
+
+    return entries;
+  }
+
+  // 🔹 get ALL journal entries with blocks - SECURE: filtered by userId
+  static async getAllJournals(userId: string) {
+    const snap = await JournalRepository.entries().where('userId', '==', userId).get();
+
+    if (snap.empty) return [];
+
+    const entries = await Promise.all(
+      snap.docs.map(async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+        const entry = doc.data() as JournalEntry;
+        const blocksSnap = await JournalRepository.canvasBlocks(entry.id).get();
+        return {
+          ...entry,
+          blocks: blocksSnap.docs.map((b: any) => b.data()),
+        };
+      })
+    );
+
+    // Sort in-memory — avoids requiring a composite Firestore index
+    return entries.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+  }
+
+  // 🔹 get all dates that have journal entries - SECURE: filtered by userId
+  static async getJournalDates(userId: string): Promise<string[]> {
+    const snap = await JournalRepository.entries()
+      .where('userId', '==', userId)
+      .select('date')
+      .get();
+
+    const uniqueDates = new Set<string>();
+    snap.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+      const data = doc.data();
+      if (data.date) {
+        uniqueDates.add(data.date);
+      }
+    });
+
+    return Array.from(uniqueDates);
+  }
 }

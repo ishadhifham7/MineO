@@ -136,4 +136,41 @@ export class JournalController {
       throw error;
     }
   }
+
+  // 🔹 GET all journal entries with blocks - SECURE
+  static async getAllJournals(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user?.uid;
+    if (!userId) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    const entries = await JournalService.getAllJournals(userId);
+    reply.send(entries);
+  }
+
+  // 🔹 GET all dates with journal entries - SECURE
+  static async getJournalDates(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user?.uid;
+    if (!userId) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    const dates = await JournalService.getJournalDates(userId);
+    reply.send({ dates });
+  }
+
+  // 🔹 GET all journal entries for a date (with blocks) - SECURE
+  static async getJournalsByDate(
+    request: FastifyRequest<{ Querystring: { date: string } }>,
+    reply: FastifyReply
+  ) {
+    const userId = request.user?.uid;
+    if (!userId) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    const { date } = request.query;
+    const entries = await JournalService.getJournalsByDate(date, userId);
+    reply.send(entries);
+  }
 }

@@ -9,13 +9,19 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
 import Svg, { Circle, G } from "react-native-svg";
 import { colors } from "../../src/constants/colors";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useAuth } from "../../src/hooks/useAuth";
+import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
+import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
+import JournalViewerModal from "../../src/components/home/calender/JournalViewerModal";
+import JournalSearchResults from "../../src/components/home/calender/JournalSearchResults";
+import { getAllJournals } from "../../src/features/journal/journal.api";
+import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -52,7 +58,14 @@ function DonutChart({
   let cumulativePercent = 0;
 
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Svg width={size} height={size}>
         {/* Background circle */}
         <Circle
@@ -98,8 +111,12 @@ function DonutChart({
 // ---------- Main Screen ----------
 export default function HomeScreen() {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState(15);
-  const currentMonth = "December 2024";
+  const { user } = useAuth();
+  const [sheetDate, setSheetDate] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] =
+    useState<JournalEntryWithBlocks | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allJournals, setAllJournals] = useState<JournalEntryWithBlocks[]>([]);
 
   const dailyWins: DailyWin[] = [
     { id: "1", emoji: "😊", title: "Gratitude", bgColor: colors.cardAlt },
@@ -114,14 +131,6 @@ export default function HomeScreen() {
     { name: "Goal Path", percentage: 20, color: colors.warmTan },
   ];
 
-  // December 2024 starts on Sunday → offset = 0
-  const firstDayOffset = 0;
-  const totalDays = 31;
-  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
-
-  // Dates that have photo-circle markers
-  const photoDates = [5, 8, 12, 20];
-
   const milestones = [
     { done: true, color: colors.wood.dark },
     { done: true, color: colors.wood.medium },
@@ -135,24 +144,39 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchGoals();
-    }, [fetchGoals])
+      // Fetch all journal entries once per focus so search works in-memory.
+      // This does NOT affect the calendar, which fetches its own dates separately.
+      if (user) {
+        getAllJournals()
+          .then(setAllJournals)
+          .catch(() => {}); // silent failure — search just shows nothing
+      }
+    }, [fetchGoals, user]),
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
 
   const allGoalsCompleted = useMemo(() => {
-  if (!goals || goals.length === 0) return false;
-  return goals.every((g) => g.stages?.length > 0 && g.stages.every((s) => s.completed));
+    if (!goals || goals.length === 0) return false;
+    return goals.every(
+      (g) => g.stages?.length > 0 && g.stages.every((s) => s.completed),
+    );
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
+<<<<<<< HEAD
   if (!total || total <= 0) return colors.background; // No progress
   if (completed <= 0) return colors.background;
+=======
+    if (!total || total <= 0) return "#F3F4F6"; // gray
+    if (completed <= 0) return "#F3F4F6";
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
 
-  // Convert any total into a 1..6 bucket
-  const ratio = completed / total;
-  const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
+    // Convert any total into a 1..6 bucket
+    const ratio = completed / total;
+    const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
 
+<<<<<<< HEAD
   // Wood-themed background colors that get warmer with progress
   switch (bucket) {
     case 1:
@@ -171,9 +195,33 @@ export default function HomeScreen() {
       return colors.background;
   }
 };
+=======
+    // setting background colors for the goals based on the progress
+    switch (bucket) {
+      case 1:
+        return "#DCFCE7";
+      case 2:
+        return "#DBEAFE";
+      case 3:
+        return "#EDE9FE";
+      case 4:
+        return "#FEF3C7";
+      case 5:
+        return "#FFE4E6";
+      case 6:
+        return "#D1FAE5";
+      default:
+        return "#F3F4F6";
+    }
+  };
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
 
   return (
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.scrollView}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
       {/* ===== Scenic Header ===== */}
       <View style={styles.headerBg}>
         {/* Sky */}
@@ -188,7 +236,21 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { left: 80, bottom: 65 }]}>
+<<<<<<< HEAD
           <View style={[styles.treeTop, { backgroundColor: colors.wood.dark, width: 28, height: 28, borderRadius: 14 }]} />
+=======
+          <View
+            style={[
+              styles.treeTop,
+              {
+                backgroundColor: "#66BB6A",
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+              },
+            ]}
+          />
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 70, bottom: 50 }]}>
@@ -196,7 +258,21 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 40, bottom: 40 }]}>
+<<<<<<< HEAD
           <View style={[styles.treeTop, { backgroundColor: colors.warmTan, width: 30, height: 30, borderRadius: 15 }]} />
+=======
+          <View
+            style={[
+              styles.treeTop,
+              {
+                backgroundColor: "#FF8A65",
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+              },
+            ]}
+          />
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
           <View style={styles.treeTrunk} />
         </View>
         {/* Profile Icon - Top Right */}
@@ -222,11 +298,49 @@ export default function HomeScreen() {
           <TextInput
             style={styles.searchInput}
             placeholder="Search your moments..."
+<<<<<<< HEAD
             placeholderTextColor={colors.text.muted}
+=======
+            placeholderTextColor="#bbb"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="close-circle" size={18} color="#bbb" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
+      {/* ===== Journal Search Results ===== */}
+      {/* Appears between the search bar and calendar; pushes calendar down */}
+      <JournalSearchResults
+        query={searchQuery}
+        journals={allJournals}
+        onSelect={(entry) => {
+          setSearchQuery("");
+          setSelectedEntry(entry);
+        }}
+      />
+
+      {/* ===== Journal Calendar ===== */}
+      {user && (
+        <View style={styles.sectionPadding}>
+          <JournalCalendar
+            userId={user.userId}
+            onMarkedDatePress={(date) => setSheetDate(date)}
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
+          />
+        </View>
+      )}
+
+<<<<<<< HEAD
       {/* ===== Calendar ===== */}
       <View style={styles.sectionPadding}>
         <View style={styles.card}>
@@ -240,52 +354,27 @@ export default function HomeScreen() {
               <Ionicons name="chevron-forward" size={22} color={colors.text.secondary} />
             </TouchableOpacity>
           </View>
+=======
+      {/* ===== Journal Preview Bottom Sheet ===== */}
+      {user && sheetDate && (
+        <JournalPreviewBottomSheet
+          visible={sheetDate !== null}
+          date={sheetDate}
+          onClose={() => setSheetDate(null)}
+          onSelectEntry={(entry: JournalEntryWithBlocks) => {
+            setSelectedEntry(entry);
+            // Bottom sheet animates out and calls setSheetDate(null) via onClose
+          }}
+        />
+      )}
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
 
-          {/* Day headers */}
-          <View style={styles.dayHeaderRow}>
-            {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-              <Text key={d} style={styles.dayHeader}>{d}</Text>
-            ))}
-          </View>
-
-          {/* Calendar grid */}
-          <View style={styles.calGrid}>
-            {/* Offset empty cells */}
-            {Array.from({ length: firstDayOffset }).map((_, i) => (
-              <View key={`e${i}`} style={styles.calCell} />
-            ))}
-            {daysInMonth.map((day) => {
-              const isSelected = selectedDate === day;
-              const hasPhoto = photoDates.includes(day);
-              return (
-                <TouchableOpacity
-                  key={day}
-                  style={styles.calCell}
-                  onPress={() => setSelectedDate(day)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      styles.calDayCircle,
-                      isSelected && styles.calDaySelected,
-                      hasPhoto && !isSelected && styles.calDayPhoto,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.calDayText,
-                        isSelected && styles.calDayTextSelected,
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      </View>
+      {/* ===== Journal Viewer Modal ===== */}
+      <JournalViewerModal
+        visible={selectedEntry !== null}
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+      />
 
       {/* ===== Life Moments & Daily Wins ===== */}
       <View style={styles.twoCardRow}>
@@ -356,7 +445,9 @@ export default function HomeScreen() {
             <View style={styles.legendList}>
               {winCategories.map((cat) => (
                 <View key={cat.name} style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: cat.color }]} />
+                  <View
+                    style={[styles.legendDot, { backgroundColor: cat.color }]}
+                  />
                   <Text style={styles.legendName}>{cat.name}</Text>
                   <Text style={styles.legendPct}>{cat.percentage}%</Text>
                 </View>
@@ -383,7 +474,9 @@ export default function HomeScreen() {
 
           {/* all completed */}
           {goals && goals.length > 0 && allGoalsCompleted && (
-            <Text style={styles.goalEmptyText}>All Goals completed - create a new Goal</Text>
+            <Text style={styles.goalEmptyText}>
+              All Goals completed - create a new Goal
+            </Text>
           )}
 
           {/* list (max 5) */}
@@ -391,7 +484,8 @@ export default function HomeScreen() {
             <View style={{ gap: 10 }}>
               {displayGoals.map((g) => {
                 const total = g.stages?.length ?? 0;
-                const completed = g.stages?.filter((s) => s.completed).length ?? 0;
+                const completed =
+                  g.stages?.filter((s) => s.completed).length ?? 0;
                 const remaining = Math.max(0, total - completed);
 
                 const isCompleted = total > 0 && completed === total;
@@ -421,7 +515,15 @@ export default function HomeScreen() {
                       </Text>
                     </View>
 
+<<<<<<< HEAD
                     <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
+=======
+                    <Ionicons
+                      name="chevron-forward"
+                      size={18}
+                      color="#9CA3AF"
+                    />
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
                   </TouchableOpacity>
                 );
               })}
@@ -835,7 +937,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+<<<<<<< HEAD
     backgroundColor: colors.card,
+=======
+>>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
   },
   goalRowTitle: {
     fontSize: 15,
