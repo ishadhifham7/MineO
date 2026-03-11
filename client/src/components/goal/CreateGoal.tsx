@@ -9,6 +9,7 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
+import { colors } from "../../constants/colors";
 
 type Message = {
   id: string;
@@ -92,31 +93,36 @@ export default GoalChatScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
 
   header: {
     paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    backgroundColor: colors.wood.dark,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.wood.medium,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   backText: {
-    color: "#63D1E6",
+    color: colors.warmTan,
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "600",
   },
 
   headerTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
+    fontWeight: "700",
+    color: colors.text.light,
   },
 
   messageRow: {
@@ -137,53 +143,73 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 18,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   userBubble: {
-    backgroundColor: "#63D1E6",
+    backgroundColor: colors.wood.dark,
     borderBottomRightRadius: 6,
   },
 
   aiBubble: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.card,
     borderBottomLeftRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   messageText: {
     fontSize: 15,
     lineHeight: 20,
-    color: "#111827",
+    color: colors.text.primary,
   },
 
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     padding: 14,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    backgroundColor: colors.card,
+    borderTopWidth: 2,
+    borderTopColor: colors.borderLight,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 4,
   },
 
   input: {
     flex: 1,
-    backgroundColor: "#F1F5F9",
+    backgroundColor: colors.softBeige,
     borderRadius: 24,
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     paddingVertical: 12,
     fontSize: 15,
     marginRight: 10,
-    color: "#111827",
+    color: colors.text.primary,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   sendButton: {
-    backgroundColor: "#63D1E6",
-    paddingHorizontal: 18,
+    backgroundColor: colors.wood.dark,
+    paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   sendText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
+    color: colors.text.light,
+    fontWeight: "700",
+    fontSize: 15,
   },
 });
