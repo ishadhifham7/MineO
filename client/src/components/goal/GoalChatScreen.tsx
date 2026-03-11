@@ -39,6 +39,8 @@ const sendMessageToAI = async (
   message: string,
 ): Promise<ChatResponse> => {
   try {
+    console.log('📡 Sending message to AI:', message.substring(0, 50) + '...');
+    
     const response = await httpClient.post("/ai/chat", {
       conversation: conversation.map((msg) => ({
         role: msg.sender === "user" ? "user" : "assistant",
@@ -47,13 +49,37 @@ const sendMessageToAI = async (
       message,
     });
 
+    console.log('✅ AI response received');
     return {
       message: response.data.message,
       draftGoal: response.data.draftGoal ?? null,
     };
-  } catch (error) {
-    console.error("AI chat error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("❌ AI chat error:", error.message || error);
+    
+    // Better error messages based on error type
+    if (error.response) {
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      console.error('Server error:', status, data);
+      
+      if (status === 503) {
+        throw new Error('AI service is not configured. Please set up GROQ_API_KEY on the server.');
+      } else if (status === 401) {
+        throw new Error('Please login to use the AI assistant.');
+      } else if (status === 400) {
+        throw new Error(data.message || 'Invalid request to AI service.');
+      } else {
+        throw new Error(data.message || `Server error: ${status}`);
+      }
+    } else if (error.request) {
+      console.error('No response from server');
+      throw new Error('Cannot connect to server. Please check if the backend is running.');
+    } else {
+      console.error('Request setup error:', error.message);
+      throw new Error(error.message || 'Failed to send message to AI.');
+    }
   }
 };
 
@@ -154,10 +180,18 @@ const GoalChatScreen = () => {
         setCurrentDraft(newDraft);
         setDraftGoal(newDraft);
       } else {
-        console.log("❌ No draftGoal to set");
+        console.log("ℹ️ No draftGoal in this response (conversational message)");
       }
-    } catch (error) {
-      Alert.alert("Error", "Failed to get AI response. Try again.");
+    } catch (error: any) {
+      console.error('❌ Error in handleSend:', error.message || error);
+      
+      const errorMessage = error.message || "Failed to get AI response. Try again.";
+      
+      Alert.alert(
+        "AI Error", 
+        errorMessage,
+        [{ text: "OK" }]
+      );
     } finally {
       setLoading(false);
     }
