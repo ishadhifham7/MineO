@@ -164,57 +164,31 @@ export default function HomeScreen() {
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-<<<<<<< HEAD
-  if (!total || total <= 0) return colors.background; // No progress
-  if (completed <= 0) return colors.background;
-=======
-    if (!total || total <= 0) return "#F3F4F6"; // gray
-    if (completed <= 0) return "#F3F4F6";
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
+    if (!total || total <= 0) return colors.background; // No progress
+    if (completed <= 0) return colors.background;
 
     // Convert any total into a 1..6 bucket
     const ratio = completed / total;
     const bucket = Math.min(6, Math.max(1, Math.ceil(ratio * 6))); // 1..6
 
-<<<<<<< HEAD
-  // Wood-themed background colors that get warmer with progress
-  switch (bucket) {
-    case 1:
-      return colors.background; // Cream
-    case 2:
-      return `${colors.cardAlt}CC`; // Soft beige with opacity
-    case 3:
-      return colors.cardAlt; // Soft beige
-    case 4:
-      return `${colors.warmTan}80`; // Warm tan light
-    case 5:
-      return `${colors.warmTan}B3`; // Warm tan medium
-    case 6:
-      return `${colors.warmTan}E6`; // Warm tan full (near complete)
-    default:
-      return colors.background;
-  }
-};
-=======
-    // setting background colors for the goals based on the progress
+    // Wood-themed background colors that get warmer with progress
     switch (bucket) {
       case 1:
-        return "#DCFCE7";
+        return colors.background; // Cream
       case 2:
-        return "#DBEAFE";
+        return `${colors.cardAlt}CC`; // Soft beige with opacity
       case 3:
-        return "#EDE9FE";
+        return colors.cardAlt; // Soft beige
       case 4:
-        return "#FEF3C7";
+        return `${colors.warmTan}80`; // Warm tan light
       case 5:
-        return "#FFE4E6";
+        return `${colors.warmTan}B3`; // Warm tan medium
       case 6:
-        return "#D1FAE5";
+        return `${colors.warmTan}E6`; // Warm tan full (near complete)
       default:
-        return "#F3F4F6";
+        return colors.background;
     }
   };
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
 
   return (
     <ScrollView
@@ -236,21 +210,7 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { left: 80, bottom: 65 }]}>
-<<<<<<< HEAD
           <View style={[styles.treeTop, { backgroundColor: colors.wood.dark, width: 28, height: 28, borderRadius: 14 }]} />
-=======
-          <View
-            style={[
-              styles.treeTop,
-              {
-                backgroundColor: "#66BB6A",
-                width: 28,
-                height: 28,
-                borderRadius: 14,
-              },
-            ]}
-          />
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 70, bottom: 50 }]}>
@@ -258,21 +218,7 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-<<<<<<< HEAD
           <View style={[styles.treeTop, { backgroundColor: colors.warmTan, width: 30, height: 30, borderRadius: 15 }]} />
-=======
-          <View
-            style={[
-              styles.treeTop,
-              {
-                backgroundColor: "#FF8A65",
-                width: 30,
-                height: 30,
-                borderRadius: 15,
-              },
-            ]}
-          />
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
           <View style={styles.treeTrunk} />
         </View>
         {/* Profile Icon - Top Right */}
@@ -298,10 +244,7 @@ export default function HomeScreen() {
           <TextInput
             style={styles.searchInput}
             placeholder="Search your moments..."
-<<<<<<< HEAD
             placeholderTextColor={colors.text.muted}
-=======
-            placeholderTextColor="#bbb"
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
@@ -312,7 +255,7 @@ export default function HomeScreen() {
               onPress={() => setSearchQuery("")}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="close-circle" size={18} color="#bbb" />
+              <Ionicons name="close-circle" size={18} color={colors.text.muted} />
             </TouchableOpacity>
           )}
         </View>
@@ -335,26 +278,10 @@ export default function HomeScreen() {
           <JournalCalendar
             userId={user.userId}
             onMarkedDatePress={(date) => setSheetDate(date)}
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
           />
         </View>
       )}
 
-<<<<<<< HEAD
-      {/* ===== Calendar ===== */}
-      <View style={styles.sectionPadding}>
-        <View style={styles.card}>
-          {/* Month nav */}
-          <View style={styles.calendarNav}>
-            <TouchableOpacity>
-              <Ionicons name="chevron-back" size={22} color={colors.text.secondary} />
-            </TouchableOpacity>
-            <Text style={styles.monthText}>{currentMonth}</Text>
-            <TouchableOpacity>
-              <Ionicons name="chevron-forward" size={22} color={colors.text.secondary} />
-            </TouchableOpacity>
-          </View>
-=======
       {/* ===== Journal Preview Bottom Sheet ===== */}
       {user && sheetDate && (
         <JournalPreviewBottomSheet
@@ -367,7 +294,6 @@ export default function HomeScreen() {
           }}
         />
       )}
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
 
       {/* ===== Journal Viewer Modal ===== */}
       <JournalViewerModal
@@ -515,15 +441,7 @@ export default function HomeScreen() {
                       </Text>
                     </View>
 
-<<<<<<< HEAD
                     <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
-=======
-                    <Ionicons
-                      name="chevron-forward"
-                      size={18}
-                      color="#9CA3AF"
-                    />
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
                   </TouchableOpacity>
                 );
               })}
@@ -937,10 +855,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-<<<<<<< HEAD
     backgroundColor: colors.card,
-=======
->>>>>>> c750613a8795ec03cf2d58d3bb00406930a13d06
   },
   goalRowTitle: {
     fontSize: 15,
