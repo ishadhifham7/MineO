@@ -6,9 +6,27 @@ import { AuthProvider } from "../src/providers/AuthProvider";
 import { JourneyProvider } from "../src/providers/JourneyProvider";
 import { GoalProvider } from "../src/features/goal/goal.context";
 import { ProfileProvider } from "../src/providers/ProfileProvider";
-
+import { useFonts } from "expo-font";
+import {
+  DancingScript_400Regular,
+  DancingScript_700Bold,
+} from "@expo-google-fonts/dancing-script";
+import { View, ActivityIndicator } from "react-native";
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    DancingScript_400Regular,
+    DancingScript_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
