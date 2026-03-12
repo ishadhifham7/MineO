@@ -151,14 +151,14 @@ export default function HomeScreen() {
 
   // ---- Compute Life Moments from journal entries ----
   const lifeMoments = useMemo(() => {
-    // Get pinned entries or entries with images, sorted most recent first
+    // Get pinned entries or entries with images, sorted by most recently updated
     const withImages = allJournals
       .map((j) => {
         const img = j.blocks.find((b): b is ImageBlock => b.type === "image");
         return { journal: j, image: img ?? null };
       })
       .filter((m) => m.journal.isPinnedToTimeline || m.image)
-      .sort((a, b) => b.journal.createdAt - a.journal.createdAt);
+      .sort((a, b) => b.journal.updatedAt - a.journal.updatedAt);
     return withImages;
   }, [allJournals]);
 
@@ -395,7 +395,13 @@ export default function HomeScreen() {
       {/* ===== Life Moments & Daily Wins ===== */}
       <View style={styles.twoCardRow}>
         {/* Life Moments */}
-        <View style={[styles.card, styles.halfCard]}>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[styles.card, styles.halfCard]}
+          onPress={() => {
+            if (latestMoment) setSelectedEntry(latestMoment.journal);
+          }}
+        >
           <Text style={styles.cardTitle}>Life Moments</Text>
           <Text style={styles.cardSubtitle}>RECENTLY</Text>
           {latestMoment ? (
@@ -421,8 +427,10 @@ export default function HomeScreen() {
               </View>
               <View style={styles.momentFooter}>
                 {lifeMoments.slice(1, 4).map((m, i) => (
-                  <View
+                  <TouchableOpacity
                     key={m.journal.id}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedEntry(m.journal)}
                     style={[
                       styles.thumbCircle,
                       i > 0 && { marginLeft: -8 },
@@ -435,7 +443,7 @@ export default function HomeScreen() {
                         style={{ width: 22, height: 22, borderRadius: 11 }}
                       />
                     )}
-                  </View>
+                  </TouchableOpacity>
                 ))}
                 {momentCount > 1 && (
                   <Text style={styles.moreText}>+{momentCount - 1} more</Text>
@@ -450,7 +458,7 @@ export default function HomeScreen() {
               <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No moments yet</Text>
             </View>
           )}
-        </View>
+        </TouchableOpacity>
 
         {/* Daily Wins */}
         <View style={[styles.card, styles.halfCard]}>
