@@ -25,8 +25,8 @@ import type { JournalEntryWithBlocks } from '../../features/journal/journal.type
 // ---- constants -------------------------------------------------------------
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = SCREEN_WIDTH * 0.85;
-const CARD_HEIGHT = 520;
+const CARD_WIDTH = SCREEN_WIDTH * 0.90;
+const CARD_HEIGHT = 600;
 const VIEWER_PADDING = 28;
 const CANVAS_EXTRA = 400;
 const MIN_SCALE = 0.3;
@@ -80,12 +80,11 @@ interface JournalModalProps {
   journal: JournalEntryWithBlocks | null;
   loading?: boolean;
   onClose: () => void;
-  onShowInCanvas?: () => void;
 }
 
 // ---- component -------------------------------------------------------------
 
-export const JournalModal = ({ isVisible, journal, loading, onClose, onShowInCanvas }: JournalModalProps) => {
+export const JournalModal = ({ isVisible, journal, loading, onClose }: JournalModalProps) => {
   const horizontalScrollRef = useRef<ScrollView>(null);
   const verticalScrollRef = useRef<ScrollView>(null);
 
@@ -273,14 +272,6 @@ export const JournalModal = ({ isVisible, journal, loading, onClose, onShowInCan
                   </ScrollView>
                 </ScrollView>
                 </View>
-
-                {/* Show in Canvas button — bottom-right corner */}
-                {onShowInCanvas && (
-                  <Pressable style={styles.showInCanvasBtn} onPress={onShowInCanvas}>
-                    <Ionicons name="expand-outline" size={13} color="#6366F1" />
-                    <Text style={styles.showInCanvasTxt}>Show in Canvas</Text>
-                  </Pressable>
-                )}
               </View>
             </>
           )}
@@ -298,7 +289,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    width: '85%',
+    width: '90%',
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: 0,
@@ -349,29 +340,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
     backgroundColor: '#FAF8F5',
-  },
-  showInCanvasBtn: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E0E7FF',
-    shadowColor: '#6366F1',
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  showInCanvasTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6366F1',
   },
   loadingContainer: {
     flex: 1,

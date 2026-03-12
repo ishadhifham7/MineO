@@ -106,17 +106,6 @@ export default function JourneyScreen() {
     setSelectedJournal(null);
   };
 
-  const handleShowInCanvas = () => {
-    if (!selectedJournal) return;
-    const date = selectedJournal.date;
-    setModalVisible(false);
-    setSelectedJournal(null);
-    router.push({
-      pathname: '/tabs/journal',
-      params: { date },
-    });
-  };
-
   // Sort journals by date (oldest first) so path starts at bottom and climbs up
   const sortedJournals = [...journals].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
@@ -277,7 +266,6 @@ export default function JourneyScreen() {
         journal={selectedJournal}
         loading={loadingJournal}
         onClose={handleCloseModal}
-        onShowInCanvas={handleShowInCanvas}
       />
     </SafeAreaView>
   );
