@@ -9,6 +9,7 @@ import { JournalModal } from '../../src/components/journey/JournalModal';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { useJourney } from '../../src/providers/JourneyProvider';
 import { JournalApi } from '../../src/services/journal.service';
+import type { JournalEntryWithBlocks } from '../../src/features/journal/journal.types';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -53,7 +54,7 @@ const generatePositions = (count: number) => {
 export default function JourneyScreen() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { journals, isLoading, error, refreshJourneys } = useJourney();
-  const [selectedJournal, setSelectedJournal] = useState<any>(null);
+  const [selectedJournal, setSelectedJournal] = useState<JournalEntryWithBlocks | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingJournal, setLoadingJournal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -105,6 +106,17 @@ export default function JourneyScreen() {
     setSelectedJournal(null);
   };
 
+  const handleShowInCanvas = () => {
+    if (!selectedJournal) return;
+    const date = selectedJournal.date;
+    setModalVisible(false);
+    setSelectedJournal(null);
+    router.push({
+      pathname: '/tabs/journal',
+      params: { date },
+    });
+  };
+
   // Sort journals by date (oldest first) so path starts at bottom and climbs up
   const sortedJournals = [...journals].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
@@ -115,6 +127,8 @@ export default function JourneyScreen() {
   const positions = generatePositions(sortedJournals.length);
   const stages = sortedJournals.map((journal, index) => ({
     id: journal.id,
+    title: journal.title,
+    date: journal.date,
     centerX: positions[index].centerX,
     centerY: positions[index].centerY,
     status: getNodeStatus(index, sortedJournals.length),
@@ -248,6 +262,8 @@ export default function JourneyScreen() {
               stage={index + 1}
               status={stage.status}
               theme={stage.theme}
+              title={stage.title}
+              date={stage.date}
               position={{ x: stage.centerX, y: stage.centerY }}
               onPress={() => handleNodePress(stage.id)}
             />
@@ -261,6 +277,7 @@ export default function JourneyScreen() {
         journal={selectedJournal}
         loading={loadingJournal}
         onClose={handleCloseModal}
+        onShowInCanvas={handleShowInCanvas}
       />
     </SafeAreaView>
   );
