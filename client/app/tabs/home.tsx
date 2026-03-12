@@ -480,11 +480,15 @@ export default function HomeScreen() {
       </View>
 
       {/* ===== Win Tracker ===== */}
-      <View style={styles.sectionPadding}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => router.push("/other-tabs/win-tracker")}
+        style={styles.sectionPadding}
+      >
         <View style={styles.card}>
           <View style={styles.trackerHeader}>
             <Text style={styles.sectionTitle}>Win Tracker</Text>
-            <Text style={styles.monthlyLabel}>Monthly</Text>
+            <Ionicons name="chevron-forward" size={18} color="#aaa" />
           </View>
           <View style={styles.trackerBody}>
             <DonutChart
@@ -508,7 +512,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
 
       {/* ===== Goal Path ===== */}
       <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
