@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -107,11 +108,14 @@ export default function JournalScreen() {
 
   const { refreshJourneys } = useJourney();
 
-  // Initialize today's journal on mount
+  // If navigated with a ?date= param (e.g. from Journey Map), load that entry;
+  // otherwise fall back to today.
+  const { date: routeDate } = useLocalSearchParams<{ date?: string }>();
+
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    loadJournal(today);
-  }, []);
+    const target = routeDate ?? new Date().toISOString().split("T")[0];
+    loadJournal(target);
+  }, [routeDate]);
 
   // Handle save with metadata from ChapterSlider
   const handleSaveWithMetadata = async (metadata: {
