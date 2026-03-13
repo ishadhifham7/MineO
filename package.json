@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@expo-google-fonts/dancing-script": "^0.4.2",
     "@react-native-picker/picker": "^2.11.4",
     "expo-video": "^55.0.10",
     "firebase": "^12.9.0"
