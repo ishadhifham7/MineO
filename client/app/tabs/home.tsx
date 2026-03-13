@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   Dimensions,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,12 +16,15 @@ import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "../../src/hooks/useAuth";
+import { getCalendar } from "../../src/services/habit.service";
+import type { CalendarData } from "../../src/features/habit/habit.types";
 import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
 import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
 import JournalViewerModal from "../../src/components/home/calender/JournalViewerModal";
 import JournalSearchResults from "../../src/components/home/calender/JournalSearchResults";
 import { getAllJournals } from "../../src/features/journal/journal.api";
 import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
+import type { ImageBlock } from "../../types/journal";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -116,19 +120,7 @@ export default function HomeScreen() {
     useState<JournalEntryWithBlocks | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [allJournals, setAllJournals] = useState<JournalEntryWithBlocks[]>([]);
-
-  const dailyWins: DailyWin[] = [
-    { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
-    { id: "2", emoji: "🧘", title: "Morning ex...", bgColor: "#F3E5F5" },
-    { id: "3", emoji: "📚", title: "Read book", bgColor: "#E3F2FD" },
-  ];
-
-  const winCategories: WinCategory[] = [
-    { name: "Mental", percentage: 35, color: "#FF8A80" },
-    { name: "Physical", percentage: 25, color: "#82B1FF" },
-    { name: "Spiritual", percentage: 20, color: "#B9F6CA" },
-    { name: "Goal Path", percentage: 20, color: "#FFE0B2" },
-  ];
+  const [habitCalendar, setHabitCalendar] = useState<CalendarData>({});
 
   const milestones = [
     { done: true, color: "#81C784" },
@@ -143,17 +135,96 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchGoals();
-      // Fetch all journal entries once per focus so search works in-memory.
-      // This does NOT affect the calendar, which fetches its own dates separately.
+      // Fetch habit calendar + journal entries on focus
       if (user) {
+        getCalendar()
+          .then(setHabitCalendar)
+          .catch(() => {});
         getAllJournals()
           .then(setAllJournals)
-          .catch(() => {}); // silent failure — search just shows nothing
+          .catch(() => {});
       }
     }, [fetchGoals, user]),
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
+
+  // ---- Compute Life Moments from journal entries ----
+  const lifeMoments = useMemo(() => {
+    // Get pinned entries or entries with images, sorted by most recently updated
+    const withImages = allJournals
+      .map((j) => {
+        const img = j.blocks.find((b): b is ImageBlock => b.type === "image");
+        return { journal: j, image: img ?? null };
+      })
+      .filter((m) => m.journal.isPinnedToTimeline || m.image)
+      .sort((a, b) => b.journal.updatedAt - a.journal.updatedAt);
+    return withImages;
+  }, [allJournals]);
+
+  const latestMoment = lifeMoments[0] ?? null;
+  const momentCount = lifeMoments.length;
+
+  // ---- Compute Daily Wins from today's habit scores ----
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+
+  const dailyWins = useMemo<DailyWin[]>(() => {
+    const today = habitCalendar[todayStr];
+    if (!today) return [];
+    const mapping: { key: keyof typeof today; emoji: string; title: string; bgColor: string }[] = [
+      { key: "spiritual", emoji: "🧘", title: "Spiritual", bgColor: "#E8F5E9" },
+      { key: "mental", emoji: "🧠", title: "Mental", bgColor: "#F3E5F5" },
+      { key: "physical", emoji: "💪", title: "Physical", bgColor: "#E3F2FD" },
+    ];
+    return mapping
+      .filter((m) => (today[m.key] ?? 0) >= 0.5)
+      .map((m, i) => ({ id: String(i), emoji: m.emoji, title: `${m.title}${today[m.key] === 1 ? " ✓" : " ~"}`, bgColor: m.bgColor }));
+  }, [habitCalendar, todayStr]);
+
+  const dailyWinPct = useMemo(() => {
+    const today = habitCalendar[todayStr];
+    if (!today) return 0;
+    const filled = ["spiritual", "mental", "physical"].filter((k) => (today[k as keyof typeof today] ?? 0) > 0).length;
+    return Math.round((filled / 3) * 100);
+  }, [habitCalendar, todayStr]);
+
+  // ---- Compute Win Tracker categories from monthly habit data + goals ----
+  const winCategories = useMemo<WinCategory[]>(() => {
+    const now = new Date();
+    const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const monthDays = Object.entries(habitCalendar).filter(([d]) => d.startsWith(prefix));
+    const dayCount = Math.max(monthDays.length, 1);
+
+    const catScore = (cat: "spiritual" | "mental" | "physical") => {
+      const total = monthDays.reduce((s, [, scores]) => s + (scores?.[cat] ?? 0), 0);
+      return Math.round((total / dayCount) * 100);
+    };
+
+    const mentalPct = catScore("mental");
+    const physicalPct = catScore("physical");
+    const spiritualPct = catScore("spiritual");
+
+    // Goal path: percentage of completed stages across all goals
+    const allStages = (goals ?? []).flatMap((g) => g.stages ?? []);
+    const goalPct = allStages.length > 0
+      ? Math.round((allStages.filter((s) => s.completed).length / allStages.length) * 100)
+      : 0;
+
+    return [
+      { name: "Mental", percentage: mentalPct, color: "#FF8A80" },
+      { name: "Physical", percentage: physicalPct, color: "#82B1FF" },
+      { name: "Spiritual", percentage: spiritualPct, color: "#B9F6CA" },
+      { name: "Goal Path", percentage: goalPct, color: "#FFE0B2" },
+    ];
+  }, [habitCalendar, goals]);
+
+  const totalWinPct = useMemo(() => {
+    const sum = winCategories.reduce((s, c) => s + c.percentage, 0);
+    return Math.round(sum / Math.max(winCategories.length, 1));
+  }, [winCategories]);
 
   const allGoalsCompleted = useMemo(() => {
     if (!goals || goals.length === 0) return false;
@@ -324,33 +395,78 @@ export default function HomeScreen() {
       {/* ===== Life Moments & Daily Wins ===== */}
       <View style={styles.twoCardRow}>
         {/* Life Moments */}
-        <View style={[styles.card, styles.halfCard]}>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[styles.card, styles.halfCard]}
+          onPress={() => {
+            if (latestMoment) setSelectedEntry(latestMoment.journal);
+          }}
+        >
           <Text style={styles.cardTitle}>Life Moments</Text>
           <Text style={styles.cardSubtitle}>RECENTLY</Text>
-          {/* Photo placeholder */}
-          <View style={styles.momentImageWrap}>
-            <View style={styles.momentImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#ccc" />
+          {latestMoment ? (
+            <>
+              <View style={styles.momentImageWrap}>
+                {latestMoment.image ? (
+                  <Image
+                    source={{ uri: latestMoment.image.imageUri }}
+                    style={styles.momentImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.momentImagePlaceholder}>
+                    <Ionicons name="document-text-outline" size={40} color="#ccc" />
+                  </View>
+                )}
+                <View style={styles.momentCaptionWrap}>
+                  <Ionicons name={latestMoment.image ? "camera-outline" : "bookmark-outline"} size={12} color="#fff" />
+                  <Text style={styles.momentCaption} numberOfLines={1}>
+                    {latestMoment.journal.title || latestMoment.journal.date}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.momentFooter}>
+                {lifeMoments.slice(1, 4).map((m, i) => (
+                  <TouchableOpacity
+                    key={m.journal.id}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedEntry(m.journal)}
+                    style={[
+                      styles.thumbCircle,
+                      i > 0 && { marginLeft: -8 },
+                      m.image ? undefined : { backgroundColor: "#D1C4E9" },
+                    ]}
+                  >
+                    {m.image && (
+                      <Image
+                        source={{ uri: m.image.imageUri }}
+                        style={{ width: 22, height: 22, borderRadius: 11 }}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+                {momentCount > 1 && (
+                  <Text style={styles.moreText}>+{momentCount - 1} more</Text>
+                )}
+              </View>
+            </>
+          ) : (
+            <View style={styles.momentImageWrap}>
+              <View style={styles.momentImagePlaceholder}>
+                <Ionicons name="image-outline" size={40} color="#ccc" />
+              </View>
+              <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No moments yet</Text>
             </View>
-            <View style={styles.momentCaptionWrap}>
-              <Ionicons name="camera-outline" size={12} color="#fff" />
-              <Text style={styles.momentCaption}>Morning light</Text>
-            </View>
-          </View>
-          <View style={styles.momentFooter}>
-            <View style={styles.momentThumbs}>
-              <View style={styles.thumbCircle} />
-              <View style={[styles.thumbCircle, { marginLeft: -8 }]} />
-              <View style={[styles.thumbCircle, { marginLeft: -8 }]} />
-            </View>
-            <Text style={styles.moreText}>+12 more</Text>
-          </View>
-        </View>
+          )}
+        </TouchableOpacity>
 
         {/* Daily Wins */}
         <View style={[styles.card, styles.halfCard]}>
           <Text style={styles.cardTitle}>Daily Wins</Text>
           <Text style={styles.cardSubtitle}>TODAY</Text>
+          {dailyWins.length === 0 && (
+            <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No wins yet today</Text>
+          )}
           {dailyWins.map((win) => (
             <View
               key={win.id}
@@ -363,20 +479,24 @@ export default function HomeScreen() {
           {/* Progress bar */}
           <View style={styles.doneRow}>
             <View style={styles.doneDot} />
-            <Text style={styles.doneText}>80% DONE</Text>
+            <Text style={styles.doneText}>{dailyWinPct}% DONE</Text>
             <View style={styles.doneBarBg}>
-              <View style={styles.doneBarFill} />
+              <View style={[styles.doneBarFill, { width: `${dailyWinPct}%` as any }]} />
             </View>
           </View>
         </View>
       </View>
 
       {/* ===== Win Tracker ===== */}
-      <View style={styles.sectionPadding}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => router.push("/other-tabs/win-tracker")}
+        style={styles.sectionPadding}
+      >
         <View style={styles.card}>
           <View style={styles.trackerHeader}>
             <Text style={styles.sectionTitle}>Win Tracker</Text>
-            <Text style={styles.monthlyLabel}>Monthly</Text>
+            <Ionicons name="chevron-forward" size={18} color="#aaa" />
           </View>
           <View style={styles.trackerBody}>
             <DonutChart
@@ -384,7 +504,7 @@ export default function HomeScreen() {
                 percentage: c.percentage,
                 color: c.color,
               }))}
-              centerLabel="82%"
+              centerLabel={`${totalWinPct}%`}
               centerSub="TOTAL"
             />
             <View style={styles.legendList}>
@@ -400,7 +520,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
 
       {/* ===== Goal Path ===== */}
       <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
@@ -703,6 +823,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  momentImage: {
+    width: "100%",
+    height: 130,
+    borderRadius: 12,
+  },
   momentCaptionWrap: {
     position: "absolute",
     bottom: 8,
@@ -784,7 +909,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   doneBarFill: {
-    width: "80%" as any,
     height: "100%",
     backgroundColor: "#66BB6A",
     borderRadius: 3,
