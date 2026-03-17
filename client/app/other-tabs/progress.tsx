@@ -7,7 +7,7 @@ type Goal = {
   id: string;
   title: string;
   category: string; // e.g. Physical, Study
-  stagesTotal: Text;
+  stagesTotal: number;
   stagesDone: number;
 };
 
