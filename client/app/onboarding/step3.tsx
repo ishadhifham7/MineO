@@ -10,11 +10,7 @@ export default function Step3() {
         <Text style={styles.headerText}>Memory as Foundation</Text>
         <Text style={styles.subHeaderText}>Your journey shapes you</Text>
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginVertical: 40,
+        <Vertical: 40,
           }}
         >
           <View style={{ height: 2, flex: 1, backgroundColor: "#000" }} />
