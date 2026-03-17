@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 40,
     fontWeight: "bold",
-    color: "#222",
+    color: "#8f0000",
   },
 });
 
@@ -20,12 +20,7 @@ export default function SplashScreen() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
+  
     const timer = setTimeout(() => {
       router.replace("/auth/login");
     }, 3000);
