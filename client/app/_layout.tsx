@@ -11,12 +11,18 @@ import {
   DancingScript_400Regular,
   DancingScript_700Bold,
 } from "@expo-google-fonts/dancing-script";
+import {
+  Roboto_400Regular,
+  Roboto_500Medium,
+} from "@expo-google-fonts/roboto";
 import { View, ActivityIndicator } from "react-native";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     DancingScript_400Regular,
     DancingScript_700Bold,
+    Roboto_400Regular,
+    Roboto_500Medium,
   });
 
   if (!fontsLoaded) {
