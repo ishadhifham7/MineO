@@ -12,7 +12,9 @@ export default function TabsLayout() {
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontFamily: "Roboto_500Medium",
-          fontSize: 12,
+          fontSize: 11,
+          letterSpacing: 0.2,
+          marginTop: 2,
         },
         tabBarStyle: {
           position: "absolute",
@@ -22,7 +24,7 @@ export default function TabsLayout() {
           height: 58 + Math.max(insets.bottom, 6),
           borderTopWidth: 0,
           borderRadius: 18,
-          backgroundColor: "#101523",
+          backgroundColor: "#111827",
           paddingTop: 8,
           paddingBottom: Math.max(insets.bottom, 8),
           shadowColor: "#000000",
@@ -33,9 +35,10 @@ export default function TabsLayout() {
         },
         tabBarItemStyle: {
           borderRadius: 12,
+          marginHorizontal: 2,
         },
-        tabBarActiveTintColor: "#ffffff",
-        tabBarInactiveTintColor: "#8A94A8",
+        tabBarActiveTintColor: "#F8FAFF",
+        tabBarInactiveTintColor: "#93A0B5",
       }}
     >
       <Tabs.Screen
