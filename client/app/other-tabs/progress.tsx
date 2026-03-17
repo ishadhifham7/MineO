@@ -43,13 +43,10 @@ export default function ProgressScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backFab}>
-          <Ionicons name="arrow-back" size={20} color="#111" />
+          <Ionicons name="arrow-back" size={20} color="#ffffff" />
         </Pressable>
 
-        <View style={styles.headerText}>
-          <Text style={styles.hTitle}>Your Progress</Text>
-          <Text style={styles.hSub}>Celebrating your journey</Text>
-        </View>
+        <View style={
       </View>
 
       <View style={styles.content}>
