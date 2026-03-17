@@ -249,13 +249,15 @@ const styles = StyleSheet.create({
     color: "#6B6B6B",
   },
 
+  
   categorySub: {
-    marginTop: j0,
-    fontSize: 22,
+    marginTop: 10,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#ec0000",
+    color: "#9A9A9A",
     alignSelf: "flex-end",
   },
+
 
   /* Journey card */
   journeyCard: {
