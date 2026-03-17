@@ -209,7 +209,7 @@ export default function ProfileScreen() {
                 resizeMode="cover"
               />
             ) : (
-              <Ionicons name="person" size={48} color="#9E9E9E" />
+              <Ionicons name="person" size={48} color="#ff0000" />
             )}
           </TouchableOpacity>
 
