@@ -32,7 +32,7 @@ export default function GoalsHome() {
           {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.headerIcon}>
-              <Ionicons name="sparkles-outline" size={18} color="#49B7D0" />
+              <Ionicons name="sparkles-outline" size={18} color="#9c9c9c" />
             </View>
             <View style={styles.headerText}>
               <Text style={styles.hTitle}>Your Goals</Text>
