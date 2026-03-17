@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#E6E26A",
+    backgroundColor: "#A7C4E8",
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
@@ -119,3 +119,4 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
