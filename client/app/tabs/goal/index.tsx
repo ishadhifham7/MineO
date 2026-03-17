@@ -16,7 +16,7 @@ import { useGoal } from "../../../src/features/goal/goal.context";
 import { useAuth } from "../../../src/hooks/useAuth";
 
 export default function GoalsHome() {
-  const { goals, fetchGoals, loading } = useGoal();
+  const { goals, fetchGoals } = useGoal();
 
   useEffect(() => {
     fetchGoals();
@@ -38,24 +38,6 @@ export default function GoalsHome() {
               <Text style={styles.hTitle}>Your Goals</Text>
               <Text style={styles.hSub}>Small steps create big change</Text>
             </View>
-          </View>
-
-          {/* Action cards */}
-          <View style={styles.cardsRow}>
-            <ActionCard
-              small="Daily"
-              big="Check-in"
-              icon="heart-outline"
-              gradientColors={["#63D1E6", "#44BBD4"]}
-              onPress={() => router.push("/other-tabs/daily-check-in")}
-            />
-            <ActionCard
-              small="Your"
-              big="Progress"
-              icon="trending-up-outline"
-              gradientColors={["#B39DDB", "#F7B7A3"]}
-              onPress={() => router.push("/other-tabs/progress")}
-            />
           </View>
 
           {/* Goals list */}
@@ -92,42 +74,6 @@ export default function GoalsHome() {
         </View>
       </View>
     </SafeAreaView>
-  );
-}
-
-/* ========================= */
-/*       ACTION CARD         */
-/* ========================= */
-
-function ActionCard({
-  small,
-  big,
-  icon,
-  gradientColors,
-  onPress,
-}: {
-  small: string;
-  big: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  gradientColors: [string, string];
-  onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} style={styles.card}>
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.cardIconWrap}
-      >
-        <Ionicons name={icon} size={22} color="#fff" />
-      </LinearGradient>
-
-      <View style={styles.cardTextWrap}>
-        <Text style={styles.cardSmall}>{small}</Text>
-        <Text style={styles.cardBig}>{big}</Text>
-      </View>
-    </Pressable>
   );
 }
 
@@ -234,38 +180,6 @@ const styles = StyleSheet.create({
   headerText: { marginLeft: 12 },
   hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
   hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
-
-  /* Action cards */
-  cardsRow: {
-    marginTop: 22,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 14,
-  },
-  card: {
-    flex: 1,
-    height: 78,
-    borderRadius: 16,
-    backgroundColor: "#FFFFFF",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 7 },
-    elevation: 5,
-  },
-  cardIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cardTextWrap: { marginLeft: 12 },
-  cardSmall: { fontSize: 13, color: "#6B6B6B", fontWeight: "600" },
-  cardBig: { marginTop: 2, fontSize: 18, color: "#111", fontWeight: "800" },
 
   /* Goals list */
   listWrap: { marginTop: 14 },

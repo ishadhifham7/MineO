@@ -109,7 +109,9 @@ const GoalRoadmapScreen: React.FC = () => {
           <Text style={styles.backText}>Back</Text>
         </Pressable>
         <Text style={styles.headerTitle}>Goal Roadmap</Text>
-        <View style={{ width: 40 }} />
+        <Pressable onPress={handleBackToGoals} style={styles.headerSaveButton}>
+          <Text style={styles.headerSaveText}>Save</Text>
+        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -146,10 +148,6 @@ const GoalRoadmapScreen: React.FC = () => {
             </View>
           ))}
         </View>
-
-        <Pressable style={styles.doneButton} onPress={handleBackToGoals}>
-          <Text style={styles.doneText}>Save and View All Goals</Text>
-        </Pressable>
       </ScrollView>
     </View>
   );
@@ -186,6 +184,21 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#0F172A",
     letterSpacing: 0.3,
+  },
+
+  headerSaveButton: {
+    backgroundColor: "#44BBD4",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    minWidth: 62,
+    alignItems: "center",
+  },
+
+  headerSaveText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
   },
 
   noDraftText: {
@@ -298,19 +311,5 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontSize: 16,
     fontWeight: "600",
-  },
-
-  doneButton: {
-    backgroundColor: "#44BBD4",
-    paddingVertical: 16,
-    borderRadius: 20,
-    alignItems: "center",
-    marginTop: 28,
-  },
-
-  doneText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
   },
 });
