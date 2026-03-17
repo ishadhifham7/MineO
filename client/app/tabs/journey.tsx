@@ -184,7 +184,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#4E6FA3"
+              color="#ffffff"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
