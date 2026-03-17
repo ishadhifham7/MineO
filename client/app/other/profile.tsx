@@ -209,7 +209,7 @@ export default function ProfileScreen() {
                 resizeMode="cover"
               />
             ) : (
-              <Ionicons name="person" size={48} color="#ff0000" />
+              <Ionicons name="person" size={48} color="#9E9E9E" />
             )}
           </TouchableOpacity>
 
@@ -228,7 +228,7 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.statusRow} onPress={() => setShowActivityModal(true)}>
           <View style={styles.statusLeft}>
             <View style={styles.statusIconContainer}>
-              <Ionicons name="radio-button-on" size={24} color="#ffffff" />
+              <Ionicons name="radio-button-on" size={24} color="#000" />
             </View>
             <Text style={styles.statusText}>Activity Status</Text>
           </View>
@@ -349,7 +349,7 @@ export default function ProfileScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit Information</Text>
               <TouchableOpacity onPress={() => setShowEditInfoModal(false)}>
-                <Ionicons name="close" size={24} color="#3b3b3b" />
+                <Ionicons name="close" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
@@ -482,10 +482,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#bf5f00",
+    backgroundColor: "#F4EEE8",
   },
 
-  
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 18,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(86,64,85,0.08)",
+  },
 
   backButton: {
     padding: 6,
