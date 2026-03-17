@@ -77,8 +77,11 @@ export default function DailyCheckIn() {
               >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.goalTitle}>{g.title}</Text>
-             e ? (
-                  <Ionicons name="checkmark-circle" size={22} color="#000000" />
+                  <Text style={styles.goalSub}>{g.sub}</Text>
+                </View>
+
+                {active ? (
+                  <Ionicons name="checkmark-circle" size={22} color="#49B7D0" />
                 ) : (
                   <Ionicons name="chevron-forward" size={18} color="#9A9A9A" />
                 )}
