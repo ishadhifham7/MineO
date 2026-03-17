@@ -349,7 +349,7 @@ export default function ProfileScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit Information</Text>
               <TouchableOpacity onPress={() => setShowEditInfoModal(false)}>
-                <Ionicons name="close" size={24} color="#000" />
+                <Ionicons name="close" size={24} color="#3b3b3b" />
               </TouchableOpacity>
             </View>
 
