@@ -86,18 +86,7 @@ function DonutChart({
             const rotation = (cumulativePercent / 100) * 360;
             cumulativePercent += segment.percentage;
             return (
-              <Circle
-                key={i}
-                cx={center}
-                cy={center}
-                r={radius}
-                stroke={segment.color}
-                strokeWidth={strokeWidth}
-                fill="none"
-                strokeDasharray={`${segmentLength} ${offset}`}
-                strokeLinecap="round"
-                rotation={rotation}
-                origin={`${center}, ${center}`}
+              
               />
             );
           })}
