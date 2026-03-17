@@ -184,7 +184,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#ffffff"
+              color="#4E6FA3"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -210,7 +210,13 @@ export default function JourneyScreen() {
     );
   }
 
-  /
+  // Show error state
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerTitleRow}>
+            <Ionicons
               name="map"
               size={28}
               color="#4E6FA3"
