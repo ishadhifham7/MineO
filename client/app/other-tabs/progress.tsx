@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
 
   /* Category card */
   categoryCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ec2a2a",
     borderRadius: 14,
     padding: 14,
     shadowColor: "#000",
