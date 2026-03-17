@@ -109,8 +109,8 @@ export default function ProgressScreen() {
 
         {/* Motivational card */}
         <View style={styles.motivationCard}>
-          <Text style={styles.motivationIcon}>✨</Text>
-          <Text style={styles.motivationTitle}>You’re doing amazing!</Text>
+          <Text style={styles.motivationIcon}>*</Text>
+          <Text style={styles.motivationTitle}>You're doing amazing!</Text>
           <Text style={styles.motivationSub}>
             Every small step is building something bigger
           </Text>
@@ -143,9 +143,8 @@ const toneStyles = StyleSheet.create({
   green: { borderColor: "#CFE9D7" },
   orange: { borderColor: "#F1E2C9" },
 });
-
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   header: {
     flexDirection: "row",
@@ -328,3 +327,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
