@@ -22,7 +22,7 @@ export default function PreferencesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#000" />
+          <Ionicons name="chevron-back" size={28} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Preferences</Text>
         <View style={{ width: 28 }} />
@@ -52,16 +52,7 @@ export default function PreferencesScreen() {
         </View>
 
         {/* Language Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>LANGUAGE</Text>
-
-          <View style={styles.selectCard}>
-            <TouchableOpacity style={styles.selectButton}>
-              <Text style={styles.selectText}>{language}</Text>
-              <Ionicons name="chevron-down" size={24} color="#000" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        
 
         <View style={{ height: 40 }} />
       </ScrollView>
