@@ -40,7 +40,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#0043c8" }} edges={["top", "left", "right"]}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#F4F6FA" }} edges={["top", "left", "right"]}>
           <AuthProvider>
             <JourneyProvider>
               <ProfileProvider>
@@ -49,7 +49,7 @@ export default function RootLayout() {
                     screenOptions={{
                       headerShown: false,
                       contentStyle: {
-                        backgroundColor: "#2c364a",
+                        backgroundColor: "#F4F6FA",
                         paddingHorizontal: horizontalPadding,
                       },
                     }}

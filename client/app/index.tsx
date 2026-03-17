@@ -5,14 +5,14 @@ import { useRouter } from "expo-router";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#d10202",
+    backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
   },
   text: {
     fontSize: 40,
     fontWeight: "bold",
-    color: "#8f0000",
+    color: "#222",
   },
 });
 
@@ -20,7 +20,12 @@ export default function SplashScreen() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
     const timer = setTimeout(() => {
       router.replace("/auth/login");
     }, 3000);
