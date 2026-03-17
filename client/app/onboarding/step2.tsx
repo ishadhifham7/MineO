@@ -22,7 +22,12 @@ export default function Step2() {
         </Text>
       </View>
 
-      <} />
+      <View style={styles.footer}>
+        <View style={styles.progressContainer}>
+          <View style={[styles.progressBar, styles.activeBar]} />
+          <View style={[styles.progressBar, styles.activeBar]} />
+          <View style={styles.progressBar} />
+          <View style={styles.progressBar} />
         </View>
         <TouchableOpacity style={styles.button} onPress={() => router.push('/onboarding/step3')}>
           <Text style={styles.buttonText}>Continue -></Text>
