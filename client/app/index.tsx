@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1c1c1c",
+    backgroundColor: "#d10202",
     justifyContent: "center",
     alignItems: "center",
   },
