@@ -4,17 +4,7 @@ import { useRouter } from "expo-router";
 export default function Step4() {
   const router = useRouter();
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.headerText}>Begin</Text>
-        <Text style={styles.subHeaderText}>
-          Small reflection builds long-term clarity
-        </Text>
-        <Text style={styles.description}>
-          Progress does not need to be loud. Start with one moment, one habit,
-          one goal.
-        </Text>
-      </View>
+    
 
       <View style={styles.footer}>
         <View style={styles.progressContainer}>
