@@ -134,6 +134,6 @@ export default function HabitsScreen() {
   return (
     <HabitProvider>
       <HabitsContent />
-    </HabitProvider>
+    
   );
 }
