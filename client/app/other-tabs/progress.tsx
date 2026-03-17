@@ -250,10 +250,10 @@ const styles = StyleSheet.create({
   },
 
   categorySub: {
-    marginTop: 10,
-    fontSize: 12,
+    marginTop: j0,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#9A9A9A",
+    color: "#ec0000",
     alignSelf: "flex-end",
   },
 
