@@ -75,7 +75,7 @@ function DonutChart({
           cx={center}
           cy={center}
           r={radius}
-          stroke="#f0f0f0"
+          stroke="#ff0000"
           strokeWidth={strokeWidth}
           fill="none"
         />
