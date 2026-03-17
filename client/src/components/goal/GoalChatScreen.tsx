@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useGoal, DraftGoal } from "../../../src/features/goal/goal.context";
 import { generateGoalApi } from "../../../src/features/goal/goal.api";
@@ -60,6 +61,7 @@ const sendMessageToAI = async (
 // ================= Chat Screen =================
 const GoalChatScreen = () => {
   const { setDraftGoal, setCurrentGoal, setGoals } = useGoal();
+  const chatListRef = useRef<FlatList<Message> | null>(null);
 
   const [conversation, setConversation] = useState<Message[]>([
     {
@@ -73,6 +75,13 @@ const GoalChatScreen = () => {
   const [loading, setLoading] = useState(false);
   const [currentDraft, setCurrentDraft] = useState<DraftGoal | null>(null);
   const [savingGoal, setSavingGoal] = useState(false);
+  const canSend = inputText.trim().length > 0 && !loading;
+
+  const scrollToLatestMessage = useCallback((animated = true) => {
+    requestAnimationFrame(() => {
+      chatListRef.current?.scrollToEnd({ animated });
+    });
+  }, []);
 
   // Render formatted goal plan
   const renderGoalPlan = (draft: DraftGoal) => {
@@ -125,7 +134,7 @@ const GoalChatScreen = () => {
     setLoading(true);
 
     try {
-      console.log('📤 Sending message to AI...');
+      console.log("📤 Sending message to AI...");
       const { message: aiText, draftGoal: newDraft } = await sendMessageToAI(
         [...conversation, userMessage].map((msg) => ({
           sender: msg.sender,
@@ -137,7 +146,7 @@ const GoalChatScreen = () => {
 
       console.log("=== Frontend Response Debug ===");
       console.log("AI Message:", aiText?.substring(0, 100));
-      console.log("DraftGoal received:", newDraft ? 'YES' : 'NO');
+      console.log("DraftGoal received:", newDraft ? "YES" : "NO");
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -157,15 +166,17 @@ const GoalChatScreen = () => {
       }
     } catch (error: any) {
       console.error("❌ AI chat error:", error);
-      
+
       // Show user-friendly error message
       const errorMessage: Message = {
         id: (Date.now() + 2).toString(),
-        text: error.response?.status === 500 
-          ? "I'm having trouble connecting right now 😅 Try asking me again, or you can create a goal manually!"
-          : error.message?.includes('Network') || error.message?.includes('timeout')
-          ? "Can't reach the server. Please check your connection and try again."
-          : "Oops! Something went wrong. Please try again.",
+        text:
+          error.response?.status === 500
+            ? "I'm having trouble connecting right now 😅 Try asking me again, or you can create a goal manually!"
+            : error.message?.includes("Network") ||
+                error.message?.includes("timeout")
+              ? "Can't reach the server. Please check your connection and try again."
+              : "Oops! Something went wrong. Please try again.",
         sender: "ai",
       };
 
@@ -240,9 +251,12 @@ const GoalChatScreen = () => {
         <>
           {/* Chat */}
           <FlatList
+            ref={chatListRef}
             data={conversation}
             renderItem={renderMessage}
             keyExtractor={(item) => item.id}
+            onLayout={() => scrollToLatestMessage(false)}
+            onContentSizeChange={() => scrollToLatestMessage(true)}
             contentContainerStyle={{
               padding: 20,
               paddingBottom: 20,
@@ -261,11 +275,15 @@ const GoalChatScreen = () => {
               editable={!loading}
             />
             <Pressable
-              style={[styles.sendButton, loading && { opacity: 0.5 }]}
+              style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
               onPress={handleSend}
-              disabled={loading}
+              disabled={!canSend}
             >
-              <Text style={styles.sendText}>{loading ? "..." : "Send"}</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Ionicons name="paper-plane" size={20} color="#FFFFFF" />
+              )}
             </Pressable>
           </View>
         </>
@@ -401,9 +419,20 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     backgroundColor: "#63D1E6",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 20,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#63D1E6",
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
-  sendText: { color: "#FFFFFF", fontWeight: "600" },
+  sendButtonDisabled: {
+    backgroundColor: "#B3E8F2",
+    shadowOpacity: 0,
+    elevation: 0,
+  },
 });
