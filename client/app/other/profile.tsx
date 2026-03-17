@@ -228,7 +228,7 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.statusRow} onPress={() => setShowActivityModal(true)}>
           <View style={styles.statusLeft}>
             <View style={styles.statusIconContainer}>
-              <Ionicons name="radio-button-on" size={24} color="#000" />
+              <Ionicons name="radio-button-on" size={24} color="#ffffff" />
             </View>
             <Text style={styles.statusText}>Activity Status</Text>
           </View>
