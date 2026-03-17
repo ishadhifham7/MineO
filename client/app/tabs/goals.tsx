@@ -92,7 +92,7 @@ export default function GoalsRoute() {
           {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.headerIcon}>
-              <Ionicons name="sparkles-outline" size={18} color="#49B7D0" />
+              <Ionicons name="sparkles-outline" size={18} color="#ffffff" />
             </View>
             <View style={styles.headerText}>
               <Text style={styles.hTitle}>Your Goals</Text>
