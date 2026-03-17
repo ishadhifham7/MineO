@@ -107,13 +107,18 @@ export async function chatWithAI(
   reply: FastifyReply
 ) {
   try {
+    console.log('📥 AI Chat request received');
     const { conversation, message } = req.body;
 
     if (!message || message.trim().length === 0) {
+      console.log('❌ Empty message received');
       throw new AppError('Message cannot be empty', 400);
     }
 
+    console.log('💬 User message:', message.substring(0, 100));
+
     const safeConversation: AIMessage[] = Array.isArray(conversation) ? conversation : [];
+    console.log('📜 Conversation history:', safeConversation.length, 'messages');
 
     const messages: AIMessage[] = [
       { role: 'system', content: SYSTEM_PROMPT },
@@ -121,24 +126,34 @@ export async function chatWithAI(
       { role: 'user', content: message.trim() },
     ];
 
+    console.log('🤖 Calling AI service...');
     const aiReply: string = await callAI(messages);
+    console.log('✅ AI response received, length:', aiReply.length);
 
     // Parse AI response to detect structured goal plan
     const response = parseAIResponse(aiReply);
 
     console.log('=== Response being sent to client ===');
-    console.log('Message:', response.message);
+    console.log('Message:', response.message.substring(0, 100));
     console.log('DraftGoal:', response.draftGoal ? 'PRESENT' : 'NULL');
     if (response.draftGoal) {
       console.log('DraftGoal content:', JSON.stringify(response.draftGoal, null, 2));
     }
 
     return reply.send(response);
-  } catch (error) {
+  } catch (error: any) {
+    console.error('❌ AI chat error:', error);
+    
     if (error instanceof AppError) {
       throw error;
     }
+    
     req.log.error(error, 'AI chat error');
-    throw new AppError('Failed to process AI request', 500);
+    
+    // Return helpful error message to user
+    return reply.status(500).send({
+      message: "I'm having trouble connecting right now. Please try again in a moment. If you need to create a goal, you can also do so manually!",
+      draftGoal: null,
+    });
   }
 }

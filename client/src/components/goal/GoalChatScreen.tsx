@@ -125,6 +125,7 @@ const GoalChatScreen = () => {
     setLoading(true);
 
     try {
+      console.log('📤 Sending message to AI...');
       const { message: aiText, draftGoal: newDraft } = await sendMessageToAI(
         [...conversation, userMessage].map((msg) => ({
           sender: msg.sender,
@@ -135,14 +136,12 @@ const GoalChatScreen = () => {
       );
 
       console.log("=== Frontend Response Debug ===");
-      console.log("AI Message:", aiText);
-      console.log("DraftGoal received:", newDraft);
-      console.log("DraftGoal is null?", newDraft === null);
-      console.log("DraftGoal is undefined?", newDraft === undefined);
+      console.log("AI Message:", aiText?.substring(0, 100));
+      console.log("DraftGoal received:", newDraft ? 'YES' : 'NO');
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: aiText,
+        text: aiText || "I'm here to help! What would you like to achieve?",
         sender: "ai",
       };
 
@@ -150,14 +149,27 @@ const GoalChatScreen = () => {
 
       // If backend returns a draftGoal, store it (but don't navigate yet)
       if (newDraft) {
-        console.log("✅ Setting currentDraft:", newDraft);
+        console.log("✅ Setting currentDraft:", newDraft.title);
         setCurrentDraft(newDraft);
         setDraftGoal(newDraft);
       } else {
-        console.log("❌ No draftGoal to set");
+        console.log("💬 Conversational response (no goal draft)");
       }
-    } catch (error) {
-      Alert.alert("Error", "Failed to get AI response. Try again.");
+    } catch (error: any) {
+      console.error("❌ AI chat error:", error);
+      
+      // Show user-friendly error message
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        text: error.response?.status === 500 
+          ? "I'm having trouble connecting right now 😅 Try asking me again, or you can create a goal manually!"
+          : error.message?.includes('Network') || error.message?.includes('timeout')
+          ? "Can't reach the server. Please check your connection and try again."
+          : "Oops! Something went wrong. Please try again.",
+        sender: "ai",
+      };
+
+      setConversation((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
     }
