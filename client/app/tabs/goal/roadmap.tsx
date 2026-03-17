@@ -135,7 +135,7 @@ const GoalRoadmapScreen: React.FC = () => {
                 <Checkbox
                   value={item.completed}
                   onValueChange={() => handleToggleStage(item.id)}
-                  color={item.completed ? "#44BBD4" : undefined}
+                  color={item.completed ? "#00313b" : undefined}
                   style={styles.stageCheckbox}
                 />
                 <View style={{ flex: 1 }}>
