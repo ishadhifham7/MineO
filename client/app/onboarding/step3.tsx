@@ -26,7 +26,7 @@ export default function Step3() {
                 width: 12,
                 height: 12,
                 borderRadius: 6,
-                backgroundColor: i === 4 ? "#000" : "#D1D1C4",
+                backgroundColor: i === 4 ? "#000" : "#D9E3F1",
                 marginHorizontal: 15,
               }}
             />
@@ -34,7 +34,7 @@ export default function Step3() {
         </View>
 
         <Text style={styles.description}>
-          Life moments—both challenging and meaningful—form your personal
+          Life moments - both challenging and meaningful - form your personal
           narrative. Reflection helps you understand where you've been and where
           you're heading.
         </Text>
@@ -51,7 +51,7 @@ export default function Step3() {
           style={styles.button}
           onPress={() => router.push("/onboarding/step4")}
         >
-          <Text style={styles.buttonText}>Continue →</Text>
+          <Text style={styles.buttonText}>Continue -></Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -59,7 +59,7 @@ export default function Step3() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5E6", padding: 30 },
+  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   logo: {
     fontSize: 42,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D1D1C4" },
+  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
   activeBar: { backgroundColor: "#000" },
   button: {
     backgroundColor: "#000",
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   diagramContainer: {
     width: "100%",
     padding: 20,
-    backgroundColor: "#E8E8D9",
+    backgroundColor: "#EAF1FB",
     borderRadius: 8,
     marginVertical: 30,
     alignItems: "center",
@@ -116,3 +116,4 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
+
