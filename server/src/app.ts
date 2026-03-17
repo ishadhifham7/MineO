@@ -10,6 +10,13 @@ import { errorHandler } from './shared/errors/error-handler';
 import { registerRoutes } from './routes';
 import { env } from './config/env';
 
+function parseAllowedOrigins(rawOrigins: string): string[] {
+  return rawOrigins
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
 /**
  * Build and configure the Fastify application
  */
@@ -30,9 +37,25 @@ export async function buildApp() {
     },
   });
 
+  const allowedOrigins = parseAllowedOrigins(env.CORS_ORIGIN);
+
   // Register CORS
   await app.register(cors, {
-    origin: env.NODE_ENV === 'production' ? false : true,
+    origin: (origin, callback) => {
+      // Allow non-browser clients (no Origin header): mobile app/native clients, curl, server-to-server.
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      // Keep local DX simple if no explicit allowlist is configured outside production.
+      if (env.NODE_ENV !== 'production' && allowedOrigins.length === 0) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, allowedOrigins.includes(origin));
+    },
     credentials: true,
   });
 

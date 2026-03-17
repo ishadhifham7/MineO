@@ -8,6 +8,8 @@ import { env } from '../config/env';
  * Swagger documentation plugin
  */
 const swaggerPlugin: FastifyPluginAsync = async (fastify) => {
+  const docsBaseUrl = env.PUBLIC_BASE_URL || `http://localhost:${env.PORT}`;
+
   await fastify.register(swagger, {
     openapi: {
       info: {
@@ -17,8 +19,8 @@ const swaggerPlugin: FastifyPluginAsync = async (fastify) => {
       },
       servers: [
         {
-          url: `http://localhost:${env.PORT}`,
-          description: 'Development server',
+          url: docsBaseUrl,
+          description: env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
         },
       ],
       components: {

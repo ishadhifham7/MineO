@@ -9,13 +9,15 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
  */
 function validateEnv() {
   // Only validate critical env vars in production
-  const required = isDevelopment ? ['JWT_SECRET'] : [
-    'JWT_SECRET',
-    'FIREBASE_PROJECT_ID',
-    'FIREBASE_CLIENT_EMAIL',
-    'FIREBASE_PRIVATE_KEY',
-    'GROQ_API_KEY',
-  ];
+  const required = isDevelopment
+    ? ['JWT_SECRET']
+    : [
+        'JWT_SECRET',
+        'FIREBASE_PROJECT_ID',
+        'FIREBASE_CLIENT_EMAIL',
+        'FIREBASE_PRIVATE_KEY',
+        'GROQ_API_KEY',
+      ];
 
   const missing = required.filter((key) => !process.env[key]);
 
@@ -34,12 +36,15 @@ validateEnv();
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: Number(process.env.PORT) || 3001,
+  PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || '',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '',
 
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID || 'dev-project',
   FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL || 'dev@example.com',
   FIREBASE_PRIVATE_KEY: (process.env.FIREBASE_PRIVATE_KEY || 'dev-key').replace(/\\n/g, '\n'),
 
-  JWT_SECRET: process.env.JWT_SECRET || 'super-secret-jwt-key-change-this-in-production-use-random-string',
+  JWT_SECRET:
+    process.env.JWT_SECRET || 'super-secret-jwt-key-change-this-in-production-use-random-string',
   GROQ_API_KEY: process.env.GROQ_API_KEY || '',
 } as const;
 
