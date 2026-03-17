@@ -485,17 +485,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#bf5f00",
   },
 
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 18,
-    backgroundColor: "rgba(255,255,255,0.55)",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(86,64,85,0.08)",
-  },
+  
 
   backButton: {
     padding: 6,
