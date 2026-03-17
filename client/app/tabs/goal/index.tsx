@@ -153,7 +153,7 @@ function GoalListCard({
 /* ========================= */
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   screen: { flex: 1 },
 
@@ -255,3 +255,4 @@ const styles = StyleSheet.create({
   },
   createText: { fontSize: 17, fontWeight: "900", color: "#fff" },
 });
+

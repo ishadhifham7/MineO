@@ -27,7 +27,7 @@ export default function Step4() {
           style={styles.button}
           onPress={() => router.replace("/tabs")}
         >
-          <Text style={styles.buttonText}>Get Started →</Text>
+          <Text style={styles.buttonText}>Get Started -></Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -35,7 +35,7 @@ export default function Step4() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5E6", padding: 30 },
+  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   logo: {
     fontSize: 42,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D1D1C4" },
+  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
   activeBar: { backgroundColor: "#000" },
   button: {
     backgroundColor: "#000",
@@ -75,3 +75,4 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
 });
+

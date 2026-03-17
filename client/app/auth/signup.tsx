@@ -40,7 +40,7 @@ const SignupScreen: React.FC = () => {
 
       {/* Go back button */}
       <TouchableOpacity onPress={() => router.back()}>
-        <Text style={styles.backText}>← Go Back</Text>
+        <Text style={styles.backText}>{"<- Go Back"}</Text>
       </TouchableOpacity>
 
       {/* Title */}
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
       marginBottom: 16,
     },
     button: {
-      backgroundColor: "#E6E26A",
+      backgroundColor: "#A7C4E8",
       padding: 18,
       borderRadius: 12,
       alignItems: "center",

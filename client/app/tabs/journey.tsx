@@ -48,7 +48,7 @@ const generatePositions = (count: number) => {
   const positions = [];
   const verticalSpacing = 150; // Space between each node
 
-  // Wide X positions for dramatic winding — the path swings from edge to edge
+  // Wide X positions for dramatic winding - the path swings from edge to edge
   const leftX = SCREEN_WIDTH * 0.14;
   const midLeftX = SCREEN_WIDTH * 0.36;
   const midRightX = SCREEN_WIDTH * 0.64;
@@ -83,9 +83,9 @@ export default function JourneyScreen() {
     setIsRefreshing(true);
     try {
       await refreshJourneys();
-      console.log("✅ Journey refreshed successfully");
+      console.log("Journey refreshed successfully");
     } catch (err) {
-      console.error("❌ Error refreshing journey:", err);
+      console.error("Error refreshing journey:", err);
     } finally {
       setIsRefreshing(false);
     }
@@ -95,13 +95,13 @@ export default function JourneyScreen() {
     try {
       setLoadingJournal(true);
       setModalVisible(true);
-      console.log("📖 Fetching journal:", journalId);
+      console.log("Fetching journal:", journalId);
 
       const response = await JournalApi.getById(journalId);
-      console.log("✅ Journal fetched:", response.data);
+      console.log("Journal fetched:", response.data);
       setSelectedJournal(response.data);
     } catch (error: any) {
-      console.error("❌ Failed to fetch journal:", error);
+      console.error("Failed to fetch journal:", error);
       console.error("Error details:", {
         message: error.message,
         response: error.response?.data,
@@ -160,7 +160,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#6366F1"
+              color="#4E6FA3"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -168,7 +168,7 @@ export default function JourneyScreen() {
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6366F1" />
+          <ActivityIndicator size="large" color="#4E6FA3" />
           <Text style={styles.loadingText}>Loading your journey map...</Text>
         </View>
       </SafeAreaView>
@@ -184,7 +184,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#6366F1"
+              color="#4E6FA3"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -193,7 +193,7 @@ export default function JourneyScreen() {
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>🔒</Text>
+            <Text style={styles.emptyIcon}>LOCK</Text>
           </View>
           <Text style={styles.emptyTitle}>Please Login</Text>
           <Text style={styles.emptySubtitle}>
@@ -219,7 +219,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#6366F1"
+              color="#4E6FA3"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -228,7 +228,7 @@ export default function JourneyScreen() {
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>⚠️</Text>
+            <Text style={styles.emptyIcon}>!</Text>
           </View>
           <Text style={styles.emptyTitle}>Error Loading Journey</Text>
           <Text style={styles.emptySubtitle}>{error}</Text>
@@ -248,7 +248,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#6366F1"
+              color="#4E6FA3"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -257,7 +257,7 @@ export default function JourneyScreen() {
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>📔</Text>
+            <Text style={styles.emptyIcon}>J</Text>
           </View>
           <Text style={styles.emptyTitle}>No journals yet</Text>
           <Text style={styles.emptySubtitle}>
@@ -275,7 +275,7 @@ export default function JourneyScreen() {
           <Ionicons
             name="map"
             size={28}
-            color="#6366F1"
+            color="#4E6FA3"
             style={styles.headerIcon}
           />
           <Text style={styles.headerTitle}>Journey Map</Text>
@@ -290,8 +290,8 @@ export default function JourneyScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#6366F1"
-              colors={["#6366F1"]}
+              tintColor="#4E6FA3"
+              colors={["#4E6FA3"]}
             />
           }
         >
@@ -328,7 +328,7 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#EFEFEF", // Match goal tracker background
+    backgroundColor: "#F4F6FA", // Match goal tracker background
   },
   header: {
     paddingHorizontal: 20,
@@ -337,8 +337,8 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 2,
-    borderBottomColor: "#6366F1",
-    shadowColor: "#6366F1",
+    borderBottomColor: "#4E6FA3",
+    shadowColor: "#4E6FA3",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -361,13 +361,13 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#6366F1",
+    color: "#4E6FA3",
     marginTop: 6,
     fontStyle: "italic",
   },
   canvasWrapper: {
     flex: 1,
-    backgroundColor: "#EFEFEF",
+    backgroundColor: "#F4F6FA",
   },
   loadingContainer: {
     flex: 1,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderWidth: 2,
     borderColor: "#E5E7EB",
-    shadowColor: "#6366F1",
+    shadowColor: "#4E6FA3",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -421,15 +421,15 @@ const styles = StyleSheet.create({
     marginTop: 28,
     paddingHorizontal: 36,
     paddingVertical: 16,
-    backgroundColor: "#6366F1",
+    backgroundColor: "#4E6FA3",
     borderRadius: 14,
-    shadowColor: "#6366F1",
+    shadowColor: "#4E6FA3",
     shadowOpacity: 0.35,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
     elevation: 6,
     borderWidth: 1,
-    borderColor: "#5558E3",
+    borderColor: "#3F5D8A",
   },
   loginButtonText: {
     color: "#FFFFFF",
@@ -437,3 +437,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
+

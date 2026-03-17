@@ -602,7 +602,7 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#f7f7f7",
+    backgroundColor: "#F4F6FA",
   },
 
   /* ---- Header ---- */
@@ -670,11 +670,13 @@ const styles = StyleSheet.create({
   },
   headerHello: {
     fontSize: 32,
+    fontFamily: "Roboto_400Regular",
     fontWeight: "300",
     color: "#333",
   },
   headerSub: {
     fontSize: 20,
+    fontFamily: "Roboto_400Regular",
     fontWeight: "300",
     color: "#666",
     marginTop: 2,
@@ -683,26 +685,29 @@ const styles = StyleSheet.create({
   /* ---- Search ---- */
   searchWrapper: {
     paddingHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 14,
+    marginBottom: 10,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
     borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E9EEF5",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 11,
     gap: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
+    fontFamily: "Roboto_400Regular",
     color: "#333",
   },
 
@@ -713,21 +718,25 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#EEF2F7",
+    padding: 18,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardTitle: {
     fontSize: 18,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
     color: "#222",
   },
   cardSubtitle: {
     fontSize: 11,
+    fontFamily: "Roboto_400Regular",
     fontWeight: "600",
     color: "#aaa",
     letterSpacing: 1,
@@ -736,6 +745,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
     color: "#222",
   },
@@ -980,6 +990,7 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: 20,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
     color: "#000000",
   },
@@ -1000,12 +1011,14 @@ const styles = StyleSheet.create({
   },
   goalRowTitle: {
     fontSize: 15,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
     color: "#111827",
   },
   goalRowSub: {
     marginTop: 4,
     fontSize: 12,
+    fontFamily: "Roboto_400Regular",
     fontWeight: "600",
     color: "#6B7280",
   },
