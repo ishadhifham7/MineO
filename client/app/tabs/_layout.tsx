@@ -6,7 +6,11 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontFamily: "Roboto_500Medium",
+          fontSize: 12,
+        },
         tabBarStyle: {
           backgroundColor: "#0f0f0f",
           borderTopColor: "#1f1f1f",
