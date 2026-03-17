@@ -65,7 +65,8 @@ const GoalRoadmapScreen: React.FC = () => {
     router.push("/tabs/goal/");
   };
 
- 
+  const handleToggleStage = async (stageId: string) => {
+    if (!displayGoal) return;
 
     // Find the current stage to get its current completion status
     const stage = localStages.find((s) => s.id === stageId);
