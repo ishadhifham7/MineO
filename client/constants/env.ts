@@ -22,7 +22,10 @@ const getApiUrl = (): string => {
 
   // Standalone EAS builds should default to deployed backend, not emulator localhost.
   if (!__DEV__) {
-    console.log("📡 No EXPO_PUBLIC_API_URL found, using deployed backend:", DEPLOYED_API_URL);
+    console.log(
+      "📡 No EXPO_PUBLIC_API_URL found, using deployed backend:",
+      DEPLOYED_API_URL,
+    );
     return DEPLOYED_API_URL;
   }
 
