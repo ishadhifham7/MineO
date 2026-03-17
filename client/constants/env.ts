@@ -4,6 +4,8 @@
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
+const DEPLOYED_API_URL = "https://mineo-pcov.onrender.com";
+
 /**
  * Auto-detect IP address from Expo's development server
  * Enhanced with multiple detection methods for maximum reliability
@@ -16,6 +18,12 @@ const getApiUrl = (): string => {
   if (configuredApiUrl) {
     console.log("📡 Using configured API URL from .env:", configuredApiUrl);
     return configuredApiUrl;
+  }
+
+  // Standalone EAS builds should default to deployed backend, not emulator localhost.
+  if (!__DEV__) {
+    console.log("📡 No EXPO_PUBLIC_API_URL found, using deployed backend:", DEPLOYED_API_URL);
+    return DEPLOYED_API_URL;
   }
 
   // Auto-detect IP from Expo development server
@@ -107,7 +115,7 @@ const getApiUrl = (): string => {
   const fallbackUrl = `http://${fallbackIp}:${BACKEND_PORT}`;
   console.warn("⚠️ Auto-detection failed, using fallback:", fallbackUrl);
   console.warn("💡 To use a deployed backend, set in client/.env:");
-  console.warn("   EXPO_PUBLIC_API_URL=https://mineo-pcov.onrender.com");
+  console.warn(`   EXPO_PUBLIC_API_URL=${DEPLOYED_API_URL}`);
   console.warn("💡 To manually set local IP, create client/.env with:");
   console.warn("   EXPO_PUBLIC_API_URL=http://YOUR_IP:3001");
   return fallbackUrl;
