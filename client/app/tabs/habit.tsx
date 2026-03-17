@@ -26,9 +26,9 @@ function HabitsContent() {
     setIsRefreshing(true);
     try {
       await Promise.all([refreshCalendar(), refreshRadar()]);
-      console.log('✅ Data refreshed successfully');
+      console.log('Data refreshed successfully');
     } catch (err) {
-      console.error('❌ Error refreshing data:', err);
+      console.error('Error refreshing data:', err);
     } finally {
       setIsRefreshing(false);
     }
@@ -48,7 +48,7 @@ function HabitsContent() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#EFEFEF] items-center justify-center" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center" edges={['top']}>
         <ActivityIndicator size="large" color="#000" />
         <Text className="mt-4 text-gray-600">Loading habits...</Text>
       </SafeAreaView>
@@ -57,7 +57,7 @@ function HabitsContent() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-[#EFEFEF] items-center justify-center px-6" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center px-6" edges={['top']}>
         <Text className="text-red-600 text-center mb-4">Error loading habits</Text>
         <Text className="text-gray-600 text-center">{error}</Text>
       </SafeAreaView>
@@ -65,7 +65,7 @@ function HabitsContent() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#EFEFEF]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-[#F4F6FA]" edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
         <ScrollView 
           showsVerticalScrollIndicator={false} 
@@ -109,17 +109,17 @@ function HabitsContent() {
               <View className="items-center mt-2">
                 <Pressable 
                   onPress={async () => {
-                    console.log('🔄 Manual radar refresh triggered');
+                    console.log('Manual radar refresh triggered');
                     await refreshRadar();
                   }}
                   className="bg-gray-100 active:bg-gray-200 px-4 py-2 rounded-full mb-2"
                 >
                   <Text className="text-[10px] font-bold text-gray-700">
-                    🔄 Refresh Radar Data
+                    Refresh Radar Data
                   </Text>
                 </Pressable>
                 <Text className="text-[9px] text-gray-400 italic">
-                  Pull down to refresh • Updates automatically on save
+                  Pull down to refresh - Updates automatically on save
                 </Text>
               </View>
             </View>
