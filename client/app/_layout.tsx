@@ -15,9 +15,13 @@ import {
   Roboto_400Regular,
   Roboto_500Medium,
 } from "@expo-google-fonts/roboto";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, useWindowDimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
+  const { width } = useWindowDimensions();
+  const horizontalPadding = width >= 430 ? 20 : 14;
+
   const [fontsLoaded] = useFonts({
     DancingScript_400Regular,
     DancingScript_700Bold,
@@ -36,19 +40,25 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <JourneyProvider>
-            <ProfileProvider>
-              <GoalProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}
-                />
-              </GoalProvider>
-            </ProfileProvider>
-          </JourneyProvider>
-        </AuthProvider>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#0B0E14" }} edges={["top", "left", "right"]}>
+          <AuthProvider>
+            <JourneyProvider>
+              <ProfileProvider>
+                <GoalProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: {
+                        backgroundColor: "#0B0E14",
+                        paddingHorizontal: horizontalPadding,
+                      },
+                    }}
+                  />
+                </GoalProvider>
+              </ProfileProvider>
+            </JourneyProvider>
+          </AuthProvider>
+        </SafeAreaView>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
