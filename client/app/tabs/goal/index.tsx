@@ -36,8 +36,7 @@ export default function GoalsHome() {
             </View>
             <View style={styles.headerText}>
               <Text style={styles.hTitle}>Your Goals</Text>
-              <Text style={styles.hSub}>Small steps create big change</Text>
-            </View>
+          
           </View>
 
           {/* Goals list */}
