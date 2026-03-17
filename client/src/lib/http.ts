@@ -52,9 +52,15 @@ httpClient.interceptors.response.use(
       });
     } else if (error.request) {
       // Request made but no response received
-      console.error("❌ No response from server. Backend URL:", env.API_BASE_URL);
-      console.error("❌ Please ensure the backend server is running on port 3001");
-      error.message = "Network error: Cannot reach server. Please check if backend is running.";
+      console.error(
+        "❌ No response from server. Backend URL:",
+        env.API_BASE_URL,
+      );
+      console.error(
+        "❌ Please verify EXPO_PUBLIC_API_URL and backend availability.",
+      );
+      error.message =
+        "Network error: Cannot reach backend. Check API URL and deployment status.";
     } else {
       // Something else happened
       console.error("❌ Request Error:", error.message);

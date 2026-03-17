@@ -10,14 +10,12 @@ import { Platform } from "react-native";
  */
 const getApiUrl = (): string => {
   const BACKEND_PORT = "3001";
+  const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
 
   // Check if manually overridden in .env
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    console.log(
-      "📡 Using manual API URL from .env:",
-      process.env.EXPO_PUBLIC_API_URL,
-    );
-    return process.env.EXPO_PUBLIC_API_URL;
+  if (configuredApiUrl) {
+    console.log("📡 Using configured API URL from .env:", configuredApiUrl);
+    return configuredApiUrl;
   }
 
   // Auto-detect IP from Expo development server
@@ -74,10 +72,10 @@ const getApiUrl = (): string => {
 
       // Method 4: Extract from sourceUrl/bundleUrl
       const sourceUrl =
-        (Constants as any).manifest?.bundleUrl || 
+        (Constants as any).manifest?.bundleUrl ||
         (Constants as any).sourceUrl ||
         (Constants as any).manifest?.url;
-      
+
       if (sourceUrl) {
         const match = sourceUrl.match(/https?:\/\/([^:\/]+)/);
         if (match && match[1]) {
@@ -93,10 +91,12 @@ const getApiUrl = (): string => {
 
       console.log("📋 Debug info:");
       console.log("  - hostUri:", Constants.expoConfig?.hostUri);
-      console.log("  - debuggerHost:", (Constants as any).manifest?.debuggerHost);
+      console.log(
+        "  - debuggerHost:",
+        (Constants as any).manifest?.debuggerHost,
+      );
       console.log("  - scriptURL:", scriptURL);
       console.log("  - sourceUrl:", sourceUrl);
-      
     } catch (error) {
       console.warn("⚠️ Error during IP auto-detection:", error);
     }
@@ -106,7 +106,9 @@ const getApiUrl = (): string => {
   const fallbackIp = Platform.OS === "android" ? "10.0.2.2" : "localhost";
   const fallbackUrl = `http://${fallbackIp}:${BACKEND_PORT}`;
   console.warn("⚠️ Auto-detection failed, using fallback:", fallbackUrl);
-  console.warn("💡 To manually set IP, create client/.env with:");
+  console.warn("💡 To use a deployed backend, set in client/.env:");
+  console.warn("   EXPO_PUBLIC_API_URL=https://mineo-pcov.onrender.com");
+  console.warn("💡 To manually set local IP, create client/.env with:");
   console.warn("   EXPO_PUBLIC_API_URL=http://YOUR_IP:3001");
   return fallbackUrl;
 };

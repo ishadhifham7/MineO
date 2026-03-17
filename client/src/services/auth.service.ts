@@ -42,24 +42,23 @@ export const signupUser = async (data: {
   } catch (error: any) {
     console.error("❌ Signup error:", error.message);
     console.error("📡 Backend URL:", env.API_BASE_URL);
-    
+
     if (error.response) {
       // Server responded with an error
       console.error("❌ Server responded with error:", error.response.status);
       throw new Error(error.response.data?.message || "Signup failed");
     } else if (error.request) {
       // Request was made but no response received
-      console.error("❌ No response from server - Backend may not be running!");
+      console.error("❌ No response from backend:", env.API_BASE_URL);
       console.error("💡 Solution:");
-      console.error("   1. Make sure backend server is running on port 3001");
-      console.error("   2. Run: cd server && npm run dev");
-      console.error("   3. Check firewall settings");
-      console.error("   4. Both devices must be on the same WiFi network");
+      console.error("   1. Verify EXPO_PUBLIC_API_URL in client/.env");
+      console.error("   2. Confirm deployed backend is up and healthy");
+      console.error("   3. Check mobile network connectivity");
       throw new Error(
-        `Cannot connect to server at ${env.API_URL}.\nPlease ensure:\n` +
-        "1. Backend server is running (cd server && npm run dev)\n" +
-        "2. You're on the same WiFi network\n" +
-        "3. Firewall allows connections on port 3001"
+        `Cannot connect to backend at ${env.API_URL}.\nPlease ensure:\n` +
+          "1. EXPO_PUBLIC_API_URL points to a reachable backend\n" +
+          "2. Deployment is healthy\n" +
+          "3. Device has internet access",
       );
     } else {
       throw new Error(error.message || "Signup failed");
@@ -105,15 +104,14 @@ export const loginUser = async (email: string, password: string) => {
         env.API_BASE_URL,
       );
       console.error("💡 Solution:");
-      console.error("   1. Make sure backend server is running on port 3001");
-      console.error("   2. Run: cd server && npm run dev");
-      console.error("   3. Check firewall settings");
-      console.error("   4. Both devices must be on the same WiFi network");
+      console.error("   1. Verify EXPO_PUBLIC_API_URL in client/.env");
+      console.error("   2. Confirm deployed backend is up and healthy");
+      console.error("   3. Check mobile network connectivity");
       throw new Error(
-        `Cannot connect to server at ${env.API_URL}.\nPlease ensure:\n` +
-        "1. Backend server is running (cd server && npm run dev)\n" +
-        "2. You're on the same WiFi network\n" +
-        "3. Firewall allows connections on port 3001"
+        `Cannot connect to backend at ${env.API_URL}.\nPlease ensure:\n` +
+          "1. EXPO_PUBLIC_API_URL points to a reachable backend\n" +
+          "2. Deployment is healthy\n" +
+          "3. Device has internet access",
       );
     } else {
       // Request setup error
