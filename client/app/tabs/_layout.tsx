@@ -7,18 +7,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontFamily: "Roboto_500Medium",
-          fontSize: 11,
-          letterSpacing: 0.2,
-          marginTop: 2,
-        },
-        tabBarStyle: {
-          position: "absolute",
-          left: 12,
+      eft: 12,
           right: 12,
           bottom: Math.max(insets.bottom, 10),
           height: 58 + Math.max(insets.bottom, 6),
