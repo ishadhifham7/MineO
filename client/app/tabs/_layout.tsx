@@ -23,7 +23,7 @@ export default function TabsLayout() {
           bottom: Math.max(insets.bottom, 10),
           height: 58 + Math.max(insets.bottom, 6),
           borderTopWidth: 1,
-          borderColor: "#074bb1",
+          borderColor: "#ffffff",
           borderRadius: 18,
           backgroundColor: "#FFFFFF",
           paddingTop: 8,
@@ -38,7 +38,7 @@ export default function TabsLayout() {
           borderRadius: 12,
           marginHorizontal: 2,
         },
-        tabBarActiveTintColor: "#4E6FA3",
+        tabBarActiveTintColor: "#ffffff",
         tabBarInactiveTintColor: "#9AABC5",
       }}
     >

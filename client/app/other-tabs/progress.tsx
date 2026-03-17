@@ -43,7 +43,7 @@ export default function ProgressScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backFab}>
-          <Ionicons name="arrow-back" size={20} color="#111" />
+          <Ionicons name="arrow-back" size={20} color="#ff0000" />
         </Pressable>
 
         <View style={styles.headerText}>
