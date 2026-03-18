@@ -6,7 +6,6 @@ import {
   Text,
   ActivityIndicator,
   Pressable,
-  TouchableOpacity,
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -154,7 +153,7 @@ export default function JourneyScreen() {
   // Show loading while checking auth or loading journals
   if (authLoading || isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -178,7 +177,7 @@ export default function JourneyScreen() {
   // Not authenticated - show login prompt
   if (!isAuthenticated) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -213,7 +212,7 @@ export default function JourneyScreen() {
   // Show error state
   if (error) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -242,7 +241,7 @@ export default function JourneyScreen() {
 
   if (journals.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -269,7 +268,7 @@ export default function JourneyScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <Ionicons
@@ -305,8 +304,6 @@ export default function JourneyScreen() {
               stage={index + 1}
               status={stage.status}
               theme={stage.theme}
-              title={stage.title}
-              date={stage.date}
               position={{ x: stage.centerX, y: stage.centerY }}
               onPress={() => handleNodePress(stage.id)}
             />
