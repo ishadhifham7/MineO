@@ -60,7 +60,7 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator />
+        <ActivityIndicator color="#22C55E" />
       </View>
     );
   }
@@ -68,7 +68,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#F4F6FA" }} edges={["top", "left", "right"]}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }} edges={["top", "left", "right"]}>
           <AuthProvider>
             <JourneyProvider>
               <ProfileProvider>
@@ -77,7 +77,7 @@ export default function RootLayout() {
                     screenOptions={{
                       headerShown: false,
                       contentStyle: {
-                        backgroundColor: "#F4F6FA",
+                        backgroundColor: "#121212",
                         paddingHorizontal: horizontalPadding,
                       },
                     }}
