@@ -35,7 +35,7 @@ export default function Step4() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
+  container: { flex: 1, backgroundColor: "#121212", padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   logo: {
     fontSize: 42,
@@ -52,25 +52,25 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     textAlign: "center",
-    color: "#444",
+    color: "#FFFFFF",
     lineHeight: 24,
   },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
-  activeBar: { backgroundColor: "#000" },
+  progressBar: { height: 2, flex: 1, backgroundColor: "#232326" },
+  activeBar: { backgroundColor: "#22C55E" },
   button: {
-    backgroundColor: "#000",
+    backgroundColor: "#FFFFFF",
     padding: 18,
     borderRadius: 4,
     alignItems: "center",
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  buttonText: { color: "#000000", fontSize: 16, fontWeight: "500" },
 
   headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
   subHeaderText: {
     fontSize: 16,
-    color: "#666",
+    color: "#A1A1AA",
     alignSelf: "flex-start",
     marginBottom: 30,
   },

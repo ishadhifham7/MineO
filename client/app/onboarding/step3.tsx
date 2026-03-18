@@ -17,7 +17,7 @@ export default function Step3() {
             marginVertical: 40,
           }}
         >
-          <View style={{ height: 2, flex: 1, backgroundColor: "#000" }} />
+          <View style={{ height: 2, flex: 1, backgroundColor: "#22C55E" }} />
           {/* Dots representation */}
           {[1, 2, 3, 4].map((i) => (
             <View
@@ -26,7 +26,7 @@ export default function Step3() {
                 width: 12,
                 height: 12,
                 borderRadius: 6,
-                backgroundColor: i === 4 ? "#000" : "#D9E3F1",
+                backgroundColor: i === 4 ? "#22C55E" : "#232326",
                 marginHorizontal: 15,
               }}
             />
@@ -59,7 +59,7 @@ export default function Step3() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
+  container: { flex: 1, backgroundColor: "#121212", padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   logo: {
     fontSize: 42,
@@ -76,42 +76,42 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     textAlign: "center",
-    color: "#444",
+    color: "#FFFFFF",
     lineHeight: 24,
   },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
-  activeBar: { backgroundColor: "#000" },
+  progressBar: { height: 2, flex: 1, backgroundColor: "#232326" },
+  activeBar: { backgroundColor: "#22C55E" },
   button: {
-    backgroundColor: "#000",
+    backgroundColor: "#FFFFFF",
     padding: 18,
     borderRadius: 4,
     alignItems: "center",
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  buttonText: { color: "#000000", fontSize: 16, fontWeight: "500" },
 
   headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
   subHeaderText: {
     fontSize: 16,
-    color: "#666",
+    color: "#A1A1AA",
     alignSelf: "flex-start",
     marginBottom: 30,
   },
   diagramContainer: {
     width: "100%",
     padding: 20,
-    backgroundColor: "#EAF1FB",
+    backgroundColor: "#232326",
     borderRadius: 8,
     marginVertical: 30,
     alignItems: "center",
   },
   diagramText: { fontSize: 14, fontWeight: "500" },
-  caption: { fontSize: 12, marginTop: 10, color: "#888" },
+  caption: { fontSize: 12, marginTop: 10, color: "#A1A1AA" },
   loopArrow: {
     width: 60,
     height: 4,
-    backgroundColor: "#333",
+    backgroundColor: "#A1A1AA",
     borderRadius: 2,
     marginTop: 8,
   },

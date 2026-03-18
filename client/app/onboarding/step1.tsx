@@ -31,15 +31,15 @@ export default function Step1() {
 
 // Shared styles (You can move these to a constant file later)
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F6FA', padding: 30 },
+  container: { flex: 1, backgroundColor: "#121212", padding: 30 },
   content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   logo: { fontSize: 42, fontWeight: '300', marginBottom: 40, fontFamily: 'serif' },
   title: { fontSize: 22, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
-  description: { fontSize: 16, textAlign: 'center', color: '#444', lineHeight: 24 },
+  description: { fontSize: 16, textAlign: 'center', color: "#FFFFFF", lineHeight: 24 },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: 'row', gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: '#D9E3F1' },
-  activeBar: { backgroundColor: '#000' },
-  button: { backgroundColor: '#000', padding: 18, borderRadius: 4, alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '500' }
+  progressBar: { height: 2, flex: 1, backgroundColor: "#232326" },
+  activeBar: { backgroundColor: "#22C55E" },
+  button: { backgroundColor: '#FFFFFF', padding: 18, borderRadius: 4, alignItems: 'center' },
+  buttonText: { color: "#000000", fontSize: 16, fontWeight: '500' }
 });
