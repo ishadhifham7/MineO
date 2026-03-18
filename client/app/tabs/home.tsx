@@ -6,21 +6,26 @@ import {
   StyleSheet,
   TextInput,
   Dimensions,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "../../src/hooks/useAuth";
+import { getCalendar } from "../../src/services/habit.service";
+import type { CalendarData } from "../../src/features/habit/habit.types";
 import JournalCalendar from "../../src/components/home/calender/JournalCalendar";
 import JournalPreviewBottomSheet from "../../src/components/home/calender/JournalPreviewBottomSheet";
 import JournalViewerModal from "../../src/components/home/calender/JournalViewerModal";
 import JournalSearchResults from "../../src/components/home/calender/JournalSearchResults";
 import { getAllJournals } from "../../src/features/journal/journal.api";
 import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
+import type { ImageBlock } from "../../types/journal";
 
 // ---------- Types ----------
 interface DailyWin {
@@ -71,7 +76,7 @@ function DonutChart({
           cx={center}
           cy={center}
           r={radius}
-          stroke="#f0f0f0"
+          stroke="#F6F1E7"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -116,26 +121,15 @@ export default function HomeScreen() {
     useState<JournalEntryWithBlocks | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [allJournals, setAllJournals] = useState<JournalEntryWithBlocks[]>([]);
-
-  const dailyWins: DailyWin[] = [
-    { id: "1", emoji: "😊", title: "Gratitude", bgColor: "#FFF3E0" },
-    { id: "2", emoji: "🧘", title: "Morning ex...", bgColor: "#F3E5F5" },
-    { id: "3", emoji: "📚", title: "Read book", bgColor: "#E3F2FD" },
-  ];
-
-  const winCategories: WinCategory[] = [
-    { name: "Mental", percentage: 35, color: "#FF8A80" },
-    { name: "Physical", percentage: 25, color: "#82B1FF" },
-    { name: "Spiritual", percentage: 20, color: "#B9F6CA" },
-    { name: "Goal Path", percentage: 20, color: "#FFE0B2" },
-  ];
+  const [habitCalendar, setHabitCalendar] = useState<CalendarData>({});
+  const isCompact = SCREEN_W < 390;
 
   const milestones = [
-    { done: true, color: "#81C784" },
-    { done: true, color: "#64B5F6" },
-    { done: true, color: "#FF8A65" },
-    { done: false, isStar: true, color: "#E0E0E0" },
-    { done: false, isEnd: true, color: "#E0E0E0" },
+    { done: true, color: "#4CAF50" },
+    { done: true, color: "#B5A993" },
+    { done: true, color: "#E53935" },
+    { done: false, isStar: true, color: "#E5DFD3" },
+    { done: false, isEnd: true, color: "#E5DFD3" },
   ];
 
   //fetch goals whenever Home is opened (keeps up to date)
@@ -143,17 +137,102 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchGoals();
-      // Fetch all journal entries once per focus so search works in-memory.
-      // This does NOT affect the calendar, which fetches its own dates separately.
+      // Fetch habit calendar + journal entries on focus
       if (user) {
+        getCalendar()
+          .then(setHabitCalendar)
+          .catch(() => {});
         getAllJournals()
           .then(setAllJournals)
-          .catch(() => {}); // silent failure — search just shows nothing
+          .catch(() => {});
       }
     }, [fetchGoals, user]),
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
+
+  const greetingName = useMemo(() => {
+    if (!user?.email) return "champion";
+    const handle = user.email.split("@")[0] ?? "champion";
+    return handle.replace(/[._-]/g, " ").trim();
+  }, [user]);
+
+  // ---- Compute Life Moments from journal entries ----
+  const lifeMoments = useMemo(() => {
+    // Get pinned entries or entries with images, sorted by most recently updated
+    const withImages = allJournals
+      .map((j) => {
+        const img = j.blocks.find((b): b is ImageBlock => b.type === "image");
+        return { journal: j, image: img ?? null };
+      })
+      .filter((m) => m.journal.isPinnedToTimeline || m.image)
+      .sort((a, b) => b.journal.updatedAt - a.journal.updatedAt);
+    return withImages;
+  }, [allJournals]);
+
+  const latestMoment = lifeMoments[0] ?? null;
+  const momentCount = lifeMoments.length;
+
+  // ---- Compute Daily Wins from today's habit scores ----
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+
+  const dailyWins = useMemo<DailyWin[]>(() => {
+    const today = habitCalendar[todayStr];
+    if (!today) return [];
+    const mapping: { key: keyof typeof today; emoji: string; title: string; bgColor: string }[] = [
+      { key: "spiritual", emoji: "🧘", title: "Spiritual", bgColor: "#E8F5E9" },
+      { key: "mental", emoji: "🧠", title: "Mental", bgColor: "#F3E5F5" },
+      { key: "physical", emoji: "💪", title: "Physical", bgColor: "#E3F2FD" },
+    ];
+    return mapping
+      .filter((m) => (today[m.key] ?? 0) >= 0.5)
+      .map((m, i) => ({ id: String(i), emoji: m.emoji, title: `${m.title}${today[m.key] === 1 ? " ✓" : " ~"}`, bgColor: m.bgColor }));
+  }, [habitCalendar, todayStr]);
+
+  const dailyWinPct = useMemo(() => {
+    const today = habitCalendar[todayStr];
+    if (!today) return 0;
+    const filled = ["spiritual", "mental", "physical"].filter((k) => (today[k as keyof typeof today] ?? 0) > 0).length;
+    return Math.round((filled / 3) * 100);
+  }, [habitCalendar, todayStr]);
+
+  // ---- Compute Win Tracker categories from monthly habit data + goals ----
+  const winCategories = useMemo<WinCategory[]>(() => {
+    const now = new Date();
+    const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const monthDays = Object.entries(habitCalendar).filter(([d]) => d.startsWith(prefix));
+    const dayCount = Math.max(monthDays.length, 1);
+
+    const catScore = (cat: "spiritual" | "mental" | "physical") => {
+      const total = monthDays.reduce((s, [, scores]) => s + (scores?.[cat] ?? 0), 0);
+      return Math.round((total / dayCount) * 100);
+    };
+
+    const mentalPct = catScore("mental");
+    const physicalPct = catScore("physical");
+    const spiritualPct = catScore("spiritual");
+
+    // Goal path: percentage of completed stages across all goals
+    const allStages = (goals ?? []).flatMap((g) => g.stages ?? []);
+    const goalPct = allStages.length > 0
+      ? Math.round((allStages.filter((s) => s.completed).length / allStages.length) * 100)
+      : 0;
+
+    return [
+      { name: "Mental", percentage: mentalPct, color: "#E53935" },
+      { name: "Physical", percentage: physicalPct, color: "#2196F3" },
+      { name: "Spiritual", percentage: spiritualPct, color: "#4CAF50" },
+      { name: "Goal Path", percentage: goalPct, color: "#B5A993" },
+    ];
+  }, [habitCalendar, goals]);
+
+  const totalWinPct = useMemo(() => {
+    const sum = winCategories.reduce((s, c) => s + c.percentage, 0);
+    return Math.round(sum / Math.max(winCategories.length, 1));
+  }, [winCategories]);
 
   const allGoalsCompleted = useMemo(() => {
     if (!goals || goals.length === 0) return false;
@@ -163,8 +242,8 @@ export default function HomeScreen() {
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-    if (!total || total <= 0) return "#F3F4F6"; // gray
-    if (completed <= 0) return "#F3F4F6";
+    if (!total || total <= 0) return "#F6F1E7"; // gray
+    if (completed <= 0) return "#F6F1E7";
 
     // Convert any total into a 1..6 bucket
     const ratio = completed / total;
@@ -173,19 +252,19 @@ export default function HomeScreen() {
     // setting background colors for the goals based on the progress
     switch (bucket) {
       case 1:
-        return "#DCFCE7";
+        return "#E8F5E9";
       case 2:
-        return "#DBEAFE";
+        return "#E3F2FD";
       case 3:
-        return "#EDE9FE";
+        return "#F6F1E7";
       case 4:
-        return "#FEF3C7";
+        return "#FFF8E1";
       case 5:
-        return "#FFE4E6";
+        return "#FFEBEE";
       case 6:
-        return "#D1FAE5";
+        return "#E8F5E9";
       default:
-        return "#F3F4F6";
+        return "#F6F1E7";
     }
   };
 
@@ -195,65 +274,45 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
-      {/* ===== Scenic Header ===== */}
-      <View style={styles.headerBg}>
-        {/* Sky */}
-        <View style={styles.skyLayer} />
-        <View style={styles.cloudLayer} />
-        {/* Hills */}
-        <View style={styles.hillBack} />
-        <View style={styles.hillFront} />
-        {/* Trees */}
-        <View style={[styles.tree, { left: 40, bottom: 55 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
-          <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { left: 80, bottom: 65 }]}>
-          <View
-            style={[
-              styles.treeTop,
-              {
-                backgroundColor: "#66BB6A",
-                width: 28,
-                height: 28,
-                borderRadius: 14,
-              },
-            ]}
-          />
-          <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { right: 70, bottom: 50 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
-          <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-          <View
-            style={[
-              styles.treeTop,
-              {
-                backgroundColor: "#FF8A65",
-                width: 30,
-                height: 30,
-                borderRadius: 15,
-              },
-            ]}
-          />
-          <View style={styles.treeTrunk} />
-        </View>
-        {/* Profile Icon - Top Right */}
-        <TouchableOpacity
-          style={styles.profileIconButton}
-          onPress={() => router.push("/other/profile")}
+      {/* ===== Hero Header ===== */}
+      <View style={styles.heroShell}>
+        <LinearGradient
+          colors={['#2E2A26', '#6B645C', '#B5A993']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerBg}
         >
-          <View style={styles.profileIconContainer}>
-            <Ionicons name="person" size={24} color="#333" />
+          <View style={styles.headerOrbOne} />
+          <View style={styles.headerOrbTwo} />
+
+          <TouchableOpacity
+            style={styles.profileIconButton}
+            onPress={() => router.push("/other/profile")}
+          >
+            <View style={styles.profileIconContainer}>
+              <Ionicons name="person" size={20} color="#2E2A26" />
+            </View>
+          </TouchableOpacity>
+
+          <Text style={styles.headerKicker}>TODAY'S FOCUS</Text>
+          <Text style={styles.headerHello}>Welcome back, {greetingName}</Text>
+          <Text style={styles.headerSub}>Build momentum with one intentional step.</Text>
+
+          <View style={styles.heroStatRow}>
+            <View style={styles.heroStatPill}>
+              <Text style={styles.heroStatValue}>{dailyWinPct}%</Text>
+              <Text style={styles.heroStatLabel}>Daily wins</Text>
+            </View>
+            <View style={styles.heroStatPill}>
+              <Text style={styles.heroStatValue}>{totalWinPct}%</Text>
+              <Text style={styles.heroStatLabel}>Monthly score</Text>
+            </View>
+            <View style={styles.heroStatPill}>
+              <Text style={styles.heroStatValue}>{displayGoals.length}</Text>
+              <Text style={styles.heroStatLabel}>Active goals</Text>
+            </View>
           </View>
-        </TouchableOpacity>
-        {/* Header Text */}
-        <View style={styles.headerTextWrap}>
-          <Text style={styles.headerHello}>Hello,</Text>
-          <Text style={styles.headerSub}>Nice to Meet You</Text>
-        </View>
+        </LinearGradient>
       </View>
 
       {/* ===== Search Bar ===== */}
@@ -322,35 +381,80 @@ export default function HomeScreen() {
       />
 
       {/* ===== Life Moments & Daily Wins ===== */}
-      <View style={styles.twoCardRow}>
+      <View style={[styles.twoCardRow, isCompact && styles.twoCardCol]}>
         {/* Life Moments */}
-        <View style={[styles.card, styles.halfCard]}>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[styles.card, styles.halfCard, isCompact && styles.fullCard]}
+          onPress={() => {
+            if (latestMoment) setSelectedEntry(latestMoment.journal);
+          }}
+        >
           <Text style={styles.cardTitle}>Life Moments</Text>
           <Text style={styles.cardSubtitle}>RECENTLY</Text>
-          {/* Photo placeholder */}
-          <View style={styles.momentImageWrap}>
-            <View style={styles.momentImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#ccc" />
+          {latestMoment ? (
+            <>
+              <View style={styles.momentImageWrap}>
+                {latestMoment.image ? (
+                  <Image
+                    source={{ uri: latestMoment.image.imageUri }}
+                    style={styles.momentImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.momentImagePlaceholder}>
+                    <Ionicons name="document-text-outline" size={40} color="#ccc" />
+                  </View>
+                )}
+                <View style={styles.momentCaptionWrap}>
+                  <Ionicons name={latestMoment.image ? "camera-outline" : "bookmark-outline"} size={12} color="#fff" />
+                  <Text style={styles.momentCaption} numberOfLines={1}>
+                    {latestMoment.journal.title || latestMoment.journal.date}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.momentFooter}>
+                {lifeMoments.slice(1, 4).map((m, i) => (
+                  <TouchableOpacity
+                    key={m.journal.id}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedEntry(m.journal)}
+                    style={[
+                      styles.thumbCircle,
+                      i > 0 && { marginLeft: -8 },
+                      m.image ? undefined : { backgroundColor: "#D8D0C3" },
+                    ]}
+                  >
+                    {m.image && (
+                      <Image
+                        source={{ uri: m.image.imageUri }}
+                        style={{ width: 22, height: 22, borderRadius: 11 }}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+                {momentCount > 1 && (
+                  <Text style={styles.moreText}>+{momentCount - 1} more</Text>
+                )}
+              </View>
+            </>
+          ) : (
+            <View style={styles.momentImageWrap}>
+              <View style={styles.momentImagePlaceholder}>
+                <Ionicons name="image-outline" size={40} color="#ccc" />
+              </View>
+              <Text style={{ fontSize: 12, color: "#8C7F6A", marginTop: 8 }}>No moments yet</Text>
             </View>
-            <View style={styles.momentCaptionWrap}>
-              <Ionicons name="camera-outline" size={12} color="#fff" />
-              <Text style={styles.momentCaption}>Morning light</Text>
-            </View>
-          </View>
-          <View style={styles.momentFooter}>
-            <View style={styles.momentThumbs}>
-              <View style={styles.thumbCircle} />
-              <View style={[styles.thumbCircle, { marginLeft: -8 }]} />
-              <View style={[styles.thumbCircle, { marginLeft: -8 }]} />
-            </View>
-            <Text style={styles.moreText}>+12 more</Text>
-          </View>
-        </View>
+          )}
+        </TouchableOpacity>
 
         {/* Daily Wins */}
-        <View style={[styles.card, styles.halfCard]}>
+        <View style={[styles.card, styles.halfCard, isCompact && styles.fullCard]}>
           <Text style={styles.cardTitle}>Daily Wins</Text>
           <Text style={styles.cardSubtitle}>TODAY</Text>
+          {dailyWins.length === 0 && (
+            <Text style={{ fontSize: 12, color: "#8C7F6A", marginTop: 8 }}>No wins yet today</Text>
+          )}
           {dailyWins.map((win) => (
             <View
               key={win.id}
@@ -363,44 +467,75 @@ export default function HomeScreen() {
           {/* Progress bar */}
           <View style={styles.doneRow}>
             <View style={styles.doneDot} />
-            <Text style={styles.doneText}>80% DONE</Text>
+            <Text style={styles.doneText}>{dailyWinPct}% DONE</Text>
             <View style={styles.doneBarBg}>
-              <View style={styles.doneBarFill} />
+              <View style={[styles.doneBarFill, { width: `${dailyWinPct}%` as any }]} />
             </View>
           </View>
         </View>
       </View>
 
       {/* ===== Win Tracker ===== */}
-      <View style={styles.sectionPadding}>
-        <View style={styles.card}>
-          <View style={styles.trackerHeader}>
-            <Text style={styles.sectionTitle}>Win Tracker</Text>
-            <Text style={styles.monthlyLabel}>Monthly</Text>
-          </View>
-          <View style={styles.trackerBody}>
-            <DonutChart
-              data={winCategories.map((c) => ({
-                percentage: c.percentage,
-                color: c.color,
-              }))}
-              centerLabel="82%"
-              centerSub="TOTAL"
-            />
-            <View style={styles.legendList}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => router.push("/other-tabs/win-tracker")}
+        style={styles.sectionPadding}
+      >
+        <LinearGradient
+          colors={["#FFFFFF", "#F6F1E7"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.trackerCard}
+        >
+          <View style={styles.trackerCardInner}>
+            {/* Header with title and total */}
+            <View style={styles.trackerCardHeader}>
+              <View>
+                <Text style={styles.trackerCardTitle}>Win Tracker</Text>
+                <Text style={styles.trackerCardSubtitle}>Monthly Performance</Text>
+              </View>
+              <View style={styles.totalBadge}>
+                <Text style={styles.totalBadgeNumber}>{totalWinPct}%</Text>
+              </View>
+            </View>
+
+            {/* Progress bars for each category */}
+            <View style={styles.trackerCategoriesContainer}>
               {winCategories.map((cat) => (
-                <View key={cat.name} style={styles.legendItem}>
-                  <View
-                    style={[styles.legendDot, { backgroundColor: cat.color }]}
-                  />
-                  <Text style={styles.legendName}>{cat.name}</Text>
-                  <Text style={styles.legendPct}>{cat.percentage}%</Text>
+                <View key={cat.name} style={styles.trackerCategoryRow}>
+                  <View style={styles.trackerCategoryLabel}>
+                    <View
+                      style={[
+                        styles.trackerCategoryDot,
+                        { backgroundColor: cat.color },
+                      ]}
+                    />
+                    <Text style={styles.trackerCategoryName}>{cat.name}</Text>
+                  </View>
+                  <View style={styles.progressBarContainer}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        {
+                          width: `${cat.percentage}%`,
+                          backgroundColor: cat.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.trackerCategoryPct}>{cat.percentage}%</Text>
                 </View>
               ))}
             </View>
           </View>
-        </View>
-      </View>
+
+          {/* Footer with arrow */}
+          <View style={styles.trackerFooter}>
+            <Text style={styles.trackerFooterText}>View Details</Text>
+            <Ionicons name="chevron-forward" size={16} color="#B5A993" />
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
 
       {/* ===== Goal Path ===== */}
       <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
@@ -463,7 +598,7 @@ export default function HomeScreen() {
                     <Ionicons
                       name="chevron-forward"
                       size={18}
-                      color="#9CA3AF"
+                      color="#8C7F6A"
                     />
                   </TouchableOpacity>
                 );
@@ -482,142 +617,157 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#f7f7f7",
+    backgroundColor: "#F6F1E7",
   },
 
   /* ---- Header ---- */
+  heroShell: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    marginBottom: 6,
+  },
   headerBg: {
     width: "100%",
-    height: 220,
-    backgroundColor: "#dce9f5",
+    minHeight: 235,
+    borderRadius: 30,
+    paddingHorizontal: 18,
+    paddingVertical: 20,
     overflow: "hidden",
     position: "relative",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
-  skyLayer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#e8eef6",
-  },
-  cloudLayer: {
+  headerOrbOne: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    width: 180,
-    height: 100,
-    backgroundColor: "#f3d4d0",
-    borderBottomLeftRadius: 100,
-    opacity: 0.5,
+    top: -35,
+    right: -25,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "rgba(255, 255, 255, 0.22)",
   },
-  hillBack: {
+  headerOrbTwo: {
     position: "absolute",
-    bottom: 0,
-    left: -30,
-    width: SCREEN_W + 60,
-    height: 100,
-    backgroundColor: "#c5ddb8",
-    borderTopLeftRadius: 200,
-    borderTopRightRadius: 200,
+    bottom: -45,
+    left: -35,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: "rgba(12, 22, 33, 0.18)",
   },
-  hillFront: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    width: SCREEN_W,
-    height: 60,
-    backgroundColor: "#d4c9a8",
-    borderTopLeftRadius: 300,
-    borderTopRightRadius: 100,
-  },
-  tree: {
-    position: "absolute",
-    alignItems: "center",
-  },
-  treeTop: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-  },
-  treeTrunk: {
-    width: 4,
-    height: 14,
-    backgroundColor: "#8D6E63",
-    borderRadius: 2,
-  },
-  headerTextWrap: {
-    position: "absolute",
-    top: 60,
-    width: "100%",
-    alignItems: "center",
+  headerKicker: {
+    marginTop: 6,
+    fontSize: 11,
+    letterSpacing: 1.4,
+    fontFamily: "Roboto_500Medium",
+    color: "rgba(255,255,255,0.86)",
   },
   headerHello: {
-    fontSize: 32,
-    fontWeight: "300",
-    color: "#333",
+    marginTop: 8,
+    fontSize: 27,
+    lineHeight: 33,
+    fontFamily: "Roboto_500Medium",
+    color: "#FFFFFF",
   },
   headerSub: {
-    fontSize: 20,
-    fontWeight: "300",
-    color: "#666",
+    marginTop: 6,
+    maxWidth: "88%",
+    fontSize: 14,
+    fontFamily: "Roboto_400Regular",
+    color: "rgba(255,255,255,0.88)",
+  },
+  heroStatRow: {
+    marginTop: 18,
+    flexDirection: "row",
+    gap: 8,
+  },
+  heroStatPill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+    alignItems: "center",
+  },
+  heroStatValue: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    fontFamily: "Roboto_500Medium",
+  },
+  heroStatLabel: {
     marginTop: 2,
+    fontSize: 11,
+    color: "rgba(255,255,255,0.84)",
+    fontFamily: "Roboto_400Regular",
   },
 
   /* ---- Search ---- */
   searchWrapper: {
-    paddingHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 8,
+    paddingHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 10,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#D8D0C3",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 11,
     gap: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 10,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: "#333",
+    fontFamily: "Roboto_400Regular",
+    color: "#2E2A26",
   },
 
   /* ---- Shared ---- */
   sectionPadding: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    marginBottom: 14,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     borderRadius: 18,
-    padding: 20,
+    borderWidth: 1,
+    borderColor: "#D8D0C3",
+    padding: 18,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 9,
     elevation: 1,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 17,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#222",
+    color: "#2E2A26",
   },
   cardSubtitle: {
     fontSize: 11,
+    fontFamily: "Roboto_400Regular",
     fontWeight: "600",
-    color: "#aaa",
+    color: "#6B645C",
     letterSpacing: 1,
     marginTop: 2,
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#222",
+    color: "#2E2A26",
   },
 
   /* ---- Calendar ---- */
@@ -630,7 +780,7 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#333",
+    color: "#2E2A26",
   },
   dayHeaderRow: {
     flexDirection: "row",
@@ -641,7 +791,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: "#8C7F6A",
     letterSpacing: 0.5,
   },
   calGrid: {
@@ -662,15 +812,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   calDaySelected: {
-    backgroundColor: "#64B5F6",
+    backgroundColor: "#B5A993",
   },
   calDayPhoto: {
-    backgroundColor: "#e8e8e8",
+    backgroundColor: "#E5DFD3",
   },
   calDayText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#444",
+    color: "#2E2A26",
   },
   calDayTextSelected: {
     color: "#fff",
@@ -680,17 +830,23 @@ const styles = StyleSheet.create({
   /* ---- Two-card row ---- */
   twoCardRow: {
     flexDirection: "row",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     gap: 12,
     marginBottom: 16,
+  },
+  twoCardCol: {
+    flexDirection: "column",
   },
   halfCard: {
     flex: 1,
   },
+  fullCard: {
+    width: "100%",
+  },
 
   /* ---- Life Moments ---- */
   momentImageWrap: {
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: "hidden",
     marginBottom: 12,
     position: "relative",
@@ -698,10 +854,15 @@ const styles = StyleSheet.create({
   momentImagePlaceholder: {
     width: "100%",
     height: 130,
-    backgroundColor: "#f0ece4",
-    borderRadius: 12,
+    backgroundColor: "#F6F1E7",
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
+  },
+  momentImage: {
+    width: "100%",
+    height: 130,
+    borderRadius: 14,
   },
   momentCaptionWrap: {
     position: "absolute",
@@ -718,7 +879,7 @@ const styles = StyleSheet.create({
   momentCaption: {
     fontSize: 11,
     color: "#fff",
-    fontWeight: "600",
+    fontFamily: "Roboto_500Medium",
   },
   momentFooter: {
     flexDirection: "row",
@@ -738,14 +899,15 @@ const styles = StyleSheet.create({
   },
   moreText: {
     fontSize: 11,
-    color: "#999",
+    color: "#6B645C",
+    fontFamily: "Roboto_400Regular",
   },
 
   /* ---- Daily Wins ---- */
   winChip: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginBottom: 8,
@@ -756,8 +918,8 @@ const styles = StyleSheet.create({
   },
   winChipText: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#444",
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
   },
   doneRow: {
     flexDirection: "row",
@@ -769,41 +931,132 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#66BB6A",
+    backgroundColor: "#4CAF50",
   },
   doneText: {
     fontSize: 10,
-    fontWeight: "700",
-    color: "#666",
+    fontFamily: "Roboto_500Medium",
+    color: "#6B645C",
   },
   doneBarBg: {
     flex: 1,
     height: 6,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: "#E5DFD3",
     borderRadius: 3,
     overflow: "hidden",
   },
   doneBarFill: {
-    width: "80%" as any,
     height: "100%",
-    backgroundColor: "#66BB6A",
+    backgroundColor: "#4CAF50",
     borderRadius: 3,
   },
 
   /* ---- Win Tracker ---- */
-  trackerHeader: {
+  trackerCard: {
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  trackerCardInner: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5DFD3",
+  },
+  trackerCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 24,
+  },
+  trackerCardTitle: {
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#2E2A26",
+  },
+  trackerCardSubtitle: {
+    fontSize: 12,
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
+    marginTop: 4,
+    letterSpacing: 0.5,
+  },
+  totalBadge: {
+    backgroundColor: "#B5A993",
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 20,
+    justifyContent: "center",
   },
-  monthlyLabel: {
-    fontSize: 14,
-    color: "#aaa",
+  totalBadgeNumber: {
+    fontSize: 24,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
-  trackerBody: {
+  trackerCategoriesContainer: {
+    gap: 14,
+  },
+  trackerCategoryRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+  },
+  trackerCategoryLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    width: 100,
+  },
+  trackerCategoryDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  trackerCategoryName: {
+    fontSize: 13,
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
+    flex: 1,
+  },
+  progressBarContainer: {
+    flex: 1,
+    height: 8,
+    backgroundColor: "#E5DFD3",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  trackerCategoryPct: {
+    fontSize: 13,
+    fontFamily: "Roboto_600SemiBold",
+    color: "#2E2A26",
+    width: 45,
+    textAlign: "right",
+  },
+  trackerFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "#F6F1E7",
+    gap: 6,
+  },
+  trackerFooterText: {
+    fontSize: 14,
+    fontFamily: "Roboto_500Medium",
+    color: "#B5A993",
   },
   donutCenter: {
     position: "absolute",
@@ -811,13 +1064,13 @@ const styles = StyleSheet.create({
   },
   donutCenterLabel: {
     fontSize: 26,
-    fontWeight: "700",
-    color: "#333",
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
   },
   donutCenterSub: {
     fontSize: 11,
-    fontWeight: "600",
-    color: "#aaa",
+    fontFamily: "Roboto_500Medium",
+    color: "#6B645C",
     letterSpacing: 1,
   },
   legendList: {
@@ -838,13 +1091,13 @@ const styles = StyleSheet.create({
   legendName: {
     flex: 1,
     fontSize: 13,
-    fontWeight: "500",
-    color: "#555",
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
   },
   legendPct: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#555",
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
   },
 
   /* ---- Goal Path ---- */
@@ -856,17 +1109,19 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: 20,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#000000",
+    color: "#2E2A26",
   },
   goalEmptyText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: "#6B645C",
+    fontFamily: "Roboto_400Regular",
     marginTop: 6,
   },
   goalRow: {
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#F6F1E7",
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -876,33 +1131,35 @@ const styles = StyleSheet.create({
   },
   goalRowTitle: {
     fontSize: 15,
+    fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#111827",
+    color: "#2E2A26",
   },
   goalRowSub: {
     marginTop: 4,
     fontSize: 12,
+    fontFamily: "Roboto_400Regular",
     fontWeight: "600",
-    color: "#6B7280",
+    color: "#6B645C",
   },
 
   /* ---- Profile Icon ---- */
   profileIconButton: {
     position: "absolute",
-    top: 40,
-    right: 20,
+    top: 16,
+    right: 16,
     zIndex: 10,
   },
   profileIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#fff",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.92)",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
   },
