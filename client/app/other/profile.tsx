@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { useProfile } from "../../src/providers/ProfileProvider"; // ✅ adjust if your path differs
 
@@ -176,15 +177,29 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <View style={{ width: 28 }} />
-      </View>
+      <LinearGradient
+        colors={["#B5A993", "#8C7F6A"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.headerTextWrap}>
+            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerSubtitle}>Manage your account and preferences</Text>
+          </View>
+
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => refreshProfile()}>
+            <Ionicons name="refresh-outline" size={18} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Error banner */}
         {!!error && (
           <View style={styles.errorBanner}>
@@ -219,7 +234,19 @@ export default function ProfileScreen() {
           <Text style={styles.profileUsername}>@{username || "—"}</Text>
           <Text style={styles.profileBio}>{bio || "—"}</Text>
 
+          <View style={styles.metaRow}>
+            <View style={styles.metaPill}>
+              <Ionicons name="mail-outline" size={14} color="#8C7F6A" />
+              <Text style={styles.metaText}>{showEmail ? "Email Visible" : "Email Hidden"}</Text>
+            </View>
+            <View style={styles.metaPill}>
+              <Ionicons name="call-outline" size={14} color="#8C7F6A" />
+              <Text style={styles.metaText}>{showPhone ? "Phone Visible" : "Phone Hidden"}</Text>
+            </View>
+          </View>
+
           <TouchableOpacity style={styles.editProfileButton} onPress={() => setShowEditProfileModal(true)}>
+            <Ionicons name="create-outline" size={16} color="#FFFFFF" />
             <Text style={styles.editProfileButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
@@ -480,237 +507,412 @@ export default function ProfileScreen() {
 
 
 const styles = StyleSheet.create({
-  
-  container: { flex: 1, backgroundColor: "#F5F5F5" },
+  container: {
+    flex: 1,
+    backgroundColor: "#F6F1E7",
+  },
+
+  headerGradient: {
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingHorizontal: 14,
+  },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    gap: 12,
   },
 
-  backButton: { padding: 4 },
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+  },
 
-  headerTitle: { fontSize: 18, 
-    fontWeight: "600", 
-    color: "#000" },
-    
-  scrollView: { flex: 1 },
+  headerTextWrap: {
+    flex: 1,
+  },
+
+  headerIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+  },
+
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    letterSpacing: -0.2,
+  },
+
+  headerSubtitle: {
+    marginTop: 2,
+    fontSize: 12,
+    fontWeight: "500",
+    color: "rgba(255,255,255,0.9)",
+  },
+
+  scrollView: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
 
   errorBanner: {
     margin: 16,
-    padding: 12,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    padding: 14,
+    backgroundColor: "#FFF7F5",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#F44336",
+    borderColor: "rgba(149,67,44,0.20)",
+    shadowColor: "#011D32",
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
   },
-  errorText: { 
-    color: "#F44336", 
-    fontWeight: "600" },
 
-  retryBtn: { marginTop: 8 },
+  errorText: {
+    color: "#95432C",
+    fontWeight: "600",
+    fontSize: 14,
+  },
 
-  retryText: { 
-    color: "#2196F3", 
-    fontWeight: "600" },
+  retryBtn: {
+    marginTop: 8,
+  },
+
+  retryText: {
+    color: "#2E717E",
+    fontWeight: "600",
+  },
 
   profileCard: {
-    backgroundColor: "#fff",
-    marginBottom: 20,
-    paddingVertical: 32,
-    paddingHorizontal: 20,
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 18,
+    paddingVertical: 24,
+    paddingHorizontal: 18,
     alignItems: "center",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
+
   avatarContainer: {
-    marginBottom: 16,
+    marginBottom: 18,
+    padding: 5,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.75)",
+    shadowColor: "#011D32",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
+
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#E0E0E0",
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: "#ECE6DC",
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#D9D2C5",
   },
+
   profileName: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#000",
+    color: "#2E2A26",
+    marginTop: 12,
     marginBottom: 4,
   },
+
   profileUsername: {
     fontSize: 14,
-    color: "#2196F3",
-    marginBottom: 12,
+    color: "#8C7F6A",
+    marginBottom: 10,
+    fontWeight: "500",
   },
+
   profileBio: {
-    fontSize: 14,
-    color: "#757575",
+    fontSize: 13,
+    color: "#6B645C",
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 20,
-    paddingHorizontal: 20,
+    lineHeight: 19,
+    marginBottom: 14,
+    paddingHorizontal: 12,
   },
-  editProfileButton: {
-    backgroundColor: "#2196F3",
-    paddingHorizontal: 80,
-    paddingVertical: 12,
-    borderRadius: 25,
+
+  metaRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    marginBottom: 14,
   },
-  editProfileButtonText: {
-    color: "#fff",
-    fontSize: 16,
+
+  metaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#F6F1E7",
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+
+  metaText: {
+    fontSize: 11,
+    color: "#6B645C",
     fontWeight: "600",
   },
+
+  editProfileButton: {
+    backgroundColor: "#2E2A26",
+    paddingHorizontal: 22,
+    paddingVertical: 11,
+    borderRadius: 999,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+
+  editProfileButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0.2,
+  },
+
   statusRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    marginBottom: 20,
+    paddingVertical: 18,
+    marginHorizontal: 16,
+    marginBottom: 22,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
+
   statusLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
+
   statusIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#F5F5F5",
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "#ECE6DC",
     alignItems: "center",
     justifyContent: "center",
   },
+
   statusText: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#000",
+    fontWeight: "600",
+    color: "#2E2A26",
   },
+
   statusRight: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+
   statusDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
+
   statusLabel: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: "600",
+    color: "#564055",
   },
+
   section: {
     marginBottom: 24,
+    paddingHorizontal: 16,
   },
+
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#9E9E9E",
-    paddingHorizontal: 20,
-    marginBottom: 8,
-    letterSpacing: 0.5,
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#8C7F6A",
+    paddingHorizontal: 6,
+    marginBottom: 10,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
   },
+
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    paddingVertical: 17,
+    marginBottom: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
+
   menuLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 14,
   },
+
   menuText: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#000",
+    fontWeight: "600",
+    color: "#2E2A26",
   },
+
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF2EF",
     marginHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 8,
+    paddingVertical: 16,
+    borderRadius: 18,
     marginTop: 12,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#F3C3B8",
   },
+
   logoutText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#F44336",
+    fontWeight: "700",
+    color: "#95432C",
   },
+
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(1,29,50,0.22)",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 14,
   },
+
   modalContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    width: "90%",
-    maxHeight: "80%",
+    backgroundColor: "rgba(248,241,235,0.96)",
+    borderRadius: 28,
+    width: "92%",
+    maxHeight: "82%",
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.7)",
+    shadowColor: "#011D32",
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 8,
   },
+
   modalHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 22,
+    paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: "rgba(86,64,85,0.08)",
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
+
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#000",
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1E1A18",
   },
+
   modalBody: {
     padding: 20,
   },
+
   statusOption: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 16,
     paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    borderRadius: 18,
+    marginBottom: 10,
+    backgroundColor: "rgba(255,255,255,0.55)",
   },
+
   statusOptionSelected: {
-    backgroundColor: "#E3F2FD",
-    borderWidth: 2,
-    borderColor: "#2196F3",
+    backgroundColor: "rgba(46,113,126,0.10)",
+    borderWidth: 1.5,
+    borderColor: "#2E717E",
   },
+
   statusOptionLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
+
   statusOptionText: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#000",
+    fontWeight: "600",
+    color: "#1E1A18",
   },
+
   editFormScroll: {
     padding: 20,
   },
@@ -718,290 +920,379 @@ const styles = StyleSheet.create({
   tipsScroll: {
     padding: 20,
   },
+
   tipItem: {
     flexDirection: "row",
     gap: 16,
-    marginBottom: 20,
-    backgroundColor: "#F9F9F9",
+    marginBottom: 16,
+    backgroundColor: "rgba(255,255,255,0.58)",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.65)",
   },
+
   tipIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F8DABE",
   },
+
   tipContent: {
     flex: 1,
   },
+
   tipTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-    marginBottom: 4,
+    fontWeight: "700",
+    color: "#1E1A18",
+    marginBottom: 6,
   },
+
   tipDescription: {
     fontSize: 14,
-    color: "#757575",
-    lineHeight: 20,
+    color: "#7C746F",
+    lineHeight: 21,
   },
+
   gotItButton: {
-    backgroundColor: "#2196F3",
-    paddingVertical: 14,
-    borderRadius: 25,
+    backgroundColor: "#011D32",
+    paddingVertical: 15,
+    borderRadius: 999,
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 14,
+    shadowColor: "#011D32",
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 3,
   },
+
   gotItButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
+
   faqScroll: {
     padding: 20,
   },
+
   faqItem: {
     marginBottom: 12,
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: "#F9F9F9",
-    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.58)",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.65)",
   },
+
   faqQuestion: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
+
   faqQuestionText: {
     flex: 1,
     fontSize: 15,
-    fontWeight: "500",
-    color: "#000",
+    fontWeight: "600",
+    color: "#1E1A18",
   },
+
   faqAnswer: {
     fontSize: 14,
-    color: "#757575",
+    color: "#7C746F",
     lineHeight: 20,
     marginTop: 8,
     paddingRight: 20,
   },
+
   closeButton: {
-    backgroundColor: "#2196F3",
-    paddingVertical: 14,
-    borderRadius: 25,
+    backgroundColor: "#011D32",
+    paddingVertical: 15,
+    borderRadius: 999,
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 14,
   },
+
   closeButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
+
   contactScroll: {
     padding: 20,
   },
+
   contactInfo: {
     gap: 12,
     marginBottom: 24,
   },
+
   contactItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.58)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.65)",
   },
+
   contactTextContainer: {
     flex: 1,
   },
+
   contactLabel: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#757575",
-    marginBottom: 2,
+    fontWeight: "700",
+    color: "#9A918B",
+    marginBottom: 4,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
   },
+
   contactValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: "#1E1A18",
   },
+
   contactDivider: {
     fontSize: 14,
     color: "#9E9E9E",
     textAlign: "center",
     marginBottom: 20,
   },
+
   formGroup: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
+
   formLabel: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#000",
+    fontWeight: "700",
+    color: "#1E1A18",
     marginBottom: 8,
   },
+
   formInput: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    borderRadius: 18,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 15,
     fontSize: 15,
-    color: "#000",
+    color: "#1E1A18",
+    borderWidth: 1,
+    borderColor: "rgba(86,64,85,0.08)",
   },
+
   selectInput: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    borderRadius: 18,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 15,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "rgba(86,64,85,0.08)",
   },
+
   selectText: {
     fontSize: 15,
-    color: "#000",
+    color: "#1E1A18",
   },
+
   formButtons: {
     flexDirection: "row",
     gap: 12,
-    marginTop: 12,
+    marginTop: 14,
   },
+
   cancelButton: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
-    paddingVertical: 14,
-    borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    paddingVertical: 15,
+    borderRadius: 999,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(86,64,85,0.08)",
   },
+
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#757575",
+    fontWeight: "700",
+    color: "#7C746F",
   },
+
   saveButton: {
     flex: 1,
-    backgroundColor: "#2196F3",
-    paddingVertical: 14,
-    borderRadius: 25,
+    backgroundColor: "#011D32",
+    paddingVertical: 15,
+    borderRadius: 999,
     alignItems: "center",
+    shadowColor: "#011D32",
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 3,
   },
+
   saveButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
+
   messageInput: {
     height: 120,
   },
+
   confirmModalContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: "rgba(248,241,235,0.98)",
+    borderRadius: 28,
     padding: 24,
-    width: "80%",
+    width: "84%",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.7)",
   },
+
   confirmTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#000",
+    color: "#1E1A18",
     marginBottom: 12,
   },
+
   confirmMessage: {
     fontSize: 15,
-    color: "#757575",
+    color: "#7C746F",
     marginBottom: 24,
     textAlign: "center",
+    lineHeight: 22,
   },
+
   confirmLogoutButton: {
     width: "100%",
-    paddingVertical: 14,
-    borderRadius: 8,
+    paddingVertical: 15,
+    borderRadius: 18,
     alignItems: "center",
     marginBottom: 12,
+    backgroundColor: "rgba(149,67,44,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(149,67,44,0.16)",
   },
+
   confirmLogoutText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#F44336",
+    fontWeight: "700",
+    color: "#95432C",
   },
+
   confirmCancelButton: {
     width: "100%",
-    paddingVertical: 14,
-    borderRadius: 8,
+    paddingVertical: 15,
+    borderRadius: 18,
     alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.75)",
   },
+
   confirmCancelText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#2196F3",
+    fontWeight: "700",
+    color: "#2E717E",
   },
+
   photoModalContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: "rgba(248,241,235,0.98)",
+    borderRadius: 28,
     width: "90%",
     maxHeight: "40%",
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.7)",
   },
+
   photoModalBody: {
     padding: 24,
     alignItems: "center",
   },
+
   uploadPhotoButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#2196F3",
+    backgroundColor: "#011D32",
     paddingVertical: 16,
     paddingHorizontal: 80,
-    borderRadius: 8,
+    borderRadius: 18,
     marginBottom: 16,
     width: "100%",
   },
+
   uploadPhotoText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
+
   uploadHint: {
     fontSize: 12,
-    color: "#9E9E9E",
+    color: "#9A918B",
     textAlign: "center",
+    lineHeight: 18,
   },
+
   usernameInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    borderRadius: 18,
     paddingLeft: 16,
+    borderWidth: 1,
+    borderColor: "rgba(86,64,85,0.08)",
   },
+
   usernamePrefix: {
     fontSize: 15,
-    color: "#000",
+    color: "#564055",
     marginRight: 4,
+    fontWeight: "600",
   },
+
   usernameInput: {
     flex: 1,
     paddingVertical: 14,
     paddingRight: 16,
     fontSize: 15,
-    color: "#000",
+    color: "#1E1A18",
   },
+
   bioInput: {
     height: 120,
     paddingTop: 14,
   },
+
   charCounter: {
     fontSize: 12,
-    color: "#9E9E9E",
+    color: "#9A918B",
     textAlign: "right",
-    marginTop: 4,
+    marginTop: 6,
   },
+
   avatarImage: {
     width: "100%",
     height: "100%",
-    borderRadius: 50,
+    borderRadius: 52,
   },
 });
