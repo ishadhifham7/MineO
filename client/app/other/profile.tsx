@@ -90,11 +90,11 @@ export default function ProfileScreen() {
   const getStatusColor = (status: ActivityStatus) => {
     switch (status) {
       case "Active":
-        return "#4CAF50";
+        return "#22C55E";
       case "Away":
-        return "#FFA726";
+        return "#F59E0B";
       case "Offline":
-        return "#9E9E9E";
+        return "#A1A1AA";
     }
   };
 
@@ -178,7 +178,7 @@ export default function ProfileScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#000" />
+          <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={{ width: 28 }} />
@@ -209,7 +209,7 @@ export default function ProfileScreen() {
                 resizeMode="cover"
               />
             ) : (
-              <Ionicons name="person" size={48} color="#9E9E9E" />
+              <Ionicons name="person" size={48} color="#A1A1AA" />
             )}
           </TouchableOpacity>
 
@@ -228,7 +228,7 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.statusRow} onPress={() => setShowActivityModal(true)}>
           <View style={styles.statusLeft}>
             <View style={styles.statusIconContainer}>
-              <Ionicons name="radio-button-on" size={24} color="#000" />
+              <Ionicons name="radio-button-on" size={24} color="#FFFFFF" />
             </View>
             <Text style={styles.statusText}>Activity Status</Text>
           </View>
@@ -237,7 +237,7 @@ export default function ProfileScreen() {
             <Text style={[styles.statusLabel, { color: getStatusColor(activityStatus) }]}>
               {activityStatus}
             </Text>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </View>
         </TouchableOpacity>
 
@@ -247,26 +247,26 @@ export default function ProfileScreen() {
 
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditInfoModal(true)}>
             <View style={styles.menuLeft}>
-              <Ionicons name="person-outline" size={24} color="#000" />
+              <Ionicons name="person-outline" size={24} color="#FFFFFF" />
               <Text style={styles.menuText}>Personal Details</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/other/account-settings")}>
             <View style={styles.menuLeft}>
-              <Ionicons name="settings-outline" size={24} color="#000" />
+              <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
               <Text style={styles.menuText}>Account Settings</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/other/preferences")}>
             <View style={styles.menuLeft}>
-              <Ionicons name="color-palette-outline" size={24} color="#000" />
+              <Ionicons name="color-palette-outline" size={24} color="#FFFFFF" />
               <Text style={styles.menuText}>Language & Theme</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
         </View>
 
@@ -276,32 +276,32 @@ export default function ProfileScreen() {
 
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowTipsModal(true)}>
             <View style={styles.menuLeft}>
-              <Ionicons name="bulb-outline" size={24} color="#000" />
+              <Ionicons name="bulb-outline" size={24} color="#FFFFFF" />
               <Text style={styles.menuText}>Tips and Tricks</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowFAQModal(true)}>
             <View style={styles.menuLeft}>
-              <Ionicons name="help-circle-outline" size={24} color="#000" />
+              <Ionicons name="help-circle-outline" size={24} color="#FFFFFF" />
               <Text style={styles.menuText}>Frequently Asked Questions</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowContactModal(true)}>
             <View style={styles.menuLeft}>
-              <Ionicons name="mail-outline" size={24} color="#000" />
+              <Ionicons name="mail-outline" size={24} color="#FFFFFF" />
               <Text style={styles.menuText}>Contact Us</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
         </View>
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutButton} onPress={() => setShowLogoutModal(true)}>
-          <Ionicons name="log-out-outline" size={20} color="#F44336" />
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
@@ -317,7 +317,7 @@ export default function ProfileScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Activity Status</Text>
               <TouchableOpacity onPress={() => setShowActivityModal(false)}>
-                <Ionicons name="close" size={24} color="#000" />
+                <Ionicons name="close" size={24} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
             <View style={styles.modalBody}>
@@ -334,7 +334,7 @@ export default function ProfileScreen() {
                     <View style={[styles.statusDot, { backgroundColor: getStatusColor(status) }]} />
                     <Text style={styles.statusOptionText}>{status}</Text>
                   </View>
-                  {activityStatus === status && <Ionicons name="checkmark" size={24} color="#2196F3" />}
+                  {activityStatus === status && <Ionicons name="checkmark" size={24} color="#22C55E" />}
                 </TouchableOpacity>
               ))}
             </View>
@@ -349,7 +349,7 @@ export default function ProfileScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit Information</Text>
               <TouchableOpacity onPress={() => setShowEditInfoModal(false)}>
-                <Ionicons name="close" size={24} color="#000" />
+                <Ionicons name="close" size={24} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
 
@@ -368,7 +368,7 @@ export default function ProfileScreen() {
                 <Text style={styles.formLabel}>Gender</Text>
                 <View style={styles.selectInput}>
                   <Text style={styles.selectText}>{gender || "Select"}</Text>
-                  <Ionicons name="chevron-down" size={20} color="#9E9E9E" />
+                  <Ionicons name="chevron-down" size={20} color="#A1A1AA" />
                 </View>
               </View>
 
@@ -397,7 +397,7 @@ export default function ProfileScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit Profile</Text>
               <TouchableOpacity onPress={() => setShowEditProfileModal(false)}>
-                <Ionicons name="close" size={24} color="#000" />
+                <Ionicons name="close" size={24} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
 
@@ -482,7 +482,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4EEE8",
+    backgroundColor: "#121212",
   },
 
   header: {
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#1E1A18",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
 
@@ -517,11 +517,11 @@ const styles = StyleSheet.create({
   errorBanner: {
     margin: 16,
     padding: 14,
-    backgroundColor: "#FFF7F5",
+    backgroundColor: "#1C1C1E",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(149,67,44,0.20)",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.05,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   },
 
   errorText: {
-    color: "#95432C",
+    color: "#22C55E",
     fontWeight: "600",
     fontSize: 14,
   },
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
   },
 
   retryText: {
-    color: "#2E717E",
+    color: "#22C55E",
     fontWeight: "600",
   },
 
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.65)",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.08,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 10 },
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 999,
     backgroundColor: "rgba(255,255,255,0.75)",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.06,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     width: 104,
     height: 104,
     borderRadius: 52,
-    backgroundColor: "#E7DED6",
+    backgroundColor: "#232326",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
@@ -587,20 +587,20 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#1E1A18",
+    color: "#FFFFFF",
     marginBottom: 6,
   },
 
   profileUsername: {
     fontSize: 15,
-    color: "#564055",
+    color: "#A1A1AA",
     marginBottom: 12,
     fontWeight: "500",
   },
 
   profileBio: {
     fontSize: 14,
-    color: "#7C746F",
+    color: "#A1A1AA",
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 22,
@@ -608,11 +608,11 @@ const styles = StyleSheet.create({
   },
 
   editProfileButton: {
-    backgroundColor: "#011D32",
+    backgroundColor: "#121212",
     paddingHorizontal: 86,
     paddingVertical: 14,
     borderRadius: 999,
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.14,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.65)",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.06,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "#F8DABE",
+    backgroundColor: "#1F3326",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   statusRight: {
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   statusLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#564055",
+    color: "#A1A1AA",
   },
 
   section: {
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#9A918B",
+    color: "#A1A1AA",
     paddingHorizontal: 6,
     marginBottom: 10,
     letterSpacing: 1.1,
@@ -710,7 +710,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.65)",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.04,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 5 },
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   logoutButton: {
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#95432C",
+    color: "#22C55E",
   },
 
   modalOverlay: {
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.7)",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.15,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
@@ -787,7 +787,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   modalBody: {
@@ -808,7 +808,7 @@ const styles = StyleSheet.create({
   statusOptionSelected: {
     backgroundColor: "rgba(46,113,126,0.10)",
     borderWidth: 1.5,
-    borderColor: "#2E717E",
+    borderColor: "#22C55E",
   },
 
   statusOptionLeft: {
@@ -820,7 +820,7 @@ const styles = StyleSheet.create({
   statusOptionText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   editFormScroll: {
@@ -848,7 +848,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F8DABE",
+    backgroundColor: "#1F3326",
   },
 
   tipContent: {
@@ -858,23 +858,23 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#1E1A18",
+    color: "#FFFFFF",
     marginBottom: 6,
   },
 
   tipDescription: {
     fontSize: 14,
-    color: "#7C746F",
+    color: "#A1A1AA",
     lineHeight: 21,
   },
 
   gotItButton: {
-    backgroundColor: "#011D32",
+    backgroundColor: "#121212",
     paddingVertical: 15,
     borderRadius: 999,
     alignItems: "center",
     marginTop: 14,
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.12,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
@@ -911,19 +911,19 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: "600",
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   faqAnswer: {
     fontSize: 14,
-    color: "#7C746F",
+    color: "#A1A1AA",
     lineHeight: 20,
     marginTop: 8,
     paddingRight: 20,
   },
 
   closeButton: {
-    backgroundColor: "#011D32",
+    backgroundColor: "#121212",
     paddingVertical: 15,
     borderRadius: 999,
     alignItems: "center",
@@ -963,7 +963,7 @@ const styles = StyleSheet.create({
   contactLabel: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#9A918B",
+    color: "#A1A1AA",
     marginBottom: 4,
     letterSpacing: 0.8,
     textTransform: "uppercase",
@@ -972,12 +972,12 @@ const styles = StyleSheet.create({
   contactValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   contactDivider: {
     fontSize: 14,
-    color: "#9E9E9E",
+    color: "#A1A1AA",
     textAlign: "center",
     marginBottom: 20,
   },
@@ -989,7 +989,7 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1E1A18",
+    color: "#FFFFFF",
     marginBottom: 8,
   },
 
@@ -999,7 +999,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 15,
     fontSize: 15,
-    color: "#1E1A18",
+    color: "#FFFFFF",
     borderWidth: 1,
     borderColor: "rgba(86,64,85,0.08)",
   },
@@ -1018,7 +1018,7 @@ const styles = StyleSheet.create({
 
   selectText: {
     fontSize: 15,
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   formButtons: {
@@ -1040,16 +1040,16 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#7C746F",
+    color: "#A1A1AA",
   },
 
   saveButton: {
     flex: 1,
-    backgroundColor: "#011D32",
+    backgroundColor: "#121212",
     paddingVertical: 15,
     borderRadius: 999,
     alignItems: "center",
-    shadowColor: "#011D32",
+    shadowColor: "#121212",
     shadowOpacity: 0.12,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
@@ -1079,13 +1079,13 @@ const styles = StyleSheet.create({
   confirmTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#1E1A18",
+    color: "#FFFFFF",
     marginBottom: 12,
   },
 
   confirmMessage: {
     fontSize: 15,
-    color: "#7C746F",
+    color: "#A1A1AA",
     marginBottom: 24,
     textAlign: "center",
     lineHeight: 22,
@@ -1105,7 +1105,7 @@ const styles = StyleSheet.create({
   confirmLogoutText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#95432C",
+    color: "#22C55E",
   },
 
   confirmCancelButton: {
@@ -1119,7 +1119,7 @@ const styles = StyleSheet.create({
   confirmCancelText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#2E717E",
+    color: "#22C55E",
   },
 
   photoModalContainer: {
@@ -1142,7 +1142,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#011D32",
+    backgroundColor: "#121212",
     paddingVertical: 16,
     paddingHorizontal: 80,
     borderRadius: 18,
@@ -1158,7 +1158,7 @@ const styles = StyleSheet.create({
 
   uploadHint: {
     fontSize: 12,
-    color: "#9A918B",
+    color: "#A1A1AA",
     textAlign: "center",
     lineHeight: 18,
   },
@@ -1175,7 +1175,7 @@ const styles = StyleSheet.create({
 
   usernamePrefix: {
     fontSize: 15,
-    color: "#564055",
+    color: "#A1A1AA",
     marginRight: 4,
     fontWeight: "600",
   },
@@ -1185,7 +1185,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingRight: 16,
     fontSize: 15,
-    color: "#1E1A18",
+    color: "#FFFFFF",
   },
 
   bioInput: {
@@ -1195,7 +1195,7 @@ const styles = StyleSheet.create({
 
   charCounter: {
     fontSize: 12,
-    color: "#9A918B",
+    color: "#A1A1AA",
     textAlign: "right",
     marginTop: 6,
   },
