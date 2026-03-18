@@ -29,49 +29,45 @@ export default function HabitCalendar({
   }, {} as any);
 
   return (
-    <View style={styles.sectionPadding}>
-      <View style={styles.card}>
-        <Calendar
-          markedDates={markedDates}
-          theme={{
-            backgroundColor: "#fff",
-            calendarBackground: "#fff",
-            textSectionTitleColor: "#aaa",
-            selectedDayBackgroundColor: "#64B5F6",
-            selectedDayTextColor: "#fff",
-            todayTextColor: "#64B5F6",
-            dayTextColor: "#444",
-            textDisabledColor: "#d9d9d9",
-            monthTextColor: "#333",
-            textMonthFontWeight: "600",
-            textMonthFontSize: 17,
-            textDayFontSize: 14,
-            textDayHeaderFontSize: 11,
-            arrowColor: "#555",
-          }}
-          style={styles.calendar}
-        />
-      </View>
+    <View style={styles.card}>
+      <Calendar
+        markedDates={markedDates}
+        theme={{
+          backgroundColor: "#FFFFFF",
+          calendarBackground: "#FFFFFF",
+          textSectionTitleColor: "#8C7F6A",
+          selectedDayBackgroundColor: "#B5A993",
+          selectedDayTextColor: "#FFFFFF",
+          todayTextColor: "#8C7F6A",
+          dayTextColor: "#2E2A26",
+          textDisabledColor: "#D4CEC2",
+          monthTextColor: "#2E2A26",
+          textMonthFontWeight: "700",
+          textMonthFontSize: 18,
+          textDayFontSize: 14,
+          textDayHeaderFontSize: 12,
+          arrowColor: "#8C7F6A",
+        }}
+        style={styles.calendar}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionPadding: {
-    paddingHorizontal: 8,
-    marginBottom: 16,
-  },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
     padding: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   calendar: {
-    borderRadius: 10,
+    borderRadius: 14,
   },
 });
