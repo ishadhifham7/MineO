@@ -23,7 +23,7 @@ export default function AccountSettingsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#000" />
+          <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Privacy</Text>
         <View style={{ width: 28 }} />
@@ -37,7 +37,7 @@ export default function AccountSettingsScreen() {
             <Text style={styles.menuText}>Profile Visibility</Text>
             <View style={styles.menuRight}>
               <Text style={styles.menuValue}>{profileVisibility}</Text>
-              <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+              <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
             </View>
           </TouchableOpacity>
         </View>
@@ -54,8 +54,8 @@ export default function AccountSettingsScreen() {
             <Switch
               value={showEmail}
               onValueChange={setShowEmail}
-              trackColor={{ false: "#E0E0E0", true: "#81C784" }}
-              thumbColor={showEmail ? "#fff" : "#fff"}
+              trackColor={{ false: "#2C2C31", true: "#22C55E" }}
+              thumbColor={showEmail ? "#FFFFFF" : "#FFFFFF"}
             />
           </View>
 
@@ -67,8 +67,8 @@ export default function AccountSettingsScreen() {
             <Switch
               value={showPhone}
               onValueChange={setShowPhone}
-              trackColor={{ false: "#E0E0E0", true: "#81C784" }}
-              thumbColor={showPhone ? "#fff" : "#fff"}
+              trackColor={{ false: "#2C2C31", true: "#22C55E" }}
+              thumbColor={showPhone ? "#FFFFFF" : "#FFFFFF"}
             />
           </View>
         </View>
@@ -85,8 +85,8 @@ export default function AccountSettingsScreen() {
             <Switch
               value={activityTracking}
               onValueChange={setActivityTracking}
-              trackColor={{ false: "#E0E0E0", true: "#4CAF50" }}
-              thumbColor={activityTracking ? "#fff" : "#fff"}
+              trackColor={{ false: "#2C2C31", true: "#22C55E" }}
+              thumbColor={activityTracking ? "#FFFFFF" : "#FFFFFF"}
             />
           </View>
 
@@ -100,8 +100,8 @@ export default function AccountSettingsScreen() {
             <Switch
               value={dataSharing}
               onValueChange={setDataSharing}
-              trackColor={{ false: "#E0E0E0", true: "#4CAF50" }}
-              thumbColor={dataSharing ? "#fff" : "#fff"}
+              trackColor={{ false: "#2C2C31", true: "#22C55E" }}
+              thumbColor={dataSharing ? "#FFFFFF" : "#FFFFFF"}
             />
           </View>
         </View>
@@ -112,12 +112,12 @@ export default function AccountSettingsScreen() {
           
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuText}>Download My Data</Text>
-            <Ionicons name="chevron-forward" size={20} color="#9E9E9E" />
+            <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.dangerMenuItem}>
             <Text style={styles.dangerMenuText}>Delete Account</Text>
-            <Ionicons name="chevron-forward" size={20} color="#F44336" />
+            <Ionicons name="chevron-forward" size={20} color="#EF4444" />
           </TouchableOpacity>
         </View>
 
@@ -130,7 +130,7 @@ export default function AccountSettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -139,9 +139,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: "#2C2C31",
   },
   backButton: {
     padding: 4,
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#000",
+    color: "#FFFFFF",
   },
   scrollView: {
     flex: 1,
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#9E9E9E",
+    color: "#A1A1AA",
     paddingHorizontal: 20,
     marginBottom: 8,
     letterSpacing: 0.5,
@@ -169,16 +169,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: "#121212",
   },
   menuText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: "#FFFFFF",
   },
   menuRight: {
     flexDirection: "row",
@@ -187,17 +187,17 @@ const styles = StyleSheet.create({
   },
   menuValue: {
     fontSize: 15,
-    color: "#757575",
+    color: "#A1A1AA",
   },
   switchItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: "#121212",
   },
   switchLeft: {
     flex: 1,
@@ -206,24 +206,24 @@ const styles = StyleSheet.create({
   switchTitle: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: "#FFFFFF",
     marginBottom: 4,
   },
   switchDescription: {
     fontSize: 13,
-    color: "#757575",
+    color: "#A1A1AA",
   },
   dangerMenuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
   dangerMenuText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#F44336",
+    color: "#EF4444",
   },
 });
