@@ -43,7 +43,7 @@ export default function ProgressScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backFab}>
-          <Ionicons name="arrow-back" size={20} color="#111" />
+          <Ionicons name="arrow-back" size={20} color="#EF4444" />
         </Pressable>
 
         <View style={styles.headerText}>
@@ -138,13 +138,13 @@ function StatCard({
 }
 
 const toneStyles = StyleSheet.create({
-  blue: { borderColor: "#BFE8F3" },
-  purple: { borderColor: "#D7D0F4" },
-  green: { borderColor: "#CFE9D7" },
-  orange: { borderColor: "#F1E2C9" },
+  blue: { borderColor: "#2C2C31" },
+  purple: { borderColor: "#2C2C31" },
+  green: { borderColor: "#2C2C31" },
+  orange: { borderColor: "#2C2C31" },
 });
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
+  safe: { flex: 1, backgroundColor: "#121212" },
 
   header: {
     flexDirection: "row",
@@ -157,10 +157,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
   },
 
   headerText: { marginLeft: 14, paddingTop: 2 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#FFFFFF" },
+  hSub: { marginTop: 6, fontSize: 14, color: "#A1A1AA" },
 
   content: {
     flex: 1,
@@ -186,12 +186,12 @@ const styles = StyleSheet.create({
 
   statCard: {
     width: "48%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
 
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.10,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
@@ -201,14 +201,14 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 26,
     fontWeight: "900",
-    color: "#111",
+    color: "#FFFFFF",
   },
 
   statLabel: {
     marginTop: 6,
     fontSize: 12,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: "#A1A1AA",
   },
 
   sectionTitle: {
@@ -216,15 +216,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     fontWeight: "900",
-    color: "#111",
+    color: "#FFFFFF",
   },
 
   /* Category card */
   categoryCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     padding: 14,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -240,29 +240,31 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#111",
+    color: "#FFFFFF",
   },
 
   categoryCount: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: "#A1A1AA",
   },
 
+  
   categorySub: {
     marginTop: 10,
     fontSize: 12,
     fontWeight: "700",
-    color: "#9A9A9A",
+    color: "#A1A1AA",
     alignSelf: "flex-end",
   },
 
+
   /* Journey card */
   journeyCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     padding: 14,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -272,20 +274,20 @@ const styles = StyleSheet.create({
   journeyTitle: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#111",
+    color: "#FFFFFF",
   },
 
   progressTrack: {
     marginTop: 12,
     height: 8,
     borderRadius: 8,
-    backgroundColor: "#E6E6E6",
+    backgroundColor: "#232326",
     overflow: "hidden",
   },
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#63D1E6",
+    backgroundColor: "#22C55E",
     borderRadius: 8,
   },
 
@@ -298,32 +300,32 @@ const styles = StyleSheet.create({
   journeyMeta: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: "#A1A1AA",
   },
 
   /* Motivation */
   motivationCard: {
     marginTop: 14,
-    backgroundColor: "#EAF7FB",
+    backgroundColor: "#232326",
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 14,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#BFE8F3",
+    borderColor: "#2C2C31",
   },
 
   motivationIcon: { fontSize: 22, marginBottom: 6 },
   motivationTitle: {
     fontSize: 15,
     fontWeight: "900",
-    color: "#111",
+    color: "#FFFFFF",
   },
   motivationSub: {
     marginTop: 6,
     fontSize: 12,
     fontWeight: "700",
-    color: "#6B6B6B",
+    color: "#A1A1AA",
     textAlign: "center",
   },
 });

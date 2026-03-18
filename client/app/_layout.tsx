@@ -15,8 +15,17 @@ import {
   Roboto_400Regular,
   Roboto_500Medium,
 } from "@expo-google-fonts/roboto";
-import { View, ActivityIndicator, useWindowDimensions } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  useWindowDimensions,
+  Text,
+  TextInput,
+} from "react-native";
+import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+let globalFontApplied = false;
 
 export default function RootLayout() {
   const { width } = useWindowDimensions();
@@ -29,10 +38,29 @@ export default function RootLayout() {
     Roboto_500Medium,
   });
 
+  useEffect(() => {
+    if (!fontsLoaded || globalFontApplied) return;
+
+    const textDefaultStyle = (Text as any).defaultProps?.style;
+    const inputDefaultStyle = (TextInput as any).defaultProps?.style;
+
+    (Text as any).defaultProps = {
+      ...((Text as any).defaultProps || {}),
+      style: [textDefaultStyle, { fontFamily: "Roboto_400Regular" }],
+    };
+
+    (TextInput as any).defaultProps = {
+      ...((TextInput as any).defaultProps || {}),
+      style: [inputDefaultStyle, { fontFamily: "Roboto_400Regular" }],
+    };
+
+    globalFontApplied = true;
+  }, [fontsLoaded]);
+
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator />
+        <ActivityIndicator color="#22C55E" />
       </View>
     );
   }
@@ -40,7 +68,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#F4F6FA" }} edges={["top", "left", "right"]}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }} edges={["top", "left", "right"]}>
           <AuthProvider>
             <JourneyProvider>
               <ProfileProvider>
@@ -49,7 +77,7 @@ export default function RootLayout() {
                     screenOptions={{
                       headerShown: false,
                       contentStyle: {
-                        backgroundColor: "#F4F6FA",
+                        backgroundColor: "#121212",
                         paddingHorizontal: horizontalPadding,
                       },
                     }}

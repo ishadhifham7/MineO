@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     justifyContent: "center",
   },
   title: {
@@ -93,21 +93,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subtitle: {
-    color: "#777",
+    color: "#A1A1AA",
     marginBottom: 30,
   },
   createNew: {
-    color: "#000",
+    color: "#FFFFFF",
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#232326",
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#A7C4E8",
+    backgroundColor: "#22C55E",
     padding: 18,
     borderRadius: 12,
     alignItems: "center",

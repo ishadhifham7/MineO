@@ -160,7 +160,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#4E6FA3"
+              color="#22C55E"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -168,7 +168,7 @@ export default function JourneyScreen() {
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4E6FA3" />
+          <ActivityIndicator size="large" color="#22C55E" />
           <Text style={styles.loadingText}>Loading your journey map...</Text>
         </View>
       </SafeAreaView>
@@ -184,7 +184,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#4E6FA3"
+              color="#22C55E"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -219,7 +219,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#4E6FA3"
+              color="#22C55E"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -248,7 +248,7 @@ export default function JourneyScreen() {
             <Ionicons
               name="map"
               size={28}
-              color="#4E6FA3"
+              color="#22C55E"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -275,7 +275,7 @@ export default function JourneyScreen() {
           <Ionicons
             name="map"
             size={28}
-            color="#4E6FA3"
+            color="#22C55E"
             style={styles.headerIcon}
           />
           <Text style={styles.headerTitle}>Journey Map</Text>
@@ -290,8 +290,8 @@ export default function JourneyScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#4E6FA3"
-              colors={["#4E6FA3"]}
+              tintColor="#22C55E"
+              colors={["#22C55E"]}
             />
           }
         >
@@ -328,17 +328,17 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6FA", // Match goal tracker background
+    backgroundColor: "#121212", // Match goal tracker background
   },
   header: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingTop: 48,
     paddingBottom: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderBottomWidth: 2,
-    borderBottomColor: "#4E6FA3",
-    shadowColor: "#4E6FA3",
+    borderBottomColor: "#2C2C31",
+    shadowColor: "#22C55E",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -355,19 +355,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "800",
-    color: "#111827",
+    color: "#FFFFFF",
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#4E6FA3",
+    color: "#22C55E",
     marginTop: 6,
     fontStyle: "italic",
   },
   canvasWrapper: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#121212",
   },
   loadingContainer: {
     flex: 1,
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#6B7280",
+    color: "#A1A1AA",
     fontWeight: "500",
   },
   emptyContainer: {
@@ -390,13 +390,13 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#121212",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: "#E5E7EB",
-    shadowColor: "#4E6FA3",
+    borderColor: "#2C2C31",
+    shadowColor: "#22C55E",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -408,12 +408,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
+    color: "#FFFFFF",
     marginBottom: 10,
   },
   emptySubtitle: {
     fontSize: 15,
-    color: "#6B7280",
+    color: "#A1A1AA",
     textAlign: "center",
     lineHeight: 22,
   },
@@ -421,15 +421,15 @@ const styles = StyleSheet.create({
     marginTop: 28,
     paddingHorizontal: 36,
     paddingVertical: 16,
-    backgroundColor: "#4E6FA3",
+    backgroundColor: "#22C55E",
     borderRadius: 14,
-    shadowColor: "#4E6FA3",
+    shadowColor: "#22C55E",
     shadowOpacity: 0.35,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
     elevation: 6,
     borderWidth: 1,
-    borderColor: "#3F5D8A",
+    borderColor: "#16A34A",
   },
   loginButtonText: {
     color: "#FFFFFF",

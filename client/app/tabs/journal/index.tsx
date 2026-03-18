@@ -58,13 +58,13 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
         width: 56,
         height: 56,
         borderRadius: 28,
-        backgroundColor: "#000",
+        backgroundColor: "#FFFFFF",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
       <Animated.View style={animatedStyle}>
-        <MaterialIcons name="add" size={28} color="#fff" />
+        <MaterialIcons name="add" size={28} color="#000000" />
       </Animated.View>
     </Pressable>
   );
@@ -146,7 +146,7 @@ export default function JournalScreen() {
       isBold: false,
       isItalic: false,
       isUnderline: false,
-      textColor: "#111",
+      textColor: "#FFFFFF",
       textAlign: "left",
       fontSize: 16,
       lineHeight: 22,
@@ -344,7 +344,7 @@ export default function JournalScreen() {
               style={{
                 fontSize: 22,
                 fontWeight: "700",
-                color: "#111",
+                color: "#FFFFFF",
                 letterSpacing: 0.2,
               }}
             >
@@ -354,7 +354,7 @@ export default function JournalScreen() {
               style={{
                 fontSize: 14,
                 fontWeight: "400",
-                color: "#888",
+                color: "#A1A1AA",
                 marginTop: 2,
               }}
             >
@@ -369,10 +369,10 @@ export default function JournalScreen() {
               paddingHorizontal: 22,
               height: 40,
               borderRadius: 20,
-              backgroundColor: "#111",
+              backgroundColor: "#FFFFFF",
               alignItems: "center",
               justifyContent: "center",
-              shadowColor: "#000",
+              shadowColor: "#000000",
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.15,
               shadowRadius: 4,
@@ -381,7 +381,7 @@ export default function JournalScreen() {
           >
             <Text
               style={{
-                color: "#fff",
+                color: "#000000",
                 fontSize: 15,
                 fontWeight: "600",
                 letterSpacing: 0.5,

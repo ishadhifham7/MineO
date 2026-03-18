@@ -32,7 +32,7 @@ export default function GoalsHome() {
           {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.headerIcon}>
-              <Ionicons name="sparkles-outline" size={18} color="#49B7D0" />
+              <Ionicons name="sparkles-outline" size={18} color="#22C55E" />
             </View>
             <View style={styles.headerText}>
               <Text style={styles.hTitle}>Your Goals</Text>
@@ -62,12 +62,12 @@ export default function GoalsHome() {
             style={({ pressed }) => [pressed && { opacity: 0.92 }]}
           >
             <LinearGradient
-              colors={["#63D1E6", "#B39DDB"]}
+              colors={["#22C55E", "#16A34A"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.createBtn}
             >
-              <Ionicons name="add" size={20} color="#fff" />
+              <Ionicons name="add" size={20} color="#FFFFFF" />
               <Text style={styles.createText}>Create New Goal</Text>
             </LinearGradient>
           </Pressable>
@@ -153,7 +153,7 @@ function GoalListCard({
 /* ========================= */
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
+  safe: { flex: 1, backgroundColor: "#121212" },
 
   screen: { flex: 1 },
 
@@ -168,30 +168,30 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
   headerText: { marginLeft: 12 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#FFFFFF" },
+  hSub: { marginTop: 6, fontSize: 14, color: "#A1A1AA" },
 
   /* Goals list */
   listWrap: { marginTop: 14 },
   goalCard: {
     marginTop: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 16,
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.1,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
@@ -202,13 +202,13 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 27,
     borderWidth: 3,
-    borderColor: "#E6E6E6",
+    borderColor: "#2C2C31",
     alignItems: "center",
     justifyContent: "center",
   },
-  ringText: { fontSize: 12, fontWeight: "900", color: "#333" },
+  ringText: { fontSize: 12, fontWeight: "900", color: "#FFFFFF" },
 
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
+  goalTitle: { fontSize: 16, fontWeight: "900", color: "#FFFFFF" },
 
   metaRow: {
     marginTop: 6,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   pill: {
-    backgroundColor: "#9BE0B0",
+    backgroundColor: "#DCFCE7",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
@@ -230,8 +230,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#7ACD8C" },
-  statusText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#22C55E" },
+  statusText: { fontSize: 12, fontWeight: "700", color: "#A1A1AA" },
 
   /* Bottom create button */
   bottomBar: {
@@ -247,12 +247,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.12,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
     elevation: 7,
   },
-  createText: { fontSize: 17, fontWeight: "900", color: "#fff" },
+  createText: { fontSize: 17, fontWeight: "900", color: "#FFFFFF" },
 });
 

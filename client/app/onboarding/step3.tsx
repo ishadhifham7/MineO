@@ -10,22 +10,33 @@ export default function Step3() {
         <Text style={styles.headerText}>Memory as Foundation</Text>
         <Text style={styles.subHeaderText}>Your journey shapes you</Text>
 
-        <View style={styles.timeline}>
-          <View style={styles.line} />
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginVertical: 40,
+          }}
+        >
+          <View style={{ height: 2, flex: 1, backgroundColor: "#22C55E" }} />
+          {/* Dots representation */}
           {[1, 2, 3, 4].map((i) => (
             <View
               key={i}
-              style={[
-                styles.dot,
-                i === 4 && styles.activeDot
-              ]}
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: i === 4 ? "#22C55E" : "#232326",
+                marginHorizontal: 15,
+              }}
             />
           ))}
         </View>
 
         <Text style={styles.description}>
-          Life moments - both challenging and meaningful - form your personal narrative.
-          Reflection helps you understand where you've been and where you're heading.
+          Life moments - both challenging and meaningful - form your personal
+          narrative. Reflection helps you understand where you've been and where
+          you're heading.
         </Text>
       </View>
 
@@ -36,12 +47,11 @@ export default function Step3() {
           <View style={[styles.progressBar, styles.activeBar]} />
           <View style={styles.progressBar} />
         </View>
-
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.push("/onboarding/step4")}
         >
-          <Text style={styles.buttonText}>Continue →</Text>
+          <Text style={styles.buttonText}>Continue -></Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -49,32 +59,61 @@ export default function Step3() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
+  container: { flex: 1, backgroundColor: "#121212", padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
-  subHeaderText: { fontSize: 16, color: "#666", alignSelf: "flex-start", marginBottom: 30 },
-
-  description: { fontSize: 16, textAlign: "center", color: "#444", lineHeight: 24 },
-
-  timeline: { flexDirection: "row", alignItems: "center", marginVertical: 40 },
-  line: { height: 2, flex: 1, backgroundColor: "#000" },
-
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#D9E3F1",
-    marginHorizontal: 15
+  logo: {
+    fontSize: 42,
+    fontWeight: "300",
+    marginBottom: 40,
+    fontFamily: "serif",
   },
-
-  activeDot: { backgroundColor: "#000" },
-
+  title: {
+    fontSize: 22,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  description: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#FFFFFF",
+    lineHeight: 24,
+  },
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
-  activeBar: { backgroundColor: "#000" },
+  progressBar: { height: 2, flex: 1, backgroundColor: "#232326" },
+  activeBar: { backgroundColor: "#22C55E" },
+  button: {
+    backgroundColor: "#FFFFFF",
+    padding: 18,
+    borderRadius: 4,
+    alignItems: "center",
+  },
+  buttonText: { color: "#000000", fontSize: 16, fontWeight: "500" },
 
-  button: { backgroundColor: "#000", padding: 18, borderRadius: 4, alignItems: "center" },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" }
+  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
+  subHeaderText: {
+    fontSize: 16,
+    color: "#A1A1AA",
+    alignSelf: "flex-start",
+    marginBottom: 30,
+  },
+  diagramContainer: {
+    width: "100%",
+    padding: 20,
+    backgroundColor: "#232326",
+    borderRadius: 8,
+    marginVertical: 30,
+    alignItems: "center",
+  },
+  diagramText: { fontSize: 14, fontWeight: "500" },
+  caption: { fontSize: 12, marginTop: 10, color: "#A1A1AA" },
+  loopArrow: {
+    width: 60,
+    height: 4,
+    backgroundColor: "#A1A1AA",
+    borderRadius: 2,
+    marginTop: 8,
+  },
 });
+

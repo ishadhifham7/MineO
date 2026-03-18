@@ -43,7 +43,7 @@ export default function DailyCheckIn() {
         {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backFab}>
-            <Ionicons name="arrow-back" size={20} color="#111" />
+            <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </Pressable>
 
           <View style={styles.headerText}>
@@ -81,7 +81,7 @@ export default function DailyCheckIn() {
                 </View>
 
                 {active ? (
-                  <Ionicons name="checkmark-circle" size={22} color="#49B7D0" />
+                  <Ionicons name="checkmark-circle" size={22} color="#22C55E" />
                 ) : (
                   <Ionicons name="chevron-forward" size={18} color="#9A9A9A" />
                 )}
@@ -127,7 +127,7 @@ export default function DailyCheckIn() {
                   value={note}
                   onChangeText={setNote}
                   placeholder={`E.g., "Had more energy today" or "Felt challenging but good"`}
-                  placeholderTextColor="#9A9A9A"
+                  placeholderTextColor="#A1A1AA"
                   style={styles.noteInput}
                   multiline
                 />
@@ -163,7 +163,7 @@ export default function DailyCheckIn() {
               !canSubmit && { opacity: 0.5 },
             ]}
           >
-            <Ionicons name="heart-outline" size={18} color="#fff" />
+            <Ionicons name="heart-outline" size={18} color="#FFFFFF" />
             <Text style={styles.ctaText}>Complete Check-in</Text>
           </Pressable>
         </View>
@@ -193,13 +193,13 @@ function MoodCard({
       ]}
     >
       <Text style={styles.moodEmoji}>{emoji}</Text>
-      <Text style={[styles.moodLabel, active && { color: "#fff" }]}>{label}</Text>
+      <Text style={[styles.moodLabel, active && { color: "#FFFFFF" }]}>{label}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
+  safe: { flex: 1, backgroundColor: "#121212" },
 
   header: {
     flexDirection: "row",
@@ -212,10 +212,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -224,8 +224,8 @@ const styles = StyleSheet.create({
 
   headerText: { marginLeft: 14, paddingTop: 2 },
 
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#FFFFFF" },
+  hSub: { marginTop: 6, fontSize: 14, color: "#A1A1AA" },
 
   content: {
     paddingHorizontal: 18,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
 
   sectionLabel: {
     fontSize: 13,
-    color: "#6B6B6B",
+    color: "#A1A1AA",
     fontWeight: "800",
     marginBottom: 10,
   },
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   optional: { fontWeight: "700", color: "#8A8A8A" },
 
   goalItem: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -259,23 +259,23 @@ const styles = StyleSheet.create({
 
   goalItemActive: {
     borderWidth: 1,
-    borderColor: "#BFE8F3",
-    backgroundColor: "#EAF7FB",
+    borderColor: "#2C2C31",
+    backgroundColor: "#232326",
   },
 
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
-  goalSub: { marginTop: 4, fontSize: 12, color: "#6B6B6B", fontWeight: "600" },
+  goalTitle: { fontSize: 16, fontWeight: "900", color: "#FFFFFF" },
+  goalSub: { marginTop: 4, fontSize: 12, color: "#A1A1AA", fontWeight: "600" },
 
   moodRow: { flexDirection: "row", gap: 12 },
 
   moodCard: {
     flex: 1,
     height: 84,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.10,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -283,17 +283,17 @@ const styles = StyleSheet.create({
     paddingTop: 6,
   },
 
-  moodCardActive: { backgroundColor: "#8DD7A1" },
+  moodCardActive: { backgroundColor: "#22C55E" },
 
   moodEmoji: { fontSize: 28, marginBottom: 8 },
-  moodLabel: { fontSize: 12, fontWeight: "900", color: "#333" },
+  moodLabel: { fontSize: 12, fontWeight: "900", color: "#FFFFFF" },
 
   noteWrap: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -303,19 +303,19 @@ const styles = StyleSheet.create({
   noteInput: {
     minHeight: 54,
     fontSize: 13,
-    color: "#111",
+    color: "#FFFFFF",
     fontWeight: "600",
     lineHeight: 18,
   },
 
   messagePill: {
     marginTop: 16,
-    backgroundColor: "#EAF7EE",
+    backgroundColor: "#1F3326",
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: "#CFE9D7",
+    borderColor: "#2C2C31",
   },
 
   messageText: {
@@ -335,12 +335,12 @@ const styles = StyleSheet.create({
   cta: {
     height: 58,
     borderRadius: 18,
-    backgroundColor: "#63D1E6",
+    backgroundColor: "#22C55E",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 9 },

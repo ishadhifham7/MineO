@@ -22,7 +22,7 @@ export default function PreferencesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#ffffff" />
+          <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Preferences</Text>
         <View style={{ width: 28 }} />
@@ -52,7 +52,16 @@ export default function PreferencesScreen() {
         </View>
 
         {/* Language Section */}
-        
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>LANGUAGE</Text>
+
+          <View style={styles.selectCard}>
+            <TouchableOpacity style={styles.selectButton}>
+              <Text style={styles.selectText}>{language}</Text>
+              <Ionicons name="chevron-down" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -63,7 +72,7 @@ export default function PreferencesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -72,9 +81,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: "#2C2C31",
   },
   backButton: {
     padding: 4,
@@ -82,7 +91,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#000",
+    color: "#FFFFFF",
   },
   scrollView: {
     flex: 1,
@@ -94,13 +103,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#9E9E9E",
+    color: "#A1A1AA",
     paddingHorizontal: 20,
     marginBottom: 12,
     letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     marginHorizontal: 20,
     borderRadius: 12,
     padding: 20,
@@ -108,7 +117,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: "#FFFFFF",
     marginBottom: 16,
   },
   radioOption: {
@@ -119,14 +128,14 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: 16,
-    color: "#000",
+    color: "#FFFFFF",
   },
   radioCircle: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#000",
+    borderColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -134,10 +143,10 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#2196F3",
+    backgroundColor: "#22C55E",
   },
   selectCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     marginHorizontal: 20,
     borderRadius: 12,
     padding: 16,
@@ -149,6 +158,6 @@ const styles = StyleSheet.create({
   },
   selectText: {
     fontSize: 16,
-    color: "#000",
+    color: "#FFFFFF",
   },
 });

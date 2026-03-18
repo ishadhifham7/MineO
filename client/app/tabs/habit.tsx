@@ -48,8 +48,8 @@ function HabitsContent() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center" edges={['top']}>
-        <ActivityIndicator size="large" color="#000" />
+      <SafeAreaView className="flex-1 bg-[#121212] items-center justify-center" edges={['top']}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
         <Text className="mt-4 text-gray-600">Loading habits...</Text>
       </SafeAreaView>
     );
@@ -57,7 +57,7 @@ function HabitsContent() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center px-6" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-[#121212] items-center justify-center px-6" edges={['top']}>
         <Text className="text-red-600 text-center mb-4">Error loading habits</Text>
         <Text className="text-gray-600 text-center">{error}</Text>
       </SafeAreaView>
@@ -65,7 +65,7 @@ function HabitsContent() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F4F6FA]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-[#121212]" edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
         <ScrollView 
           showsVerticalScrollIndicator={false} 
@@ -74,8 +74,8 @@ function HabitsContent() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#000"
-              colors={["#000"]}
+              tintColor="#FFFFFF"
+              colors={["#FFFFFF"]}
             />
           }
         >
@@ -97,7 +97,7 @@ function HabitsContent() {
               />
               {isSaving && (
                 <View className="mt-2 flex-row items-center justify-center">
-                  <ActivityIndicator size="small" color="#666" />
+                  <ActivityIndicator size="small" color="#A1A1AA" />
                   <Text className="ml-2 text-xs text-gray-600">Saving...</Text>
                 </View>
               )}

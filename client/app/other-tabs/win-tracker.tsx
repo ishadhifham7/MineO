@@ -49,7 +49,7 @@ function DonutChart({
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
       <Svg width={size} height={size}>
-        <Circle cx={center} cy={center} r={radius} stroke="#af0000" strokeWidth={strokeWidth} fill="none" />
+        <Circle cx={center} cy={center} r={radius} stroke="#f0f0f0" strokeWidth={strokeWidth} fill="none" />
         <G rotation="-90" origin={`${center}, ${center}`}>
           {data.map((segment, i) => {
             const segmentLength = (segment.percentage / 100) * circumference;
@@ -117,10 +117,10 @@ export default function WinTrackerScreen() {
       : 0;
 
     return [
-      { name: "Mental", percentage: catScore("mental"), color: "#FF8A80", icon: "bulb-outline" },
-      { name: "Physical", percentage: catScore("physical"), color: "#82B1FF", icon: "fitness-outline" },
-      { name: "Spiritual", percentage: catScore("spiritual"), color: "#B9F6CA", icon: "leaf-outline" },
-      { name: "Goal Path", percentage: goalPct, color: "#FFE0B2", icon: "flag-outline" },
+      { name: "Mental", percentage: catScore("mental"), color: "#F59E0B", icon: "bulb-outline" },
+      { name: "Physical", percentage: catScore("physical"), color: "#DCFCE7", icon: "fitness-outline" },
+      { name: "Spiritual", percentage: catScore("spiritual"), color: "#DCFCE7", icon: "leaf-outline" },
+      { name: "Goal Path", percentage: goalPct, color: "#232326", icon: "flag-outline" },
     ];
   }, [habitCalendar, goals]);
 
@@ -153,7 +153,7 @@ export default function WinTrackerScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backFab}>
-          <Ionicons name="arrow-back" size={20} color="#111" />
+          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
         </Pressable>
         <View style={styles.headerText}>
           <Text style={styles.hTitle}>Win Tracker</Text>
@@ -190,7 +190,7 @@ export default function WinTrackerScreen() {
         <Text style={styles.sectionTitle}>Daily Breakdown</Text>
         {dailyBreakdown.length === 0 ? (
           <View style={styles.card}>
-            <Text style={{ fontSize: 13, color: "#aaa", textAlign: "center" }}>
+            <Text style={{ fontSize: 13, color: "#A1A1AA", textAlign: "center" }}>
               No habit data this month yet
             </Text>
           </View>
@@ -199,11 +199,11 @@ export default function WinTrackerScreen() {
             <View key={day.date} style={styles.dayRow}>
               <Text style={styles.dayDate}>{day.date.slice(8)}</Text>
               <View style={styles.dayBars}>
-                <View style={[styles.dayBarSegment, { flex: day.spiritual, backgroundColor: "#B9F6CA" }]} />
-                <View style={[styles.dayBarSegment, { flex: day.mental, backgroundColor: "#FF8A80" }]} />
-                <View style={[styles.dayBarSegment, { flex: day.physical, backgroundColor: "#82B1FF" }]} />
+                <View style={[styles.dayBarSegment, { flex: day.spiritual, backgroundColor: "#DCFCE7" }]} />
+                <View style={[styles.dayBarSegment, { flex: day.mental, backgroundColor: "#F59E0B" }]} />
+                <View style={[styles.dayBarSegment, { flex: day.physical, backgroundColor: "#DCFCE7" }]} />
                 {day.spiritual + day.mental + day.physical === 0 && (
-                  <View style={[styles.dayBarSegment, { flex: 1, backgroundColor: "#f0f0f0" }]} />
+                  <View style={[styles.dayBarSegment, { flex: 1, backgroundColor: "#232326" }]} />
                 )}
               </View>
               <Text style={styles.dayAvg}>{day.avg}%</Text>
@@ -219,7 +219,7 @@ export default function WinTrackerScreen() {
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F5F5F5" },
+  safe: { flex: 1, backgroundColor: "#121212" },
 
   header: {
     flexDirection: "row",
@@ -232,20 +232,20 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FFF",
+    backgroundColor: "#1C1C1E",
     alignItems: "center",
     justifyContent: "center",
     boxShadow: "0px 4px 10px rgba(0,0,0,0.12)",
     elevation: 4,
   },
   headerText: { marginLeft: 14, paddingTop: 2 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 4, fontSize: 14, color: "#6B6B6B" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#FFFFFF" },
+  hSub: { marginTop: 4, fontSize: 14, color: "#A1A1AA" },
 
   content: { flex: 1, paddingHorizontal: 18 },
 
   card: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 18,
     padding: 20,
     marginBottom: 16,
@@ -257,8 +257,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
   },
-  donutCenterLabel: { fontSize: 32, fontWeight: "700", color: "#333" },
-  donutCenterSub: { fontSize: 12, color: "#999", fontWeight: "600", letterSpacing: 1 },
+  donutCenterLabel: { fontSize: 32, fontWeight: "700", color: "#FFFFFF" },
+  donutCenterSub: { fontSize: 12, color: "#A1A1AA", fontWeight: "600", letterSpacing: 1 },
 
   legendGrid: {
     flexDirection: "row",
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   },
   legendCard: {
     width: (SCREEN_WIDTH - 76) / 2,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#121212",
     borderRadius: 14,
     padding: 12,
     alignItems: "center",
@@ -281,13 +281,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 4,
   },
-  legendName: { fontSize: 13, fontWeight: "600", color: "#555" },
-  legendPct: { fontSize: 18, fontWeight: "800", color: "#222" },
+  legendName: { fontSize: 13, fontWeight: "600", color: "#FFFFFF" },
+  legendPct: { fontSize: 18, fontWeight: "800", color: "#FFFFFF" },
 
   sectionTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#222",
+    color: "#FFFFFF",
     marginBottom: 12,
     marginTop: 4,
   },
@@ -295,22 +295,22 @@ const styles = StyleSheet.create({
   dayRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: "#1C1C1E",
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 14,
     marginBottom: 6,
     gap: 10,
   },
-  dayDate: { fontSize: 14, fontWeight: "700", color: "#555", width: 28 },
+  dayDate: { fontSize: 14, fontWeight: "700", color: "#FFFFFF", width: 28 },
   dayBars: {
     flex: 1,
     flexDirection: "row",
     height: 8,
     borderRadius: 4,
     overflow: "hidden",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#232326",
   },
   dayBarSegment: { height: "100%" },
-  dayAvg: { fontSize: 13, fontWeight: "700", color: "#333", width: 36, textAlign: "right" },
+  dayAvg: { fontSize: 13, fontWeight: "700", color: "#FFFFFF", width: 36, textAlign: "right" },
 });

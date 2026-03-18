@@ -1,12 +1,22 @@
 export const colors = {
-  background: "#B5A993",
-  card: "#FFFFFF",
-  cream: "#F6F1E7",
+  background: "#121212",
+  card: "#1C1C1E",
+  cardAlt: "#232326",
+  glass: "rgba(255, 255, 255, 0.05)",
+  glassBorder: "rgba(255, 255, 255, 0.1)",
 
-  good: "#4CAF50",
-  average: "#2196F3",
-  bad: "#E53935",
+  accent: "#22C55E",
+  accentActive: "#16A34A",
+  accentSoft: "#DCFCE7",
 
-  textDark: "#2E2A26",
-  textMuted: "#6B645C",
+  success: "#22C55E",
+  warning: "#F59E0B",
+  error: "#EF4444",
+
+  cta: "#FFFFFF",
+  ctaText: "#000000",
+
+  textPrimary: "#FFFFFF",
+  textSecondary: "#A1A1AA",
+  border: "#2C2C31",
 };

@@ -115,7 +115,7 @@ export default function SignupDetailsScreen() {
       if (country && country.trim()) signupData.country = country.trim();
       if (profilePhoto) signupData.profilePhoto = profilePhoto;
 
-      console.log("Sending signup data:", { ...signupData, password: "***" });
+      console.log('Sending signup data:', { ...signupData, password: '***' });
 
       await signupUser(signupData);
 
@@ -125,7 +125,7 @@ export default function SignupDetailsScreen() {
       Alert.alert("Success", "Account created");
       router.replace("/onboarding/step1");
     } catch (error: any) {
-      console.error("Signup failed:", error);
+      console.error('Signup failed:', error);
       Alert.alert("Signup Failed", error.message);
     } finally {
       setLoading(false);
@@ -247,7 +247,7 @@ export default function SignupDetailsScreen() {
         </TouchableOpacity>
 
         <Text style={styles.backText} onPress={() => router.back()}>
-          {"<- Go Back"}
+          <- Go Back
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -257,7 +257,7 @@ export default function SignupDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     flexGrow: 1,
   },
   title: {
@@ -271,16 +271,16 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#232326",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#2C2C31",
   },
   avatar: { width: "100%", height: "100%" },
-  avatarPlaceholder: { fontSize: 40, color: "#999" },
+  avatarPlaceholder: { fontSize: 40, color: "#A1A1AA" },
 
   card: {
     backgroundColor: "#fafafa",
@@ -288,15 +288,15 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: "#2C2C31",
   },
   label: {
     fontWeight: "600",
     marginBottom: 8,
-    color: "#444",
+    color: "#FFFFFF",
   },
   input: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#232326",
     padding: 14,
     borderRadius: 10,
   },
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   },
 
   pickerContainer: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#232326",
     borderRadius: 10,
   },
 
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: "#A7C4E8",
+    backgroundColor: "#22C55E",
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
   backText: {
     marginTop: 20,
     textAlign: "center",
-    color: "#555",
+    color: "#FFFFFF",
   },
 });
+
