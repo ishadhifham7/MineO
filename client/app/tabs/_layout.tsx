@@ -1,76 +1,75 @@
-import { Tabs, Slot, usePathname, useRouter } from "expo-router";
+import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Platform, View, Text, Pressable, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
+import { Platform, StyleSheet, View } from "react-native";
 
-// ---- Sidebar item definition ----
-const NAV_ITEMS = [
-  { route: "/tabs/home",    label: "Home",    icon: "home-outline"    as const },
-  { route: "/tabs/journal", label: "Journal", icon: "book-outline"    as const },
-  { route: "/tabs/journey", label: "Journey", icon: "map-outline"     as const },
-  { route: "/tabs/goal",    label: "Goals",   icon: "flag-outline"    as const },
-  { route: "/tabs/habit",   label: "Habits",  icon: "repeat-outline"  as const },
-] as const;
-
-// ---- Web Sidebar Layout ----
-function WebTabsLayout() {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  return (
-    <View style={styles.webRoot}>
-      {/* Sidebar */}
-      <View style={styles.sidebar}>
-        <View style={styles.sidebarBrand}>
-          <Text style={styles.brandText}>MineO</Text>
-          <Text style={styles.brandSub}>Your Growth App</Text>
-        </View>
-        <View style={styles.navList}>
-          {NAV_ITEMS.map((item) => {
-            const active = pathname.startsWith(item.route.replace("/tabs", ""));
-            return (
-              <Pressable
-                key={item.route}
-                style={[styles.navItem, active && styles.navItemActive]}
-                onPress={() => router.push(item.route as any)}
-              >
-                <Ionicons
-                  name={item.icon}
-                  size={20}
-                  color={active ? "#fff" : "#94a3b8"}
-                />
-                <Text style={[styles.navLabel, active && styles.navLabelActive]}>
-                  {item.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-      {/* Content */}
-      <View style={styles.content}>
-        <Slot />
-      </View>
-    </View>
-  );
-}
-
-// ---- Root Export ----
 export default function TabsLayout() {
-  if (Platform.OS === "web") {
-    return <WebTabsLayout />;
-  }
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: "#0f0f0f",
-          borderTopColor: "#1f1f1f",
+        tabBarHideOnKeyboard: true,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontFamily: "Roboto_500Medium",
+          fontSize: 10,
+          marginTop: 2,
         },
-        tabBarActiveTintColor: "#ffffff",
-        tabBarInactiveTintColor: "#666666",
+        tabBarStyle: {
+          position: "absolute",
+          left: 0,
+          right: 0,
+          marginHorizontal: 16,
+          bottom: Math.max(insets.bottom, 16),
+          height: 64, // Fixed height for perfect vertical alignment
+          borderTopWidth: 1,
+          borderTopColor: "rgba(46, 42, 38, 0.14)",
+          borderWidth: 1,
+          borderColor: "rgba(46, 42, 38, 0.08)",
+          borderRadius: 20,
+          backgroundColor: "transparent",
+          overflow: "hidden",
+          paddingTop: 8,
+          paddingBottom: 8,
+          paddingHorizontal: 8,
+          shadowColor: "#2E2A26",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+          elevation: 2,
+        },
+        tabBarBackground: () =>
+          Platform.OS === "android" ? (
+            <View style={styles.tabBarBackgroundAndroid} />
+          ) : (
+            <View style={styles.tabBarBackgroundClip}>
+              <BlurView
+                intensity={10} // Reduced blur intensity
+                tint="light"
+                experimentalBlurMethod="dimezisBlurView"
+                style={StyleSheet.absoluteFill}
+              />
+              {/* 90% opaque white overlay as requested */}
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: "#FFFFFF" },
+                ]}
+              />
+            </View>
+          ),
+        tabBarItemStyle: {
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingVertical: 0,
+          paddingHorizontal: 2,
+        },
+        tabBarActiveTintColor: "#2563eb",
+        tabBarInactiveTintColor: "#94a3b8",
       }}
     >
       <Tabs.Screen
@@ -81,6 +80,7 @@ export default function TabsLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="journal"
         options={{
@@ -89,6 +89,7 @@ export default function TabsLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="journey"
         options={{
@@ -97,6 +98,7 @@ export default function TabsLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="goal"
         options={{
@@ -105,72 +107,40 @@ export default function TabsLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="habit"
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="repeat-outline" size={size} color={color} />
+            <Ionicons name="checkbox-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen name="goals" options={{ href: null }} />
+
+      {/* Hide goals.tsx from tab bar - accessible via navigation only */}
+      <Tabs.Screen
+        name="goals"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-  webRoot: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#f8fafc",
+  tabBarBackgroundClip: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    overflow: "hidden",
   },
-  sidebar: {
-    width: 220,
-    backgroundColor: "#0f172a",
-    paddingTop: 32,
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+  tabBarBackgroundAndroid: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
   },
-  sidebarBrand: {
-    marginBottom: 36,
-    paddingHorizontal: 8,
-  },
-  brandText: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#ffffff",
-    letterSpacing: 1,
-  },
-  brandSub: {
-    fontSize: 11,
-    color: "#64748b",
-    marginTop: 2,
-    letterSpacing: 0.5,
-  },
-  navList: {
-    gap: 6,
-  },
-  navItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-  },
-  navItemActive: {
-    backgroundColor: "#1e40af",
-  },
-  navLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#94a3b8",
-  },
-  navLabelActive: {
-    color: "#ffffff",
-  },
-  content: {
-    flex: 1,
-    overflow: "hidden" as const,
+  subtleOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 255, 255, 0.14)",
   },
 });
