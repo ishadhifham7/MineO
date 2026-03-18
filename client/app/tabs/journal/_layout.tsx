@@ -10,6 +10,8 @@ export default function JournalLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
+          animation: "slide_from_right",
+          gestureEnabled: true,
         }}
       >
         <Stack.Screen
