@@ -123,11 +123,11 @@ export default function HomeScreen() {
   const [habitCalendar, setHabitCalendar] = useState<CalendarData>({});
 
   const milestones = [
-    { done: true, color: "#81C784" },
-    { done: true, color: "#64B5F6" },
-    { done: true, color: "#FF8A65" },
-    { done: false, isStar: true, color: "#E0E0E0" },
-    { done: false, isEnd: true, color: "#E0E0E0" },
+    { done: true, color: "#22C55E" },
+    { done: true, color: "#22C55E" },
+    { done: true, color: "#F59E0B" },
+    { done: false, isStar: true, color: "#2C2C31" },
+    { done: false, isEnd: true, color: "#2C2C31" },
   ];
 
   //fetch goals whenever Home is opened (keeps up to date)
@@ -175,9 +175,9 @@ export default function HomeScreen() {
     const today = habitCalendar[todayStr];
     if (!today) return [];
     const mapping: { key: keyof typeof today; emoji: string; title: string; bgColor: string }[] = [
-      { key: "spiritual", emoji: "🧘", title: "Spiritual", bgColor: "#E8F5E9" },
-      { key: "mental", emoji: "🧠", title: "Mental", bgColor: "#F3E5F5" },
-      { key: "physical", emoji: "💪", title: "Physical", bgColor: "#E3F2FD" },
+      { key: "spiritual", emoji: "🧘", title: "Spiritual", bgColor: "#1F3326" },
+      { key: "mental", emoji: "🧠", title: "Mental", bgColor: "#232326" },
+      { key: "physical", emoji: "💪", title: "Physical", bgColor: "#232326" },
     ];
     return mapping
       .filter((m) => (today[m.key] ?? 0) >= 0.5)
@@ -214,10 +214,10 @@ export default function HomeScreen() {
       : 0;
 
     return [
-      { name: "Mental", percentage: mentalPct, color: "#FF8A80" },
-      { name: "Physical", percentage: physicalPct, color: "#82B1FF" },
-      { name: "Spiritual", percentage: spiritualPct, color: "#B9F6CA" },
-      { name: "Goal Path", percentage: goalPct, color: "#FFE0B2" },
+      { name: "Mental", percentage: mentalPct, color: "#F59E0B" },
+      { name: "Physical", percentage: physicalPct, color: "#DCFCE7" },
+      { name: "Spiritual", percentage: spiritualPct, color: "#DCFCE7" },
+      { name: "Goal Path", percentage: goalPct, color: "#232326" },
     ];
   }, [habitCalendar, goals]);
 
@@ -234,8 +234,8 @@ export default function HomeScreen() {
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-    if (!total || total <= 0) return "#F3F4F6"; // gray
-    if (completed <= 0) return "#F3F4F6";
+    if (!total || total <= 0) return "#232326"; // gray
+    if (completed <= 0) return "#232326";
 
     // Convert any total into a 1..6 bucket
     const ratio = completed / total;
@@ -244,19 +244,19 @@ export default function HomeScreen() {
     // setting background colors for the goals based on the progress
     switch (bucket) {
       case 1:
-        return "#DCFCE7";
+        return "#1F3326";
       case 2:
-        return "#DBEAFE";
+        return "#232326";
       case 3:
-        return "#EDE9FE";
+        return "#232326";
       case 4:
-        return "#FEF3C7";
+        return "#1F3326";
       case 5:
-        return "#FFE4E6";
+        return "#232326";
       case 6:
-        return "#D1FAE5";
+        return "#1F3326";
       default:
-        return "#F3F4F6";
+        return "#232326";
     }
   };
 
@@ -276,7 +276,7 @@ export default function HomeScreen() {
         <View style={styles.hillFront} />
         {/* Trees */}
         <View style={[styles.tree, { left: 40, bottom: 55 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
+          <View style={[styles.treeTop, { backgroundColor: "#22C55E" }]} />
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { left: 80, bottom: 65 }]}>
@@ -284,7 +284,7 @@ export default function HomeScreen() {
             style={[
               styles.treeTop,
               {
-                backgroundColor: "#66BB6A",
+                backgroundColor: "#22C55E",
                 width: 28,
                 height: 28,
                 borderRadius: 14,
@@ -294,7 +294,7 @@ export default function HomeScreen() {
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 70, bottom: 50 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
+          <View style={[styles.treeTop, { backgroundColor: "#22C55E" }]} />
           <View style={styles.treeTrunk} />
         </View>
         <View style={[styles.tree, { right: 40, bottom: 40 }]}>
@@ -302,7 +302,7 @@ export default function HomeScreen() {
             style={[
               styles.treeTop,
               {
-                backgroundColor: "#FF8A65",
+                backgroundColor: "#F59E0B",
                 width: 30,
                 height: 30,
                 borderRadius: 15,
@@ -317,7 +317,7 @@ export default function HomeScreen() {
           onPress={() => router.push("/other/profile")}
         >
           <View style={styles.profileIconContainer}>
-            <Ionicons name="person" size={24} color="#333" />
+            <Ionicons name="person" size={24} color="#A1A1AA" />
           </View>
         </TouchableOpacity>
         {/* Header Text */}
@@ -330,11 +330,11 @@ export default function HomeScreen() {
       {/* ===== Search Bar ===== */}
       <View style={styles.searchWrapper}>
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color="#bbb" />
+          <Ionicons name="search-outline" size={20} color="#A1A1AA" />
           <TextInput
             style={styles.searchInput}
             placeholder="Search your moments..."
-            placeholderTextColor="#bbb"
+            placeholderTextColor="#A1A1AA"
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
@@ -345,7 +345,7 @@ export default function HomeScreen() {
               onPress={() => setSearchQuery("")}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="close-circle" size={18} color="#bbb" />
+              <Ionicons name="close-circle" size={18} color="#A1A1AA" />
             </TouchableOpacity>
           )}
         </View>
@@ -415,11 +415,11 @@ export default function HomeScreen() {
                   />
                 ) : (
                   <View style={styles.momentImagePlaceholder}>
-                    <Ionicons name="document-text-outline" size={40} color="#ccc" />
+                    <Ionicons name="document-text-outline" size={40} color="#A1A1AA" />
                   </View>
                 )}
                 <View style={styles.momentCaptionWrap}>
-                  <Ionicons name={latestMoment.image ? "camera-outline" : "bookmark-outline"} size={12} color="#fff" />
+                  <Ionicons name={latestMoment.image ? "camera-outline" : "bookmark-outline"} size={12} color="#FFFFFF" />
                   <Text style={styles.momentCaption} numberOfLines={1}>
                     {latestMoment.journal.title || latestMoment.journal.date}
                   </Text>
@@ -434,7 +434,7 @@ export default function HomeScreen() {
                     style={[
                       styles.thumbCircle,
                       i > 0 && { marginLeft: -8 },
-                      m.image ? undefined : { backgroundColor: "#D1C4E9" },
+                      m.image ? undefined : { backgroundColor: "#232326" },
                     ]}
                   >
                     {m.image && (
@@ -453,9 +453,9 @@ export default function HomeScreen() {
           ) : (
             <View style={styles.momentImageWrap}>
               <View style={styles.momentImagePlaceholder}>
-                <Ionicons name="image-outline" size={40} color="#ccc" />
+                <Ionicons name="image-outline" size={40} color="#A1A1AA" />
               </View>
-              <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No moments yet</Text>
+              <Text style={{ fontSize: 12, color: "#A1A1AA", marginTop: 8 }}>No moments yet</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -465,7 +465,7 @@ export default function HomeScreen() {
           <Text style={styles.cardTitle}>Daily Wins</Text>
           <Text style={styles.cardSubtitle}>TODAY</Text>
           {dailyWins.length === 0 && (
-            <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No wins yet today</Text>
+            <Text style={{ fontSize: 12, color: "#A1A1AA", marginTop: 8 }}>No wins yet today</Text>
           )}
           {dailyWins.map((win) => (
             <View
@@ -496,7 +496,7 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <View style={styles.trackerHeader}>
             <Text style={styles.sectionTitle}>Win Tracker</Text>
-            <Ionicons name="chevron-forward" size={18} color="#aaa" />
+            <Ionicons name="chevron-forward" size={18} color="#A1A1AA" />
           </View>
           <View style={styles.trackerBody}>
             <DonutChart
@@ -602,20 +602,20 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#121212",
   },
 
   /* ---- Header ---- */
   headerBg: {
     width: "100%",
     height: 220,
-    backgroundColor: "#dce9f5",
+    backgroundColor: "#1C1C1E",
     overflow: "hidden",
     position: "relative",
   },
   skyLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#e8eef6",
+    backgroundColor: "#232326",
   },
   cloudLayer: {
     position: "absolute",
@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
     right: 0,
     width: 180,
     height: 100,
-    backgroundColor: "#f3d4d0",
+    backgroundColor: "#232326",
     borderBottomLeftRadius: 100,
     opacity: 0.5,
   },
@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
     left: -30,
     width: SCREEN_W + 60,
     height: 100,
-    backgroundColor: "#c5ddb8",
+    backgroundColor: "#1F3326",
     borderTopLeftRadius: 200,
     borderTopRightRadius: 200,
   },
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: SCREEN_W,
     height: 60,
-    backgroundColor: "#d4c9a8",
+    backgroundColor: "#232326",
     borderTopLeftRadius: 300,
     borderTopRightRadius: 100,
   },
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   treeTrunk: {
     width: 4,
     height: 14,
-    backgroundColor: "#8D6E63",
+    backgroundColor: "#22C55E",
     borderRadius: 2,
   },
   headerTextWrap: {
@@ -672,13 +672,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: "Roboto_400Regular",
     fontWeight: "300",
-    color: "#333",
+    color: "#FFFFFF",
   },
   headerSub: {
     fontSize: 20,
     fontFamily: "Roboto_400Regular",
     fontWeight: "300",
-    color: "#666",
+    color: "#A1A1AA",
     marginTop: 2,
   },
 
@@ -691,14 +691,14 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#E9EEF5",
+    borderColor: "#2C2C31",
     paddingHorizontal: 16,
     paddingVertical: 11,
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -708,7 +708,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontFamily: "Roboto_400Regular",
-    color: "#333",
+    color: "#FFFFFF",
   },
 
   /* ---- Shared ---- */
@@ -717,12 +717,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#2C2C31",
     padding: 18,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -732,13 +732,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#222",
+    color: "#FFFFFF",
   },
   cardSubtitle: {
     fontSize: 11,
     fontFamily: "Roboto_400Regular",
     fontWeight: "600",
-    color: "#aaa",
+    color: "#A1A1AA",
     letterSpacing: 1,
     marginTop: 2,
     marginBottom: 12,
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#222",
+    color: "#FFFFFF",
   },
 
   /* ---- Calendar ---- */
@@ -760,7 +760,7 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#333",
+    color: "#FFFFFF",
   },
   dayHeaderRow: {
     flexDirection: "row",
@@ -771,7 +771,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: "#A1A1AA",
     letterSpacing: 0.5,
   },
   calGrid: {
@@ -792,18 +792,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   calDaySelected: {
-    backgroundColor: "#64B5F6",
+    backgroundColor: "#22C55E",
   },
   calDayPhoto: {
-    backgroundColor: "#e8e8e8",
+    backgroundColor: "#232326",
   },
   calDayText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#444",
+    color: "#FFFFFF",
   },
   calDayTextSelected: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontWeight: "700",
   },
 
@@ -828,7 +828,7 @@ const styles = StyleSheet.create({
   momentImagePlaceholder: {
     width: "100%",
     height: 130,
-    backgroundColor: "#f0ece4",
+    backgroundColor: "#121212",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
   },
   momentCaption: {
     fontSize: 11,
-    color: "#fff",
+    color: "#FFFFFF",
     fontWeight: "600",
   },
   momentFooter: {
@@ -867,13 +867,13 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#ddd",
+    backgroundColor: "#232326",
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: "#FFFFFF",
   },
   moreText: {
     fontSize: 11,
-    color: "#999",
+    color: "#A1A1AA",
   },
 
   /* ---- Daily Wins ---- */
@@ -892,7 +892,7 @@ const styles = StyleSheet.create({
   winChipText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#444",
+    color: "#FFFFFF",
   },
   doneRow: {
     flexDirection: "row",
@@ -904,23 +904,23 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#66BB6A",
+    backgroundColor: "#22C55E",
   },
   doneText: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#666",
+    color: "#A1A1AA",
   },
   doneBarBg: {
     flex: 1,
     height: 6,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: "#232326",
     borderRadius: 3,
     overflow: "hidden",
   },
   doneBarFill: {
     height: "100%",
-    backgroundColor: "#66BB6A",
+    backgroundColor: "#22C55E",
     borderRadius: 3,
   },
 
@@ -933,7 +933,7 @@ const styles = StyleSheet.create({
   },
   monthlyLabel: {
     fontSize: 14,
-    color: "#aaa",
+    color: "#A1A1AA",
   },
   trackerBody: {
     flexDirection: "row",
@@ -946,12 +946,12 @@ const styles = StyleSheet.create({
   donutCenterLabel: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#333",
+    color: "#FFFFFF",
   },
   donutCenterSub: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: "#A1A1AA",
     letterSpacing: 1,
   },
   legendList: {
@@ -973,12 +973,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     fontWeight: "500",
-    color: "#555",
+    color: "#FFFFFF",
   },
   legendPct: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#555",
+    color: "#FFFFFF",
   },
 
   /* ---- Goal Path ---- */
@@ -992,16 +992,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#000000",
+    color: "#FFFFFF",
   },
   goalEmptyText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: "#A1A1AA",
     marginTop: 6,
   },
   goalRow: {
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#2C2C31",
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -1013,14 +1013,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#111827",
+    color: "#FFFFFF",
   },
   goalRowSub: {
     marginTop: 4,
     fontSize: 12,
     fontFamily: "Roboto_400Regular",
     fontWeight: "600",
-    color: "#6B7280",
+    color: "#A1A1AA",
   },
 
   /* ---- Profile Icon ---- */
@@ -1034,10 +1034,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#fff",
+    backgroundColor: "#1C1C1E",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
