@@ -7,6 +7,8 @@ export default function GoalLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
+          animation: "slide_from_right",
+          gestureEnabled: true,
         }}
       />
     </GoalProvider>
