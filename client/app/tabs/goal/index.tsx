@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,338 +6,454 @@ import {
   View,
   Pressable,
   ScrollView,
-  Platform,
 } from "react-native";
 
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGoal } from "../../../src/features/goal/goal.context";
-import { useAuth } from "../../../src/hooks/useAuth";
+
+type GoalItem = {
+  id: string;
+  title: string;
+  description?: string;
+  stages: Array<{ completed: boolean }>;
+};
+
+function getStatusMeta(progressPct: number) {
+  if (progressPct >= 100) {
+    return {
+      text: "Completed",
+      color: "#4CAF50",
+      trackColor: "#D9F2DC",
+    };
+  }
+
+  if (progressPct >= 65) {
+    return {
+      text: "Almost there",
+      color: "#2196F3",
+      trackColor: "#D8ECFB",
+    };
+  }
+
+  if (progressPct >= 30) {
+    return {
+      text: "In progress",
+      color: "#B5A993",
+      trackColor: "#ECE6DC",
+    };
+  }
+
+  return {
+    text: "Just started",
+    color: "#8C7F6A",
+    trackColor: "#E9E3DA",
+  };
+}
 
 export default function GoalsHome() {
-  const { goals, fetchGoals, loading } = useGoal();
+  const { goals, fetchGoals } = useGoal();
 
   useEffect(() => {
     fetchGoals();
-  }, []);
+  }, [fetchGoals]);
+
+  const { completedCount, activeCount } = useMemo(() => {
+    const completed = goals.filter((goal: GoalItem) => {
+      const total = goal.stages.length;
+      if (total === 0) {
+        return false;
+      }
+      return goal.stages.every((stage) => stage.completed);
+    }).length;
+
+    return {
+      completedCount: completed,
+      activeCount: Math.max(goals.length - completed, 0),
+    };
+  }, [goals]);
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.screen}>
+        <LinearGradient
+          colors={["#B5A993", "#8C7F6A"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.hero}
+        >
+          <Text style={styles.heroTitle}>Your Goals</Text>
+          <Text style={styles.heroSubtitle}>
+            Keep moving forward, one milestone at a time
+          </Text>
+
+          <View style={styles.heroStatsRow}>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatValue}>{goals.length}</Text>
+              <Text style={styles.heroStatLabel}>Total</Text>
+            </View>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatValue}>{activeCount}</Text>
+              <Text style={styles.heroStatLabel}>Active</Text>
+            </View>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatValue}>{completedCount}</Text>
+              <Text style={styles.heroStatLabel}>Done</Text>
+            </View>
+          </View>
+        </LinearGradient>
+
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View style={styles.headerRow}>
-            <View style={styles.headerIcon}>
-              <Ionicons name="sparkles-outline" size={18} color="#49B7D0" />
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Goal Progress</Text>
+              <Text style={styles.sectionSubtitle}>Tap any goal to open roadmap</Text>
             </View>
-            <View style={styles.headerText}>
-              <Text style={styles.hTitle}>Your Goals</Text>
-              <Text style={styles.hSub}>Small steps create big change</Text>
+            <View style={styles.countPill}>
+              <Text style={styles.countPillText}>{goals.length}</Text>
             </View>
           </View>
 
-          {/* Action cards */}
-          <View style={styles.cardsRow}>
-            <ActionCard
-              small="Daily"
-              big="Check-in"
-              icon="heart-outline"
-              gradientColors={["#63D1E6", "#44BBD4"]}
-              onPress={() => router.push("/other-tabs/daily-check-in")}
-            />
-            <ActionCard
-              small="Your"
-              big="Progress"
-              icon="trending-up-outline"
-              gradientColors={["#B39DDB", "#F7B7A3"]}
-              onPress={() => router.push("/other-tabs/progress")}
-            />
-          </View>
-
-          {/* Goals list */}
           <View style={styles.listWrap}>
-            {goals.map((g) => (
-              <GoalListCard
-                key={g.id}
-                goal={g}
-                onPress={() => router.push(`/tabs/goal/roadmap?id=${g.id}`)}
-              />
-            ))}
+            {goals.length > 0 ? (
+              goals.map((goal: GoalItem) => (
+                <GoalListCard
+                  key={goal.id}
+                  goal={goal}
+                  onPress={() => router.push(`/tabs/goal/roadmap?id=${goal.id}`)}
+                />
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <View style={styles.emptyIconWrap}>
+                  <Ionicons name="flag-outline" size={34} color="#8C7F6A" />
+                </View>
+                <Text style={styles.emptyTitle}>No goals yet</Text>
+                <Text style={styles.emptySubtitle}>
+                  Create your first goal and start tracking your progress.
+                </Text>
+              </View>
+            )}
           </View>
 
-          {/* Spacer so list doesn't hide behind bottom button */}
-          <View style={{ height: 110 }} />
-        </ScrollView>
-
-        {/* Bottom Create Button */}
-        <View style={styles.bottomBar}>
-          <Pressable
-            onPress={() => router.push("/tabs/goal/chat")}
-            style={({ pressed }) => [pressed && { opacity: 0.92 }]}
-          >
-            <LinearGradient
-              colors={["#63D1E6", "#B39DDB"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.createBtn}
+          <View style={styles.ctaWrap}>
+            <Pressable
+              onPress={() => router.push("/tabs/goal/chat")}
+              style={({ pressed }) => [pressed && { opacity: 0.9 }]}
             >
-              <Ionicons name="add" size={20} color="#fff" />
-              <Text style={styles.createText}>Create New Goal</Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
+              <LinearGradient
+                colors={["#2E2A26", "#4A433A"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.createBtn}
+              >
+                <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.createText}>Create New Goal</Text>
+              </LinearGradient>
+            </Pressable>
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
 }
 
-/* ========================= */
-/*       ACTION CARD         */
-/* ========================= */
-
-function ActionCard({
-  small,
-  big,
-  icon,
-  gradientColors,
-  onPress,
-}: {
-  small: string;
-  big: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  gradientColors: [string, string];
-  onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} style={styles.card}>
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.cardIconWrap}
-      >
-        <Ionicons name={icon} size={22} color="#fff" />
-      </LinearGradient>
-
-      <View style={styles.cardTextWrap}>
-        <Text style={styles.cardSmall}>{small}</Text>
-        <Text style={styles.cardBig}>{big}</Text>
-      </View>
-    </Pressable>
-  );
-}
-
-/* ========================= */
-/*     GOAL LIST CARD        */
-/* ========================= */
-
 function GoalListCard({
   goal,
   onPress,
 }: {
-  goal: {
-    id: string;
-    title: string;
-    description?: string;
-    stages: Array<{ completed: boolean }>;
-  };
+  goal: GoalItem;
   onPress: () => void;
 }) {
-  // Calculate progress
   const totalStages = goal.stages.length;
-  const completedStages = goal.stages.filter((s) => s.completed).length;
+  const completedStages = goal.stages.filter((stage) => stage.completed).length;
   const progressPct =
     totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
 
-  // Determine status
-  let statusText = "Just started";
-  if (progressPct === 100) statusText = "Completed";
-  else if (progressPct > 60) statusText = "Almost there";
-  else if (progressPct > 30) statusText = "In progress";
-
-  // Determine status color
-  let statusColor = "#A78BFA"; // Just started - Soft Purple
-  if (progressPct === 100)
-    statusColor = "#10B981"; // Completed - Success Green
-  else if (progressPct > 60)
-    statusColor = "#3B82F6"; // Almost there - Confident Blue
-  else if (progressPct > 30) statusColor = "#F59E0B"; // In progress - Motivational Amber
-
-  const { user } = useAuth();
-  useEffect(() => {
-    console.log(user?.userId);
-  }, [user]);
+  const status = getStatusMeta(progressPct);
 
   return (
     <Pressable onPress={onPress} style={styles.goalCard}>
-      {/* left progress ring */}
-      <View style={styles.ring}>
-        <Text style={styles.ringText}>{progressPct}%</Text>
+      <View style={[styles.progressRing, { borderColor: status.color }]}>
+        <Text style={[styles.progressRingText, { color: status.color }]}>
+          {progressPct}%
+        </Text>
       </View>
 
-      {/* right info */}
-      <View style={{ flex: 1 }}>
-        <Text style={styles.goalTitle}>{goal.title}</Text>
-
-        <View style={styles.metaRow}>
-          <View style={[styles.pill, { backgroundColor: statusColor }]}>
-            <Text style={styles.pillText}>
-              {completedStages}/{totalStages} stages
+      <View style={styles.goalInfo}>
+        <View style={styles.goalTitleRow}>
+          <Text numberOfLines={1} style={styles.goalTitle}>
+            {goal.title}
+          </Text>
+          <View style={[styles.statusBadge, { backgroundColor: status.trackColor }]}>
+            <Text style={[styles.statusBadgeText, { color: status.color }]}>
+              {status.text}
             </Text>
           </View>
         </View>
 
-        <View style={styles.statusRow}>
-          <View style={[styles.dot, { backgroundColor: statusColor }]} />
-          <Text style={[styles.statusText, { color: statusColor }]}>
-            {statusText}
+        {goal.description ? (
+          <Text numberOfLines={2} style={styles.goalDescription}>
+            {goal.description}
+          </Text>
+        ) : null}
+
+        <View style={styles.goalMetaRow}>
+          <Text style={styles.goalMetaText}>
+            {completedStages}/{totalStages} stages completed
           </Text>
         </View>
+
+        <View style={[styles.progressTrack, { backgroundColor: status.trackColor }]}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${progressPct}%`,
+                backgroundColor: status.color,
+              },
+            ]}
+          />
+        </View>
       </View>
+
+      <Ionicons name="chevron-forward" size={18} color="#8C7F6A" />
     </Pressable>
   );
 }
 
-/* ========================= */
-/*          STYLES           */
-/* ========================= */
-
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
-
-  screen: { flex: 1 },
-
-  scrollContent: {
-    paddingHorizontal: 18,
-    paddingTop: 14,
+  safe: {
+    flex: 1,
+    backgroundColor: "#F6F1E7",
   },
-
-  /* Header */
-  headerRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
-  headerIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+  screen: {
+    flex: 1,
+  },
+  hero: {
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 20,
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
+    letterSpacing: -0.4,
+  },
+  heroSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    fontFamily: "Roboto_400Regular",
+    color: "rgba(255,255,255,0.9)",
+  },
+  heroStatsRow: {
+    marginTop: 16,
+    flexDirection: "row",
+    gap: 10,
+  },
+  heroStatCard: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 14,
+    paddingVertical: 10,
     alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.35)",
   },
-  headerText: { marginLeft: 12 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
-
-  /* Action cards */
-  cardsRow: {
-    marginTop: 22,
+  heroStatValue: {
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  heroStatLabel: {
+    marginTop: 2,
+    fontSize: 12,
+    fontFamily: "Roboto_500Medium",
+    fontWeight: "500",
+    color: "rgba(255,255,255,0.9)",
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 118,
+  },
+  sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 14,
-  },
-  card: {
-    flex: 1,
-    height: 78,
-    borderRadius: 16,
-    backgroundColor: "#FFFFFF",
-    flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 7 },
-    elevation: 5,
+    marginBottom: 14,
   },
-  cardIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#2E2A26",
+  },
+  sectionSubtitle: {
+    marginTop: 2,
+    fontSize: 13,
+    fontFamily: "Roboto_400Regular",
+    color: "#8C7F6A",
+  },
+  countPill: {
+    backgroundColor: "#ECE6DC",
+    borderRadius: 999,
+    minWidth: 34,
+    height: 34,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 10,
   },
-  cardTextWrap: { marginLeft: 12 },
-  cardSmall: { fontSize: 13, color: "#6B6B6B", fontWeight: "600" },
-  cardBig: { marginTop: 2, fontSize: 18, color: "#111", fontWeight: "800" },
-
-  /* Goals list */
-  listWrap: { marginTop: 14 },
+  countPillText: {
+    fontSize: 15,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#8C7F6A",
+  },
+  listWrap: {
+    gap: 12,
+  },
   goalCard: {
-    marginTop: 12,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-  ring: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+  progressRing: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: 3,
-    borderColor: "#E6E6E6",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#FFFFFF",
   },
-  ringText: { fontSize: 12, fontWeight: "900", color: "#333" },
-
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
-
-  metaRow: {
-    marginTop: 6,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+  progressRingText: {
+    fontSize: 13,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
   },
-  pill: {
-    backgroundColor: "#9BE0B0",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
+  goalInfo: {
+    flex: 1,
   },
-  pillText: { fontSize: 11, fontWeight: "900", color: "#1F4D2B" },
-
-  statusRow: {
-    marginTop: 8,
+  goalTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#7ACD8C" },
-  statusText: { fontSize: 12, fontWeight: "700", color: "#6B6B6B" },
-
-  /* Bottom create button */
-  bottomBar: {
-    position: "absolute",
-    left: 18,
-    right: 18,
-    bottom: Platform.OS === "ios" ? 24 : 18,
+  goalTitle: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#2E2A26",
   },
-  createBtn: {
-    height: 58,
-    borderRadius: 18,
+  statusBadge: {
+    borderRadius: 999,
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontFamily: "Roboto_600SemiBold",
+    fontWeight: "600",
+  },
+  goalDescription: {
+    marginTop: 6,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
+  },
+  goalMetaRow: {
+    marginTop: 8,
+  },
+  goalMetaText: {
+    fontSize: 12,
+    fontFamily: "Roboto_500Medium",
+    fontWeight: "500",
+    color: "#8C7F6A",
+  },
+  progressTrack: {
+    marginTop: 8,
+    height: 7,
+    borderRadius: 999,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  emptyState: {
+    marginTop: 8,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 42,
+  },
+  emptyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F0EADF",
+  },
+  emptyTitle: {
+    marginTop: 14,
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#2E2A26",
+  },
+  emptySubtitle: {
+    marginTop: 8,
+    textAlign: "center",
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
+  },
+  ctaWrap: {
+    marginTop: 18,
+    marginHorizontal: 8,
+  },
+  createBtn: {
+    height: 56,
+    borderRadius: 16,
     flexDirection: "row",
-    gap: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     shadowColor: "#000",
     shadowOpacity: 0.12,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 7,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
   },
-  createText: { fontSize: 17, fontWeight: "900", color: "#fff" },
+  createText: {
+    fontSize: 16,
+    fontFamily: "Roboto_600SemiBold",
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
 });
