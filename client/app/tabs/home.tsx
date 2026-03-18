@@ -122,7 +122,6 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [allJournals, setAllJournals] = useState<JournalEntryWithBlocks[]>([]);
   const [habitCalendar, setHabitCalendar] = useState<CalendarData>({});
-  const isCompact = SCREEN_W < 390;
 
   const milestones = [
     { done: true, color: "#4CAF50" },
@@ -150,12 +149,6 @@ export default function HomeScreen() {
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
-
-  const greetingName = useMemo(() => {
-    if (!user?.email) return "champion";
-    const handle = user.email.split("@")[0] ?? "champion";
-    return handle.replace(/[._-]/g, " ").trim();
-  }, [user]);
 
   // ---- Compute Life Moments from journal entries ----
   const lifeMoments = useMemo(() => {
@@ -222,10 +215,10 @@ export default function HomeScreen() {
       : 0;
 
     return [
-      { name: "Mental", percentage: mentalPct, color: "#E53935" },
-      { name: "Physical", percentage: physicalPct, color: "#2196F3" },
-      { name: "Spiritual", percentage: spiritualPct, color: "#4CAF50" },
-      { name: "Goal Path", percentage: goalPct, color: "#B5A993" },
+      { name: "Mental", percentage: mentalPct, color: "#FF8A80" },
+      { name: "Physical", percentage: physicalPct, color: "#82B1FF" },
+      { name: "Spiritual", percentage: spiritualPct, color: "#B9F6CA" },
+      { name: "Goal Path", percentage: goalPct, color: "#FFE0B2" },
     ];
   }, [habitCalendar, goals]);
 
@@ -385,7 +378,7 @@ export default function HomeScreen() {
         {/* Life Moments */}
         <TouchableOpacity
           activeOpacity={0.85}
-          style={[styles.card, styles.halfCard, isCompact && styles.fullCard]}
+          style={[styles.card, styles.halfCard]}
           onPress={() => {
             if (latestMoment) setSelectedEntry(latestMoment.journal);
           }}
@@ -422,7 +415,7 @@ export default function HomeScreen() {
                     style={[
                       styles.thumbCircle,
                       i > 0 && { marginLeft: -8 },
-                      m.image ? undefined : { backgroundColor: "#D8D0C3" },
+                      m.image ? undefined : { backgroundColor: "#D1C4E9" },
                     ]}
                   >
                     {m.image && (
@@ -443,7 +436,7 @@ export default function HomeScreen() {
               <View style={styles.momentImagePlaceholder}>
                 <Ionicons name="image-outline" size={40} color="#ccc" />
               </View>
-              <Text style={{ fontSize: 12, color: "#8C7F6A", marginTop: 8 }}>No moments yet</Text>
+              <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No moments yet</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -453,7 +446,7 @@ export default function HomeScreen() {
           <Text style={styles.cardTitle}>Daily Wins</Text>
           <Text style={styles.cardSubtitle}>TODAY</Text>
           {dailyWins.length === 0 && (
-            <Text style={{ fontSize: 12, color: "#8C7F6A", marginTop: 8 }}>No wins yet today</Text>
+            <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No wins yet today</Text>
           )}
           {dailyWins.map((win) => (
             <View
@@ -481,26 +474,21 @@ export default function HomeScreen() {
         onPress={() => router.push("/other-tabs/win-tracker")}
         style={styles.sectionPadding}
       >
-        <LinearGradient
-          colors={["#FFFFFF", "#F6F1E7"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.trackerCard}
-        >
-          <View style={styles.trackerCardInner}>
-            {/* Header with title and total */}
-            <View style={styles.trackerCardHeader}>
-              <View>
-                <Text style={styles.trackerCardTitle}>Win Tracker</Text>
-                <Text style={styles.trackerCardSubtitle}>Monthly Performance</Text>
-              </View>
-              <View style={styles.totalBadge}>
-                <Text style={styles.totalBadgeNumber}>{totalWinPct}%</Text>
-              </View>
-            </View>
-
-            {/* Progress bars for each category */}
-            <View style={styles.trackerCategoriesContainer}>
+        <View style={styles.card}>
+          <View style={styles.trackerHeader}>
+            <Text style={styles.sectionTitle}>Win Tracker</Text>
+            <Ionicons name="chevron-forward" size={18} color="#aaa" />
+          </View>
+          <View style={styles.trackerBody}>
+            <DonutChart
+              data={winCategories.map((c) => ({
+                percentage: c.percentage,
+                color: c.color,
+              }))}
+              centerLabel={`${totalWinPct}%`}
+              centerSub="TOTAL"
+            />
+            <View style={styles.legendList}>
               {winCategories.map((cat) => (
                 <View key={cat.name} style={styles.trackerCategoryRow}>
                   <View style={styles.trackerCategoryLabel}>
@@ -528,13 +516,7 @@ export default function HomeScreen() {
               ))}
             </View>
           </View>
-
-          {/* Footer with arrow */}
-          <View style={styles.trackerFooter}>
-            <Text style={styles.trackerFooterText}>View Details</Text>
-            <Ionicons name="chevron-forward" size={16} color="#B5A993" />
-          </View>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
 
       {/* ===== Goal Path ===== */}
@@ -617,7 +599,7 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#F6F1E7",
+    backgroundColor: "#F4F6FA",
   },
 
   /* ---- Header ---- */
@@ -690,12 +672,17 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.25)",
     alignItems: "center",
   },
-  heroStatValue: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    fontFamily: "Roboto_500Medium",
+  headerHello: {
+    fontSize: 32,
+    fontFamily: "Roboto_400Regular",
+    fontWeight: "300",
+    color: "#333",
   },
-  heroStatLabel: {
+  headerSub: {
+    fontSize: 20,
+    fontFamily: "Roboto_400Regular",
+    fontWeight: "300",
+    color: "#666",
     marginTop: 2,
     fontSize: 11,
     color: "rgba(255,255,255,0.84)",
@@ -704,8 +691,8 @@ const styles = StyleSheet.create({
 
   /* ---- Search ---- */
   searchWrapper: {
-    paddingHorizontal: 16,
-    marginTop: 10,
+    paddingHorizontal: 20,
+    marginTop: 14,
     marginBottom: 10,
   },
   searchBar: {
@@ -714,21 +701,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#D8D0C3",
+    borderColor: "#E9EEF5",
     paddingHorizontal: 16,
     paddingVertical: 11,
     gap: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
     fontFamily: "Roboto_400Regular",
-    color: "#2E2A26",
+    color: "#333",
   },
 
   /* ---- Shared ---- */
@@ -737,19 +724,19 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
+    backgroundColor: "#fff",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#D8D0C3",
+    borderColor: "#EEF2F7",
     padding: 18,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 9,
-    elevation: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardTitle: {
-    fontSize: 17,
+    fontSize: 18,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
     color: "#2E2A26",
@@ -764,7 +751,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 19,
+    fontSize: 20,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
     color: "#2E2A26",
@@ -862,7 +849,7 @@ const styles = StyleSheet.create({
   momentImage: {
     width: "100%",
     height: 130,
-    borderRadius: 14,
+    borderRadius: 12,
   },
   momentCaptionWrap: {
     position: "absolute",

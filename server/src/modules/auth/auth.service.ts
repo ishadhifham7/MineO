@@ -17,22 +17,41 @@ export const signupUser = async (data: {
   country?: string;
   profilePhoto?: string;
 }) => {
+  console.log('🔵 signupUser called with:', { 
+    name: data.name, 
+    email: data.email, 
+    dob: data.dob,
+    hasBio: !!data.bio,
+    hasGender: !!data.gender,
+    hasCountry: !!data.country
+  });
+
   const usersRef = firestore.collection(USERS_COLLECTION);
 
+  console.log('🔍 Checking if email already exists:', data.email);
   // Check email uniqueness
   const existing = await usersRef.where("email", "==", data.email).get();
   if (!existing.empty) {
-    throw new Error("User already exists");
+    console.log('❌ Email already exists');
+    throw new Error("User with this email already exists");
   }
+  console.log('✅ Email is unique');
 
   // Generate base username from name
+  console.log('🔍 Generating username from name:', data.name);
   const baseUsername = data.name
     .toLowerCase()
     .replace(/[^a-z0-9]/g, ""); // remove spaces & special chars
 
+  if (!baseUsername) {
+    console.log('❌ Invalid name - no valid characters');
+    throw new Error("Name must contain at least one alphanumeric character");
+  }
+
   let username = baseUsername;
   let counter = 0;
 
+  console.log('🔍 Checking username uniqueness:', username);
   //Ensure username uniqueness
   while (true) {
     const usernameQuery = await usersRef
@@ -44,12 +63,17 @@ export const signupUser = async (data: {
 
     counter++;
     username = `${baseUsername}${counter}`;
+    console.log('🔄 Username taken, trying:', username);
   }
+  console.log('✅ Username available:', username);
 
   // Hash password
+  console.log('🔐 Hashing password...');
   const hashedPassword = await bcrypt.hash(data.password, 10);
+  console.log('✅ Password hashed');
 
   //  Create user document
+  console.log('💾 Creating user document in Firestore...');
   const docRef = await usersRef.add({
     name: data.name,
     email: data.email,
@@ -65,6 +89,7 @@ export const signupUser = async (data: {
     createdAt: new Date(),
   });
 
+  console.log('✅ User created successfully with ID:', docRef.id);
   return { id: docRef.id };
 };
 

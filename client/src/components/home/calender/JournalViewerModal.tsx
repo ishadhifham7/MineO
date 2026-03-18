@@ -86,6 +86,15 @@ interface Props {
 export default function JournalViewerModal({ visible, entry, onClose }: Props) {
   const insets = useSafeAreaInsets();
 
+  // Persist the last non-null entry so the Modal can animate closed with
+  // visible={false} before entry is cleared.  Without this, entry becomes null
+  // at the same time as visible, so if (!entry) return null fires before the
+  // <Modal> gets visible=false — leaving a ghost native modal layer that
+  // silently blocks all subsequent touches.
+  const lastEntryRef = useRef<JournalEntryWithBlocks | null>(null);
+  if (entry) lastEntryRef.current = entry;
+  const displayEntry = lastEntryRef.current;
+
   // Modal slide-up uses RN Animated (not Reanimated) — kept separate
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -183,9 +192,11 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
 
   // ---- render --------------------------------------------------------------
 
-  if (!entry) return null;
+  if (!displayEntry) return null;
 
-  const sortedBlocks = [...entry.blocks].sort((a, b) => a.zIndex - b.zIndex);
+  const sortedBlocks = [...displayEntry.blocks].sort(
+    (a, b) => a.zIndex - b.zIndex,
+  );
   const { minX, minY, contentWidth, contentHeight } =
     computeBoundingBox(sortedBlocks);
 
@@ -221,7 +232,7 @@ export default function JournalViewerModal({ visible, entry, onClose }: Props) {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.titleText} numberOfLines={2}>
-            {entry.title?.trim() || "Untitled"}
+            {displayEntry.title?.trim() || "Untitled"}
           </Text>
           <TouchableOpacity
             onPress={handleClose}

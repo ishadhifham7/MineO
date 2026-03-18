@@ -2,15 +2,20 @@ import admin from 'firebase-admin';
 import { env } from './env';
 
 const isDevelopment = env.NODE_ENV === 'development';
-const hasValidCredentials = 
-  env.FIREBASE_PROJECT_ID !== 'dev-project' && 
-  env.FIREBASE_CLIENT_EMAIL !== 'dev@example.com' &&
-  env.FIREBASE_PRIVATE_KEY !== 'dev-key';
+
+// Check if we have REAL Firebase credentials (not mock ones)
+const hasRealFirebaseCredentials = 
+  env.FIREBASE_PROJECT_ID && 
+  env.FIREBASE_CLIENT_EMAIL && 
+  env.FIREBASE_PRIVATE_KEY &&
+  !env.FIREBASE_PROJECT_ID.includes('mock') &&
+  !env.FIREBASE_PROJECT_ID.includes('dev-') &&
+  !env.FIREBASE_CLIENT_EMAIL.includes('mock');
 
 /**
- * Initialize Firebase Admin SDK
+ * Initialize Firebase Admin SDK ONLY if we have real credentials
  */
-if (!admin.apps.length && (hasValidCredentials || !isDevelopment)) {
+if (!admin.apps.length && hasRealFirebaseCredentials) {
   try {
     admin.initializeApp({
       credential: admin.credential.cert({
@@ -21,42 +26,131 @@ if (!admin.apps.length && (hasValidCredentials || !isDevelopment)) {
     });
     console.log('✅ Firebase initialized successfully');
   } catch (error) {
-    if (isDevelopment) {
-      console.warn('⚠️ Firebase initialization failed in development mode');
-      console.warn('⚠️ Running without Firebase. Some features may not work.');
-    } else {
+    console.error('❌ Firebase initialization failed:', error);
+    if (!isDevelopment) {
       throw error;
     }
   }
 }
 
+// Show warning if using mock database
+if (!hasRealFirebaseCredentials) {
+  console.log('⚠️  Running in DEVELOPMENT MODE with MOCK database');
+  console.log('⚠️  All data is stored in memory and will be lost on restart');
+  console.log('⚠️  To use real Firebase, update .env with real credentials');
+}
+
 // Create mock implementations for development without Firebase
+// This uses an in-memory store for testing
+const mockDatabase: any = {
+  users: {},
+  goals: {},
+  habits: {},
+  journals: {},
+};
+
+let mockIdCounter = 1;
+
 const createMockFirestore = () => {
-  const mockCollection = () => ({
-    doc: () => mockDoc(),
-    where: () => mockQuery(),
-    add: async () => ({ id: 'mock-id' }),
-    get: async () => ({ docs: [], empty: true }),
+  const mockCollection = (collectionName: string) => ({
+    doc: (id?: string) => mockDoc(collectionName, id),
+    where: (field: string, op: string, value: any) => mockQuery(collectionName, field, op, value),
+    add: async (data: any) => {
+      const id = `${collectionName}_${mockIdCounter++}`;
+      mockDatabase[collectionName] = mockDatabase[collectionName] || {};
+      mockDatabase[collectionName][id] = { id, ...data };
+      console.log(`✅ Mock: Added document to ${collectionName}:`, { id, ...data });
+      return { id };
+    },
+    get: async () => {
+      const collection = mockDatabase[collectionName] || {};
+      const docs = Object.values(collection).map((data: any) => ({
+        id: data.id,
+        data: () => data,
+        exists: true,
+      }));
+      return { docs, empty: docs.length === 0 };
+    },
   });
 
-  const mockDoc = () => ({
-    get: async () => ({ exists: false, data: () => null }),
-    set: async () => {},
-    update: async () => {},
-    delete: async () => {},
-    collection: mockCollection,
+  const mockDoc = (collectionName: string, id?: string) => ({
+    get: async () => {
+      const collection = mockDatabase[collectionName] || {};
+      const data = id ? collection[id] : null;
+      return {
+        id,
+        exists: !!data,
+        data: () => data,
+      };
+    },
+    set: async (data: any) => {
+      mockDatabase[collectionName] = mockDatabase[collectionName] || {};
+      mockDatabase[collectionName][id!] = { id, ...data };
+      console.log(`✅ Mock: Set document in ${collectionName}/${id}`);
+    },
+    update: async (data: any) => {
+      if (mockDatabase[collectionName]?.[id!]) {
+        mockDatabase[collectionName][id!] = {
+          ...mockDatabase[collectionName][id!],
+          ...data,
+        };
+        console.log(`✅ Mock: Updated document in ${collectionName}/${id}`);
+      }
+    },
+    delete: async () => {
+      if (mockDatabase[collectionName]?.[id!]) {
+        delete mockDatabase[collectionName][id!];
+        console.log(`✅ Mock: Deleted document from ${collectionName}/${id}`);
+      }
+    },
+    collection: (subCollection: string) => mockCollection(`${collectionName}/${id}/${subCollection}`),
   });
 
-  const mockQuery = () => ({
-    get: async () => ({ docs: [], empty: true }),
-    where: () => mockQuery(),
-    orderBy: () => mockQuery(),
-    limit: () => mockQuery(),
-  });
+  const mockQuery = (collectionName: string, field: string, op: string, value: any) => {
+    const query: any = {
+      get: async () => {
+        const collection = mockDatabase[collectionName] || {};
+        let docs = Object.values(collection).filter((doc: any) => {
+          if (op === '==') return doc[field] === value;
+          if (op === '>') return doc[field] > value;
+          if (op === '<') return doc[field] < value;
+          if (op === '>=') return doc[field] >= value;
+          if (op === '<=') return doc[field] <= value;
+          if (op === '!=') return doc[field] !== value;
+          return false;
+        });
+
+        // Apply limit if set
+        if (query._limit) {
+          docs = docs.slice(0, query._limit);
+        }
+
+        const resultDocs = docs.map((data: any) => ({
+          id: data.id,
+          data: () => data,
+          exists: true,
+        }));
+
+        console.log(`🔍 Mock: Query ${collectionName} where ${field} ${op} ${value} returned ${resultDocs.length} results`);
+        return { docs: resultDocs, empty: resultDocs.length === 0 };
+      },
+      where: (newField: string, newOp: string, newValue: any) => 
+        mockQuery(collectionName, newField, newOp, newValue),
+      orderBy: () => query,
+      limit: (n: number) => {
+        query._limit = n;
+        return query;
+      },
+    };
+    return query;
+  };
 
   return {
     collection: mockCollection,
-    doc: mockDoc,
+    doc: (path: string) => {
+      const [collectionName, id] = path.split('/');
+      return mockDoc(collectionName, id);
+    },
     settings: () => {},
     batch: () => ({
       set: () => {},

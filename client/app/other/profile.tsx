@@ -509,69 +509,36 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F6F1E7",
-  },
-
-  headerGradient: {
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingHorizontal: 14,
+    backgroundColor: "#F4EEE8",
   },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 18,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(86,64,85,0.08)",
   },
 
   backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.22)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
-  },
-
-  headerTextWrap: {
-    flex: 1,
-  },
-
-  headerIconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.22)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
+    padding: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.55)",
   },
 
   headerTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: -0.2,
-  },
-
-  headerSubtitle: {
-    marginTop: 2,
-    fontSize: 12,
-    fontWeight: "500",
-    color: "rgba(255,255,255,0.9)",
+    color: "#1E1A18",
+    letterSpacing: 0.2,
   },
 
   scrollView: {
     flex: 1,
-  },
-
-  scrollContent: {
-    paddingTop: 12,
-    paddingBottom: 32,
   },
 
   errorBanner: {
@@ -604,21 +571,21 @@ const styles = StyleSheet.create({
   },
 
   profileCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255,255,255,0.58)",
     marginHorizontal: 16,
-    marginTop: 4,
-    marginBottom: 18,
-    paddingVertical: 24,
-    paddingHorizontal: 18,
+    marginTop: 14,
+    marginBottom: 22,
+    paddingVertical: 34,
+    paddingHorizontal: 20,
     alignItems: "center",
-    borderRadius: 24,
+    borderRadius: 32,
     borderWidth: 1,
-    borderColor: "#E5DFD3",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    borderColor: "rgba(255,255,255,0.65)",
+    shadowColor: "#011D32",
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
   },
 
   avatarContainer: {
@@ -634,84 +601,54 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: "#ECE6DC",
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: "#E7DED6",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#D9D2C5",
+    borderColor: "rgba(255,255,255,0.7)",
   },
 
   profileName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "700",
-    color: "#2E2A26",
-    marginTop: 12,
-    marginBottom: 4,
+    color: "#1E1A18",
+    marginBottom: 6,
   },
 
   profileUsername: {
-    fontSize: 14,
-    color: "#8C7F6A",
-    marginBottom: 10,
+    fontSize: 15,
+    color: "#564055",
+    marginBottom: 12,
     fontWeight: "500",
   },
 
   profileBio: {
-    fontSize: 13,
-    color: "#6B645C",
+    fontSize: 14,
+    color: "#7C746F",
     textAlign: "center",
-    lineHeight: 19,
-    marginBottom: 14,
-    paddingHorizontal: 12,
-  },
-
-  metaRow: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    marginBottom: 14,
-  },
-
-  metaPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "#F6F1E7",
-    borderWidth: 1,
-    borderColor: "#E5DFD3",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-
-  metaText: {
-    fontSize: 11,
-    color: "#6B645C",
-    fontWeight: "600",
+    lineHeight: 22,
+    marginBottom: 22,
+    paddingHorizontal: 24,
   },
 
   editProfileButton: {
-    backgroundColor: "#2E2A26",
-    paddingHorizontal: 22,
-    paddingVertical: 11,
+    backgroundColor: "#011D32",
+    paddingHorizontal: 86,
+    paddingVertical: 14,
     borderRadius: 999,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: "#011D32",
+    shadowOpacity: 0.14,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 4,
   },
 
   editProfileButtonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
     letterSpacing: 0.2,
   },
@@ -720,18 +657,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255,255,255,0.58)",
     paddingHorizontal: 20,
     paddingVertical: 18,
     marginHorizontal: 16,
     marginBottom: 22,
-    borderRadius: 20,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#E5DFD3",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    borderColor: "rgba(255,255,255,0.65)",
+    shadowColor: "#011D32",
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 3,
   },
 
@@ -745,7 +682,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "#ECE6DC",
+    backgroundColor: "#F8DABE",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -753,7 +690,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2E2A26",
+    color: "#1E1A18",
   },
 
   statusRight: {
@@ -780,9 +717,9 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#8C7F6A",
+    color: "#9A918B",
     paddingHorizontal: 6,
     marginBottom: 10,
     letterSpacing: 1.1,
@@ -793,17 +730,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255,255,255,0.58)",
     paddingHorizontal: 20,
     paddingVertical: 17,
     marginBottom: 10,
-    borderRadius: 18,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#E5DFD3",
-    shadowColor: "#000",
+    borderColor: "rgba(255,255,255,0.65)",
+    shadowColor: "#011D32",
     shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 5 },
     elevation: 2,
   },
 
@@ -816,7 +753,7 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2E2A26",
+    color: "#1E1A18",
   },
 
   logoutButton: {
@@ -824,14 +761,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#FFF2EF",
+    backgroundColor: "rgba(149,67,44,0.08)",
     marginHorizontal: 20,
     paddingVertical: 16,
-    borderRadius: 18,
+    borderRadius: 22,
     marginTop: 12,
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: "#F3C3B8",
+    borderColor: "rgba(149,67,44,0.12)",
   },
 
   logoutText: {

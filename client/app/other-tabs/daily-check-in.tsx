@@ -135,7 +135,7 @@ export default function DailyCheckIn() {
 
               <View style={styles.messagePill}>
                 <Text style={styles.messageText}>
-                  Amazing work! You're building momentum. ✨
+                  Amazing work! You're building momentum.
                 </Text>
               </View>
             </>
@@ -199,7 +199,7 @@ function MoodCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#EFEFEF" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   header: {
     flexDirection: "row",
@@ -349,4 +349,5 @@ const styles = StyleSheet.create({
 
   ctaText: { fontSize: 16, fontWeight: "900", color: "#FFFFFF" },
 });
+
 

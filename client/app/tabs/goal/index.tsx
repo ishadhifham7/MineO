@@ -118,6 +118,7 @@ export default function GoalsHome() {
             </View>
           </View>
 
+          {/* Goals list */}
           <View style={styles.listWrap}>
             {goals.length > 0 ? (
               goals.map((goal: GoalItem) => (
@@ -161,6 +162,10 @@ export default function GoalsHome() {
     </SafeAreaView>
   );
 }
+
+/* ========================= */
+/*     GOAL LIST CARD        */
+/* ========================= */
 
 function GoalListCard({
   goal,
@@ -227,99 +232,36 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#F6F1E7",
-  },
-  screen: {
-    flex: 1,
-  },
-  hero: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 20,
-  },
-  heroTitle: {
-    fontSize: 32,
-    fontFamily: "Roboto_700Bold",
-    fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: -0.4,
-  },
-  heroSubtitle: {
-    marginTop: 6,
-    fontSize: 14,
-    fontFamily: "Roboto_400Regular",
-    color: "rgba(255,255,255,0.9)",
-  },
-  heroStatsRow: {
-    marginTop: 16,
-    flexDirection: "row",
-    gap: 10,
-  },
-  heroStatCard: {
-    flex: 1,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderRadius: 14,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.35)",
-  },
-  heroStatValue: {
-    fontSize: 20,
-    fontFamily: "Roboto_700Bold",
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  heroStatLabel: {
-    marginTop: 2,
-    fontSize: 12,
-    fontFamily: "Roboto_500Medium",
-    fontWeight: "500",
-    color: "rgba(255,255,255,0.9)",
-  },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
+
+  screen: { flex: 1 },
+
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 118,
+    paddingHorizontal: 18,
+    paddingTop: 14,
   },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: "Roboto_700Bold",
-    fontWeight: "700",
-    color: "#2E2A26",
-  },
-  sectionSubtitle: {
-    marginTop: 2,
-    fontSize: 13,
-    fontFamily: "Roboto_400Regular",
-    color: "#8C7F6A",
-  },
-  countPill: {
-    backgroundColor: "#ECE6DC",
-    borderRadius: 999,
-    minWidth: 34,
-    height: 34,
+
+  /* Header */
+  headerRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
-  countPillText: {
-    fontSize: 15,
-    fontFamily: "Roboto_700Bold",
-    fontWeight: "700",
-    color: "#8C7F6A",
-  },
-  listWrap: {
-    gap: 12,
-  },
+  headerText: { marginLeft: 12 },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
+  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
+
+  /* Goals list */
+  listWrap: { marginTop: 14 },
   goalCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
@@ -457,3 +399,4 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
 });
+

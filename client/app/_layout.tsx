@@ -15,19 +15,13 @@ import {
   Roboto_400Regular,
   Roboto_500Medium,
 } from "@expo-google-fonts/roboto";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  configureReanimatedLogger,
-  ReanimatedLogLevel,
-} from "react-native-reanimated";
-
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: false,
-});
 
 export default function RootLayout() {
+  const { width } = useWindowDimensions();
+  const horizontalPadding = width >= 430 ? 20 : 14;
+
   const [fontsLoaded] = useFonts({
     DancingScript_400Regular,
     DancingScript_700Bold,
@@ -54,10 +48,9 @@ export default function RootLayout() {
                   <Stack
                     screenOptions={{
                       headerShown: false,
-                      animation: "fade_from_bottom",
-                      gestureEnabled: true,
                       contentStyle: {
                         backgroundColor: "#F4F6FA",
+                        paddingHorizontal: horizontalPadding,
                       },
                     }}
                   />

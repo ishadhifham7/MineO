@@ -20,18 +20,20 @@ export default function PreferencesScreen() {
   const [language, setLanguage] = useState<Language>("English");
 
   return (
-    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
-      <View style={styles.container}>
-        <LinearGradient
-          colors={["#B5A993", "#8C7F6A"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.headerGradient}
-        >
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.headerIconButton}>
-              <Ionicons name="chevron-back" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color="#ffffff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Preferences</Text>
+        <View style={{ width: 28 }} />
+      </View>
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Appearance Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>APPEARANCE</Text>
 
             <View style={styles.headerTextWrap}>
               <Text style={styles.headerTitle}>Preferences</Text>
@@ -42,35 +44,8 @@ export default function PreferencesScreen() {
           </View>
         </LinearGradient>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.sectionWrap}>
-            <Text style={styles.sectionTitle}>Appearance</Text>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Theme</Text>
-              <View style={styles.themeRow}>
-                {(["Light", "Dark", "Auto"] as Theme[]).map((option) => {
-                  const active = theme === option;
-                  return (
-                    <TouchableOpacity
-                      key={option}
-                      style={[styles.themePill, active && styles.themePillActive]}
-                      onPress={() => setTheme(option)}
-                    >
-                      <Text
-                        style={[styles.themePillText, active && styles.themePillTextActive]}
-                      >
-                        {option}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          </View>
+        {/* Language Section */}
+        
 
           <View style={styles.sectionWrap}>
             <Text style={styles.sectionTitle}>Language</Text>

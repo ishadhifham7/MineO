@@ -5,7 +5,7 @@
     "scheme": "mineo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/appIcon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "runtimeVersion": {
@@ -41,8 +41,7 @@
     "plugins": [
       "expo-secure-store",
       "expo-router",
-      "@react-native-community/datetimepicker",
-      "expo-font"
+      "@react-native-community/datetimepicker"
     ],
     "extra": {
       "router": {},

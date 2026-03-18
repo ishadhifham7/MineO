@@ -12,7 +12,6 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useGoal, DraftGoal } from "../../../src/features/goal/goal.context";
@@ -63,8 +62,6 @@ const sendMessageToAI = async (
 const GoalChatScreen = () => {
   const { setDraftGoal, setCurrentGoal, setGoals } = useGoal();
   const chatListRef = useRef<FlatList<Message> | null>(null);
-  const insets = useSafeAreaInsets();
-  const bottomOffset = Math.max(insets.bottom + 74, 86);
 
   const [conversation, setConversation] = useState<Message[]>([
     {
@@ -137,6 +134,7 @@ const GoalChatScreen = () => {
     setLoading(true);
 
     try {
+      console.log("📤 Sending message to AI...");
       const { message: aiText, draftGoal: newDraft } = await sendMessageToAI(
         [...conversation, userMessage].map((msg) => ({
           sender: msg.sender,
@@ -145,6 +143,10 @@ const GoalChatScreen = () => {
         })),
         userMessage.text,
       );
+
+      console.log("=== Frontend Response Debug ===");
+      console.log("AI Message:", aiText?.substring(0, 100));
+      console.log("DraftGoal received:", newDraft ? "YES" : "NO");
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -156,8 +158,11 @@ const GoalChatScreen = () => {
 
       // If backend returns a draftGoal, store it (but don't navigate yet)
       if (newDraft) {
+        console.log("✅ Setting currentDraft:", newDraft.title);
         setCurrentDraft(newDraft);
         setDraftGoal(newDraft);
+      } else {
+        console.log("💬 Conversational response (no goal draft)");
       }
     } catch (error: any) {
       console.error("❌ AI chat error:", error);
@@ -226,30 +231,42 @@ const GoalChatScreen = () => {
             </Text>
           </View>
         </View>
+      ) : (
+        <>
+          {/* Chat */}
+          <FlatList
+            ref={chatListRef}
+            data={conversation}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            onLayout={() => scrollToLatestMessage(false)}
+            onContentSizeChange={() => scrollToLatestMessage(true)}
+            contentContainerStyle={{
+              padding: 20,
+              paddingBottom: 20,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
 
-        {/* Show full-screen plan when draft exists */}
-        {currentDraft ? (
-          <View style={[styles.fullScreenPlanContainer, { paddingBottom: bottomOffset }]}>
-            <ScrollView
-              style={styles.fullScreenScrollView}
-              contentContainerStyle={styles.fullScreenScrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              {renderGoalPlan(currentDraft)}
-            </ScrollView>
-
+          {/* Input */}
+          <View style={styles.inputWrapper}>
+            <TextInput
+              placeholder="Type your message..."
+              placeholderTextColor="#9CA3AF"
+              style={styles.input}
+              value={inputText}
+              onChangeText={setInputText}
+              editable={!loading}
+            />
             <Pressable
-              style={[styles.saveButton, savingGoal && { opacity: 0.75 }]}
-              onPress={handleSendToRoadmap}
-              disabled={savingGoal}
+              style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
+              onPress={handleSend}
+              disabled={!canSend}
             >
-              {savingGoal ? (
-                <ActivityIndicator color="#FFFFFF" />
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <>
-                  <Ionicons name="checkmark-circle-outline" size={20} color="#FFFFFF" />
-                  <Text style={styles.saveButtonText}>Save Plan</Text>
-                </>
+                <Ionicons name="paper-plane" size={20} color="#FFFFFF" />
               )}
             </Pressable>
           </View>
@@ -481,20 +498,20 @@ const styles = StyleSheet.create({
     color: "#2E2A26",
   },
   sendButton: {
-    backgroundColor: "#8C7F6A",
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    backgroundColor: "#63D1E6",
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.14,
+    shadowColor: "#63D1E6",
+    shadowOpacity: 0.28,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
   sendButtonDisabled: {
-    backgroundColor: "#CEC4B3",
+    backgroundColor: "#B3E8F2",
     shadowOpacity: 0,
     elevation: 0,
   },

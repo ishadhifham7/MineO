@@ -107,99 +107,20 @@ const GoalRoadmapScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
-      <View style={styles.screen}>
-        <LinearGradient
-          colors={["#B5A993", "#8C7F6A"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.hero}
-        >
-          <View style={styles.heroTopRow}>
-            <Pressable style={styles.heroAction} onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={16} color="#FFFFFF" />
-              <Text style={styles.heroActionText}>Back</Text>
-            </Pressable>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()}>
+          <Text style={styles.backText}>Back</Text>
+        </Pressable>
+        <Text style={styles.headerTitle}>Goal Roadmap</Text>
+        <Pressable onPress={handleBackToGoals} style={styles.headerSaveButton}>
+          <Text style={styles.headerSaveText}>Save</Text>
+        </Pressable>
+      </View>
 
-            <Pressable
-              style={styles.heroAction}
-              onPress={() => router.push("/tabs/goal")}
-            >
-              <Text style={styles.heroActionText}>Done</Text>
-              <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-            </Pressable>
-          </View>
-
-          <Text style={styles.heroTitle}>Goal Roadmap</Text>
-          <Text style={styles.heroSubtitle}>{displayGoal.title}</Text>
-
-          <View style={styles.heroProgressWrap}>
-            <View style={styles.heroProgressTopRow}>
-              <Text style={styles.heroProgressLabel}>Progress</Text>
-              <Text style={styles.heroProgressValue}>{progressPercent}%</Text>
-            </View>
-            <View style={styles.heroProgressTrack}>
-              <View
-                style={[
-                  styles.heroProgressFill,
-                  {
-                    width: `${progressPercent}%`,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={styles.heroProgressMeta}>
-              {completedCount}/{localStages.length} stages completed
-            </Text>
-          </View>
-        </LinearGradient>
-
-        <ScrollView
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.descriptionCard}>
-            <Text style={styles.descriptionTitle}>Goal Description</Text>
-            <Text style={styles.descriptionText}>{displayGoal.description}</Text>
-          </View>
-
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Roadmap Stages</Text>
-            {isSavingStage ? (
-              <View style={styles.savingRow}>
-                <ActivityIndicator size="small" color="#8C7F6A" />
-                <Text style={styles.savingText}>Saving...</Text>
-              </View>
-            ) : null}
-          </View>
-
-          <View style={styles.stagesList}>
-            {localStages.map((stage, index) => (
-              <Pressable
-                key={stage.id}
-                onPress={() => handleToggleStage(stage.id)}
-                style={[
-                  styles.stageCard,
-                  stage.completed && styles.stageCardCompleted,
-                ]}
-              >
-                <View style={styles.stageLeftCol}>
-                  <View
-                    style={[
-                      styles.orderBadge,
-                      stage.completed && styles.orderBadgeCompleted,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.orderBadgeText,
-                        stage.completed && styles.orderBadgeTextCompleted,
-                      ]}
-                    >
-                      {stage.order || index + 1}
-                    </Text>
-                  </View>
-                </View>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>{displayGoal.title}</Text>
+        <Text style={styles.description}>{displayGoal.description}</Text>
 
                 <View style={styles.stageContentCol}>
                   <Text
@@ -214,25 +135,23 @@ const GoalRoadmapScreen: React.FC = () => {
                 </View>
 
                 <Checkbox
-                  value={stage.completed}
-                  onValueChange={() => handleToggleStage(stage.id)}
-                  color={stage.completed ? "#4CAF50" : "#B5A993"}
+                  value={item.completed}
+                  onValueChange={() => handleToggleStage(item.id)}
+                  color={item.completed ? "#00313b" : undefined}
                   style={styles.stageCheckbox}
                 />
-              </Pressable>
-            ))}
-          </View>
-
-          <Pressable
-            style={styles.createAnotherButton}
-            onPress={() => router.push("/tabs/goal/chat")}
-          >
-            <Ionicons name="add-circle-outline" size={18} color="#2E2A26" />
-            <Text style={styles.createAnotherText}>Create Another Goal</Text>
-          </Pressable>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.stageTitle}>{item.title}</Text>
+                  <Text style={styles.stageDescription}>
+                    {item.description}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -280,11 +199,28 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.3,
   },
-  heroSubtitle: {
-    marginTop: 4,
-    color: "rgba(255,255,255,0.92)",
-    fontSize: 15,
-    fontWeight: "500",
+
+  headerSaveButton: {
+    backgroundColor: "#44BBD4",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    minWidth: 62,
+    alignItems: "center",
+  },
+
+  headerSaveText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  noDraftText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 100,
+    marginBottom: 20,
+    color: "#64748B",
   },
   heroProgressWrap: {
     marginTop: 14,
@@ -460,45 +396,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#2E2A26",
-  },
-  emptyRoot: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    backgroundColor: "#F6F1E7",
-  },
-  emptyIconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "#ECE6DC",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyTitle: {
-    marginTop: 14,
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#2E2A26",
-  },
-  emptySubtitle: {
-    marginTop: 8,
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: "center",
-    color: "#6B645C",
-  },
-  emptyButton: {
-    marginTop: 20,
-    backgroundColor: "#2E2A26",
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-  },
-  emptyButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "600",
   },
 });

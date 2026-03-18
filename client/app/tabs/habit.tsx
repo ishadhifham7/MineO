@@ -47,9 +47,9 @@ function HabitsContent() {
     setIsRefreshing(true);
     try {
       await Promise.all([refreshCalendar(), refreshRadar()]);
-      console.log("Data refreshed successfully");
+      console.log('Data refreshed successfully');
     } catch (err) {
-      console.error("Error refreshing data:", err);
+      console.error('Error refreshing data:', err);
     } finally {
       setIsRefreshing(false);
     }
@@ -69,24 +69,24 @@ function HabitsContent() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F6F1E7] items-center justify-center" edges={["left", "right"]}>
-        <ActivityIndicator size="large" color="#8C7F6A" />
-        <Text className="mt-4 text-[#6B645C] text-[15px] font-medium">Loading habits...</Text>
+      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center" edges={['top']}>
+        <ActivityIndicator size="large" color="#000" />
+        <Text className="mt-4 text-gray-600">Loading habits...</Text>
       </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F6F1E7] items-center justify-center px-6" edges={["left", "right"]}>
-        <Text className="text-[#E53935] text-center mb-3 text-[16px] font-semibold">Error loading habits</Text>
-        <Text className="text-[#6B645C] text-center text-[14px]">{error}</Text>
+      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center px-6" edges={['top']}>
+        <Text className="text-red-600 text-center mb-4">Error loading habits</Text>
+        <Text className="text-gray-600 text-center">{error}</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F6F1E7]" edges={["left", "right"]}>
+    <SafeAreaView className="flex-1 bg-[#F4F6FA]" edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -129,16 +129,16 @@ function HabitsContent() {
               <View className="items-center mt-3">
                 <Pressable
                   onPress={async () => {
-                    console.log("Manual radar refresh triggered");
+                    console.log('Manual radar refresh triggered');
                     await refreshRadar();
                   }}
                   className="bg-[#EEE7DB] active:bg-[#E3DBCD] px-5 py-2 rounded-full"
                 >
-                  <Text className="text-[12px] font-semibold text-[#6B645C]">
+                  <Text className="text-[10px] font-bold text-gray-700">
                     Refresh Radar Data
                   </Text>
                 </Pressable>
-                <Text className="text-[11px] text-[#8C7F6A] mt-2">
+                <Text className="text-[9px] text-gray-400 italic">
                   Pull down to refresh - Updates automatically on save
                 </Text>
               </View>

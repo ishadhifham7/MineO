@@ -46,16 +46,24 @@ const SignupScreen: React.FC = () => {
     });
   };
 
-  return (
-    <SafeAreaView style={styles.safeArea} edges={["left", "right"]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardContainer}
-      >
-        <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+
+  return(
+    <View style={styles.container}>
+
+      {/* Go back button */}
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.backText}>{"<- Go Back"}</Text>
+      </TouchableOpacity>
+
+      {/* Title */}
+      <Text style={styles.title}>Create{"\n"}Account</Text>
+
+      {/* Subtitle */}
+      <Text style={styles.subtitle}>
+        Already have an account?
+        <Text
+          style={styles.createNew}
+          onPress={() => router.replace("/auth/login")}
         >
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backText}>← Back</Text>
@@ -123,94 +131,44 @@ const SignupScreen: React.FC = () => {
 export default SignupScreen;
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F6F1E7",
-  },
-  keyboardContainer: {
-    flex: 1,
-  },
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: 40,
-    paddingBottom: 28,
-    justifyContent: "center",
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 18,
-  },
-  backText: {
-    fontSize: 14,
-    color: "#6B645C",
-    fontWeight: "600",
-  },
-  heroSection: {
-    marginBottom: 22,
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: "800",
-    color: "#2E2A26",
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    marginTop: 10,
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#6B645C",
-  },
-  formCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#E9E2D6",
-    shadowColor: "#2E2A26",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#5E564D",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#F8F5EF",
-    borderWidth: 1,
-    borderColor: "#E6DDCF",
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    borderRadius: 12,
-    marginBottom: 14,
-    color: "#2E2A26",
-    fontSize: 15,
-  },
-  button: {
-    backgroundColor: "#8C7F6A",
-    paddingVertical: 15,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 6,
-  },
-  buttonText: {
-    fontWeight: "700",
-    color: "#FFFFFF",
-    fontSize: 16,
-    letterSpacing: 0.3,
-  },
-  footerText: {
-    marginTop: 16,
-    textAlign: "center",
-    color: "#6B645C",
-    fontSize: 14,
-  },
-  loginLink: {
-    color: "#2E2A26",
-    fontWeight: "700",
-  },
+    container: {
+      flex: 1,
+      padding: 24,
+      backgroundColor: "#fff",
+      justifyContent: "center",
+    },
+    backText: {
+      marginBottom: 20,
+      fontSize: 14,
+      color: "#555",
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "600",
+      marginBottom: 20,
+    },
+    subtitle: {
+      color: "#777",
+      marginBottom: 30,
+    },
+    createNew: {
+      color: "#000",
+      fontWeight: "600",
+    },
+    input: {
+      backgroundColor: "#f2f2f2",
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 16,
+    },
+    button: {
+      backgroundColor: "#A7C4E8",
+      padding: 18,
+      borderRadius: 12,
+      alignItems: "center",
+      marginTop: 30,
+    },
+    buttonText: {
+      fontWeight: "600",
+    },
 });
