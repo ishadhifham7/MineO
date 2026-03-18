@@ -153,13 +153,13 @@ export default function JourneyScreen() {
   // Show loading while checking auth or loading journals
   if (authLoading || isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
               name="map"
               size={28}
-              color="#B5A993"
+              color="#8C7F6A"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -167,7 +167,7 @@ export default function JourneyScreen() {
           <Text style={styles.headerSubtitle}>Every step tells a story</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#B5A993" />
+          <ActivityIndicator size="large" color="#8C7F6A" />
           <Text style={styles.loadingText}>Loading your journey map...</Text>
         </View>
       </SafeAreaView>
@@ -177,13 +177,13 @@ export default function JourneyScreen() {
   // Not authenticated - show login prompt
   if (!isAuthenticated) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
               name="map"
               size={28}
-              color="#B5A993"
+              color="#8C7F6A"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -212,13 +212,13 @@ export default function JourneyScreen() {
   // Show error state
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
               name="map"
               size={28}
-              color="#B5A993"
+              color="#8C7F6A"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -241,13 +241,13 @@ export default function JourneyScreen() {
 
   if (journals.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
               name="map"
               size={28}
-              color="#B5A993"
+              color="#8C7F6A"
               style={styles.headerIcon}
             />
             <Text style={styles.headerTitle}>Journey Map</Text>
@@ -268,13 +268,13 @@ export default function JourneyScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <Ionicons
             name="map"
             size={28}
-            color="#B5A993"
+            color="#8C7F6A"
             style={styles.headerIcon}
           />
           <Text style={styles.headerTitle}>Journey Map</Text>
@@ -289,8 +289,8 @@ export default function JourneyScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#B5A993"
-              colors={["#B5A993"]}
+              tintColor="#8C7F6A"
+              colors={["#8C7F6A"]}
             />
           }
         >
@@ -304,6 +304,8 @@ export default function JourneyScreen() {
               stage={index + 1}
               status={stage.status}
               theme={stage.theme}
+              title={stage.title}
+              date={stage.date}
               position={{ x: stage.centerX, y: stage.centerY }}
               onPress={() => handleNodePress(stage.id)}
             />
@@ -325,13 +327,13 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F6F1E7", // Match goal tracker background
+    backgroundColor: "#F6F1E7", // Match habit page background
   },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    paddingVertical: 12,
+    paddingTop: 10,
+    paddingBottom: 14,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 2,
     borderBottomColor: "#B5A993",
@@ -358,7 +360,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#B5A993",
+    color: "#8C7F6A",
     marginTop: 6,
     fontStyle: "italic",
   },
@@ -418,15 +420,15 @@ const styles = StyleSheet.create({
     marginTop: 28,
     paddingHorizontal: 36,
     paddingVertical: 16,
-    backgroundColor: "#B5A993",
+    backgroundColor: "#8C7F6A",
     borderRadius: 14,
-    shadowColor: "#B5A993",
+    shadowColor: "#8C7F6A",
     shadowOpacity: 0.35,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
     elevation: 6,
     borderWidth: 1,
-    borderColor: "#3F5D8A",
+    borderColor: "#6B645C",
   },
   loginButtonText: {
     color: "#FFFFFF",
