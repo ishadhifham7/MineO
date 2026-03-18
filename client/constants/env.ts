@@ -2,8 +2,10 @@
 // Auto-detects the correct backend URL for web, Android emulator, and physical devices
 
 import { Platform } from "react-native";
+import Constants from "expo-constants";
 
 const DEPLOYED_API_URL = "https://mineo-pcov.onrender.com";
+const API_URL_FROM_ENV = process.env.EXPO_PUBLIC_API_URL?.trim();
 
 /**
  * Auto-detect IP address from Expo's development server
@@ -11,7 +13,7 @@ const DEPLOYED_API_URL = "https://mineo-pcov.onrender.com";
  */
 const getApiUrl = (): string => {
   const BACKEND_PORT = "3001";
-  const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+  const configuredApiUrl = API_URL_FROM_ENV;
 
   // Check if manually overridden in .env
   if (configuredApiUrl) {
@@ -110,7 +112,7 @@ const getApiUrl = (): string => {
     } catch (error) {
       console.warn("⚠️ Error during IP auto-detection:", error);
     }
-    return `http://localhost:${PORT}`;
+    return `http://localhost:${BACKEND_PORT}`;
   }
 
   // Fallback for when auto-detection fails

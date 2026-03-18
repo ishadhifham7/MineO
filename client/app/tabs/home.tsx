@@ -149,6 +149,12 @@ export default function HomeScreen() {
   );
 
   const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
+  const greetingName =
+    (user as any)?.name ||
+    (user as any)?.fullName ||
+    (user as any)?.username ||
+    "Friend";
+  const isCompact = SCREEN_W < 390;
 
   // ---- Compute Life Moments from journal entries ----
   const lifeMoments = useMemo(() => {
@@ -175,20 +181,32 @@ export default function HomeScreen() {
   const dailyWins = useMemo<DailyWin[]>(() => {
     const today = habitCalendar[todayStr];
     if (!today) return [];
-    const mapping: { key: keyof typeof today; emoji: string; title: string; bgColor: string }[] = [
+    const mapping: {
+      key: keyof typeof today;
+      emoji: string;
+      title: string;
+      bgColor: string;
+    }[] = [
       { key: "spiritual", emoji: "🧘", title: "Spiritual", bgColor: "#E8F5E9" },
       { key: "mental", emoji: "🧠", title: "Mental", bgColor: "#F3E5F5" },
       { key: "physical", emoji: "💪", title: "Physical", bgColor: "#E3F2FD" },
     ];
     return mapping
       .filter((m) => (today[m.key] ?? 0) >= 0.5)
-      .map((m, i) => ({ id: String(i), emoji: m.emoji, title: `${m.title}${today[m.key] === 1 ? " ✓" : " ~"}`, bgColor: m.bgColor }));
+      .map((m, i) => ({
+        id: String(i),
+        emoji: m.emoji,
+        title: `${m.title}${today[m.key] === 1 ? " ✓" : " ~"}`,
+        bgColor: m.bgColor,
+      }));
   }, [habitCalendar, todayStr]);
 
   const dailyWinPct = useMemo(() => {
     const today = habitCalendar[todayStr];
     if (!today) return 0;
-    const filled = ["spiritual", "mental", "physical"].filter((k) => (today[k as keyof typeof today] ?? 0) > 0).length;
+    const filled = ["spiritual", "mental", "physical"].filter(
+      (k) => (today[k as keyof typeof today] ?? 0) > 0,
+    ).length;
     return Math.round((filled / 3) * 100);
   }, [habitCalendar, todayStr]);
 
@@ -196,11 +214,16 @@ export default function HomeScreen() {
   const winCategories = useMemo<WinCategory[]>(() => {
     const now = new Date();
     const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const monthDays = Object.entries(habitCalendar).filter(([d]) => d.startsWith(prefix));
+    const monthDays = Object.entries(habitCalendar).filter(([d]) =>
+      d.startsWith(prefix),
+    );
     const dayCount = Math.max(monthDays.length, 1);
 
     const catScore = (cat: "spiritual" | "mental" | "physical") => {
-      const total = monthDays.reduce((s, [, scores]) => s + (scores?.[cat] ?? 0), 0);
+      const total = monthDays.reduce(
+        (s, [, scores]) => s + (scores?.[cat] ?? 0),
+        0,
+      );
       return Math.round((total / dayCount) * 100);
     };
 
@@ -210,9 +233,13 @@ export default function HomeScreen() {
 
     // Goal path: percentage of completed stages across all goals
     const allStages = (goals ?? []).flatMap((g) => g.stages ?? []);
-    const goalPct = allStages.length > 0
-      ? Math.round((allStages.filter((s) => s.completed).length / allStages.length) * 100)
-      : 0;
+    const goalPct =
+      allStages.length > 0
+        ? Math.round(
+            (allStages.filter((s) => s.completed).length / allStages.length) *
+              100,
+          )
+        : 0;
 
     return [
       { name: "Mental", percentage: mentalPct, color: "#FF8A80" },
@@ -270,7 +297,7 @@ export default function HomeScreen() {
       {/* ===== Hero Header ===== */}
       <View style={styles.heroShell}>
         <LinearGradient
-          colors={['#2E2A26', '#6B645C', '#B5A993']}
+          colors={["#2E2A26", "#6B645C", "#B5A993"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.headerBg}
@@ -289,7 +316,9 @@ export default function HomeScreen() {
 
           <Text style={styles.headerKicker}>TODAY'S FOCUS</Text>
           <Text style={styles.headerHello}>Welcome back, {greetingName}</Text>
-          <Text style={styles.headerSub}>Build momentum with one intentional step.</Text>
+          <Text style={styles.headerSub}>
+            Build momentum with one intentional step.
+          </Text>
 
           <View style={styles.heroStatRow}>
             <View style={styles.heroStatPill}>
@@ -396,11 +425,21 @@ export default function HomeScreen() {
                   />
                 ) : (
                   <View style={styles.momentImagePlaceholder}>
-                    <Ionicons name="document-text-outline" size={40} color="#ccc" />
+                    <Ionicons
+                      name="document-text-outline"
+                      size={40}
+                      color="#ccc"
+                    />
                   </View>
                 )}
                 <View style={styles.momentCaptionWrap}>
-                  <Ionicons name={latestMoment.image ? "camera-outline" : "bookmark-outline"} size={12} color="#fff" />
+                  <Ionicons
+                    name={
+                      latestMoment.image ? "camera-outline" : "bookmark-outline"
+                    }
+                    size={12}
+                    color="#fff"
+                  />
                   <Text style={styles.momentCaption} numberOfLines={1}>
                     {latestMoment.journal.title || latestMoment.journal.date}
                   </Text>
@@ -436,17 +475,23 @@ export default function HomeScreen() {
               <View style={styles.momentImagePlaceholder}>
                 <Ionicons name="image-outline" size={40} color="#ccc" />
               </View>
-              <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No moments yet</Text>
+              <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>
+                No moments yet
+              </Text>
             </View>
           )}
         </TouchableOpacity>
 
         {/* Daily Wins */}
-        <View style={[styles.card, styles.halfCard, isCompact && styles.fullCard]}>
+        <View
+          style={[styles.card, styles.halfCard, isCompact && styles.fullCard]}
+        >
           <Text style={styles.cardTitle}>Daily Wins</Text>
           <Text style={styles.cardSubtitle}>TODAY</Text>
           {dailyWins.length === 0 && (
-            <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>No wins yet today</Text>
+            <Text style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>
+              No wins yet today
+            </Text>
           )}
           {dailyWins.map((win) => (
             <View
@@ -462,7 +507,12 @@ export default function HomeScreen() {
             <View style={styles.doneDot} />
             <Text style={styles.doneText}>{dailyWinPct}% DONE</Text>
             <View style={styles.doneBarBg}>
-              <View style={[styles.doneBarFill, { width: `${dailyWinPct}%` as any }]} />
+              <View
+                style={[
+                  styles.doneBarFill,
+                  { width: `${dailyWinPct}%` as any },
+                ]}
+              />
             </View>
           </View>
         </View>
@@ -511,7 +561,9 @@ export default function HomeScreen() {
                       ]}
                     />
                   </View>
-                  <Text style={styles.trackerCategoryPct}>{cat.percentage}%</Text>
+                  <Text style={styles.trackerCategoryPct}>
+                    {cat.percentage}%
+                  </Text>
                 </View>
               ))}
             </View>
@@ -672,21 +724,17 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.25)",
     alignItems: "center",
   },
-  headerHello: {
-    fontSize: 32,
-    fontFamily: "Roboto_400Regular",
-    fontWeight: "300",
-    color: "#333",
+  heroStatValue: {
+    fontSize: 18,
+    fontFamily: "Roboto_500Medium",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
-  headerSub: {
-    fontSize: 20,
-    fontFamily: "Roboto_400Regular",
-    fontWeight: "300",
-    color: "#666",
-    marginTop: 2,
+  heroStatLabel: {
     fontSize: 11,
     color: "rgba(255,255,255,0.84)",
     fontFamily: "Roboto_400Regular",
+    marginTop: 2,
   },
 
   /* ---- Search ---- */
@@ -960,6 +1008,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 24,
+  },
+  trackerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  trackerBody: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   trackerCardTitle: {
     fontSize: 20,

@@ -15,6 +15,14 @@ import Checkbox from "expo-checkbox";
 import { useGoal } from "../../../src/features/goal/goal.context";
 import { toggleStageCompletionApi } from "../../../src/features/goal/goal.api";
 
+type GoalStage = {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  completed: boolean;
+};
+
 const GoalRoadmapScreen: React.FC = () => {
   const { currentGoal, goals, upsertGoal } = useGoal();
   const params = useLocalSearchParams();
@@ -24,7 +32,7 @@ const GoalRoadmapScreen: React.FC = () => {
     ? goals.find((goal) => goal.id === goalId)
     : currentGoal || goals[0];
 
-  const [localStages, setLocalStages] = useState(
+  const [localStages, setLocalStages] = useState<GoalStage[]>(
     displayGoal ? displayGoal.stages.map((stage) => ({ ...stage })) : [],
   );
   const [isSavingStage, setIsSavingStage] = useState(false);
@@ -38,11 +46,9 @@ const GoalRoadmapScreen: React.FC = () => {
   const { completedCount, progressPercent } = useMemo(() => {
     const completed = localStages.filter((stage) => stage.completed).length;
     const total = localStages.length;
-    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-
     return {
       completedCount: completed,
-      progressPercent: percent,
+      progressPercent: total > 0 ? Math.round((completed / total) * 100) : 0,
     };
   }, [localStages]);
 
@@ -95,7 +101,7 @@ const GoalRoadmapScreen: React.FC = () => {
         nextCompleted,
       );
       upsertGoal(updatedGoal);
-    } catch (error) {
+    } catch {
       setLocalStages((prev) =>
         prev.map((item) =>
           item.id === stageId ? { ...item, completed: stage.completed } : item,
@@ -107,51 +113,130 @@ const GoalRoadmapScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.backText}>Back</Text>
-        </Pressable>
-        <Text style={styles.headerTitle}>Goal Roadmap</Text>
-        <Pressable onPress={handleBackToGoals} style={styles.headerSaveButton}>
-          <Text style={styles.headerSaveText}>Save</Text>
-        </Pressable>
-      </View>
+    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
+      <View style={styles.screen}>
+        <LinearGradient
+          colors={["#B5A993", "#8C7F6A"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.hero}
+        >
+          <View style={styles.heroTopRow}>
+            <Pressable style={styles.heroAction} onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={16} color="#FFFFFF" />
+              <Text style={styles.heroActionText}>Back</Text>
+            </Pressable>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>{displayGoal.title}</Text>
-        <Text style={styles.description}>{displayGoal.description}</Text>
+            <Pressable
+              style={styles.heroAction}
+              onPress={() => router.push("/tabs/goal")}
+            >
+              <Ionicons name="checkmark-done" size={16} color="#FFFFFF" />
+              <Text style={styles.heroActionText}>Save</Text>
+            </Pressable>
+          </View>
+
+          <Text style={styles.heroTitle}>Goal Roadmap</Text>
+          <Text style={styles.heroSubtitle}>{displayGoal.title}</Text>
+
+          <View style={styles.heroProgressWrap}>
+            <View style={styles.heroProgressTopRow}>
+              <Text style={styles.heroProgressLabel}>Progress</Text>
+              <Text style={styles.heroProgressValue}>{progressPercent}%</Text>
+            </View>
+            <View style={styles.heroProgressTrack}>
+              <View
+                style={[
+                  styles.heroProgressFill,
+                  { width: `${progressPercent}%` },
+                ]}
+              />
+            </View>
+            <Text style={styles.heroProgressMeta}>
+              {completedCount}/{localStages.length} stages completed
+            </Text>
+          </View>
+        </LinearGradient>
+
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          <View style={styles.descriptionCard}>
+            <Text style={styles.descriptionTitle}>Description</Text>
+            <Text style={styles.descriptionText}>
+              {displayGoal.description || "No description provided yet."}
+            </Text>
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Stages</Text>
+            {isSavingStage ? (
+              <View style={styles.savingRow}>
+                <ActivityIndicator size="small" color="#8C7F6A" />
+                <Text style={styles.savingText}>Saving...</Text>
+              </View>
+            ) : null}
+          </View>
+
+          <View style={styles.stagesList}>
+            {localStages.map((item) => (
+              <View
+                key={item.id}
+                style={[
+                  styles.stageCard,
+                  item.completed && styles.stageCardCompleted,
+                ]}
+              >
+                <View style={styles.stageLeftCol}>
+                  <View
+                    style={[
+                      styles.orderBadge,
+                      item.completed && styles.orderBadgeCompleted,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.orderBadgeText,
+                        item.completed && styles.orderBadgeTextCompleted,
+                      ]}
+                    >
+                      {item.order}
+                    </Text>
+                  </View>
+                </View>
 
                 <View style={styles.stageContentCol}>
                   <Text
                     style={[
                       styles.stageTitle,
-                      stage.completed && styles.stageTitleCompleted,
+                      item.completed && styles.stageTitleCompleted,
                     ]}
                   >
-                    {stage.title}
+                    {item.title}
                   </Text>
-                  <Text style={styles.stageDescription}>{stage.description}</Text>
+                  <Text style={styles.stageDescription}>
+                    {item.description}
+                  </Text>
                 </View>
 
                 <Checkbox
                   value={item.completed}
                   onValueChange={() => handleToggleStage(item.id)}
-                  color={item.completed ? "#00313b" : undefined}
+                  color={item.completed ? "#2F8B43" : undefined}
                   style={styles.stageCheckbox}
                 />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.stageTitle}>{item.title}</Text>
-                  <Text style={styles.stageDescription}>
-                    {item.description}
-                  </Text>
-                </View>
               </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </View>
+            ))}
+          </View>
+
+          <Pressable
+            style={styles.createAnotherButton}
+            onPress={() => router.push("/tabs/goal/chat")}
+          >
+            <Ionicons name="add-circle-outline" size={18} color="#2E2A26" />
+            <Text style={styles.createAnotherText}>Create Another Goal</Text>
+          </Pressable>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -199,28 +284,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.3,
   },
-
-  headerSaveButton: {
-    backgroundColor: "#44BBD4",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    minWidth: 62,
-    alignItems: "center",
-  },
-
-  headerSaveText: {
-    color: "#FFFFFF",
+  heroSubtitle: {
+    color: "rgba(255,255,255,0.95)",
     fontSize: 14,
-    fontWeight: "700",
-  },
-
-  noDraftText: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 100,
-    marginBottom: 20,
-    color: "#64748B",
+    marginTop: 4,
   },
   heroProgressWrap: {
     marginTop: 14,
@@ -396,5 +463,43 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#2E2A26",
+  },
+  emptyRoot: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 22,
+  },
+  emptyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#ECE6DC",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyTitle: {
+    marginTop: 14,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#2E2A26",
+  },
+  emptySubtitle: {
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+    color: "#6B645C",
+  },
+  emptyButton: {
+    marginTop: 16,
+    backgroundColor: "#2E2A26",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  emptyButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
   },
 });

@@ -235,8 +235,7 @@ export default function JournalDateView() {
   /* ---------- BLOCK ACTIONS ---------- */
   const handleMoveBlock = (id: string, x: number, y: number) =>
     moveBlock(id, x, y);
-  const handleChangeText = (id: string, text: string) =>
-    changeText(id, text);
+  const handleChangeText = (id: string, text: string) => changeText(id, text);
   const handleResizeBlock = (
     id: string,
     width: number,
@@ -350,7 +349,9 @@ export default function JournalDateView() {
             /* Empty past day – show prompt to start writing */
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>📝</Text>
-              <Text style={styles.emptyText}>No journal entry for this day</Text>
+              <Text style={styles.emptyText}>
+                No journal entry for this day
+              </Text>
               <Pressable
                 onPress={() => {
                   addTextBlock();
@@ -440,13 +441,16 @@ export default function JournalDateView() {
 
           <ChapterSlider
             visible={chapterSliderVisible}
-            chapters={chapters}
             onClose={() => setChapterSliderVisible(false)}
-            onSave={handleSaveWithMetadata}
-            initialTitle={title}
-            initialSelectedChapters={savedChapters}
-            initialIsPinnedToTimeline={isPinnedToTimeline}
-            isExistingEntry={!isNew}
+            onSave={(metadata) => {
+              void handleSaveWithMetadata({
+                ...metadata,
+                chapters:
+                  savedChapters && savedChapters.length > 0
+                    ? savedChapters
+                    : chapters.map((chapter) => chapter.title),
+              });
+            }}
           />
 
           {/* Uploading image overlay */}

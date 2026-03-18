@@ -111,7 +111,9 @@ export default function GoalsHome() {
           <View style={styles.sectionHeader}>
             <View>
               <Text style={styles.sectionTitle}>Goal Progress</Text>
-              <Text style={styles.sectionSubtitle}>Tap any goal to open roadmap</Text>
+              <Text style={styles.sectionSubtitle}>
+                Tap any goal to open roadmap
+              </Text>
             </View>
             <View style={styles.countPill}>
               <Text style={styles.countPillText}>{goals.length}</Text>
@@ -125,7 +127,9 @@ export default function GoalsHome() {
                 <GoalListCard
                   key={goal.id}
                   goal={goal}
-                  onPress={() => router.push(`/tabs/goal/roadmap?id=${goal.id}`)}
+                  onPress={() =>
+                    router.push(`/tabs/goal/roadmap?id=${goal.id}`)
+                  }
                 />
               ))
             ) : (
@@ -194,7 +198,9 @@ function GoalListCard({
           <Text numberOfLines={1} style={styles.goalTitle}>
             {goal.title}
           </Text>
-          <View style={[styles.statusBadge, { backgroundColor: status.trackColor }]}>
+          <View
+            style={[styles.statusBadge, { backgroundColor: status.trackColor }]}
+          >
             <Text style={[styles.statusBadgeText, { color: status.color }]}>
               {status.text}
             </Text>
@@ -213,7 +219,9 @@ function GoalListCard({
           </Text>
         </View>
 
-        <View style={[styles.progressTrack, { backgroundColor: status.trackColor }]}>
+        <View
+          style={[styles.progressTrack, { backgroundColor: status.trackColor }]}
+        >
           <View
             style={[
               styles.progressFill,
@@ -236,9 +244,99 @@ const styles = StyleSheet.create({
 
   screen: { flex: 1 },
 
+  hero: {
+    marginHorizontal: 18,
+    marginTop: 12,
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  heroSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: "Roboto_400Regular",
+    color: "rgba(255, 255, 255, 0.92)",
+  },
+  heroStatsRow: {
+    marginTop: 14,
+    flexDirection: "row",
+    gap: 10,
+  },
+  heroStatCard: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 14,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.25)",
+  },
+  heroStatValue: {
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  heroStatLabel: {
+    marginTop: 3,
+    fontSize: 11,
+    fontFamily: "Roboto_500Medium",
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.9)",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+
   scrollContent: {
     paddingHorizontal: 18,
     paddingTop: 14,
+  },
+
+  sectionHeader: {
+    marginTop: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#2E2A26",
+  },
+  sectionSubtitle: {
+    marginTop: 4,
+    fontSize: 13,
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
+  },
+  countPill: {
+    minWidth: 34,
+    height: 28,
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    backgroundColor: "#E6DED0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  countPillText: {
+    fontSize: 13,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#5A5246",
   },
 
   /* Header */
@@ -399,4 +497,3 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
 });
-

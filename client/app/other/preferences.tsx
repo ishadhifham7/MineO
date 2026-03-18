@@ -20,56 +20,110 @@ export default function PreferencesScreen() {
   const [language, setLanguage] = useState<Language>("English");
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#ffffff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Preferences</Text>
-        <View style={{ width: 28 }} />
-      </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Appearance Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>APPEARANCE</Text>
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={["#B5A993", "#8C7F6A"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <View style={styles.headerRow}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.headerIconButton}
+            >
+              <Ionicons name="chevron-back" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
 
             <View style={styles.headerTextWrap}>
               <Text style={styles.headerTitle}>Preferences</Text>
-              <Text style={styles.headerSubtitle}>Language and appearance settings</Text>
+              <Text style={styles.headerSubtitle}>
+                Language and appearance settings
+              </Text>
             </View>
 
             <View style={styles.headerIconButtonPlaceholder} />
           </View>
         </LinearGradient>
 
-        {/* Language Section */}
-        
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.sectionWrap}>
+            <Text style={styles.sectionTitle}>Appearance</Text>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Theme</Text>
+              <View style={styles.themeRow}>
+                {(["Light", "Dark", "Auto"] as Theme[]).map((option) => {
+                  const active = theme === option;
+                  return (
+                    <TouchableOpacity
+                      key={option}
+                      style={[
+                        styles.themePill,
+                        active && styles.themePillActive,
+                      ]}
+                      onPress={() => setTheme(option)}
+                    >
+                      <Text
+                        style={[
+                          styles.themePillText,
+                          active && styles.themePillTextActive,
+                        ]}
+                      >
+                        {option}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
 
           <View style={styles.sectionWrap}>
             <Text style={styles.sectionTitle}>Language</Text>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>App Language</Text>
-              {(["English", "Spanish", "French", "German"] as Language[]).map((option) => {
-                const active = language === option;
-                return (
-                  <TouchableOpacity
-                    key={option}
-                    style={[styles.selectRow, active && styles.selectRowActive]}
-                    onPress={() => setLanguage(option)}
-                  >
-                    <Text style={[styles.selectText, active && styles.selectTextActive]}>
-                      {option}
-                    </Text>
-                    {active ? (
-                      <Ionicons name="checkmark-circle" size={18} color="#B5A993" />
-                    ) : (
-                      <Ionicons name="ellipse-outline" size={18} color="#C3BCB1" />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+              {(["English", "Spanish", "French", "German"] as Language[]).map(
+                (option) => {
+                  const active = language === option;
+                  return (
+                    <TouchableOpacity
+                      key={option}
+                      style={[
+                        styles.selectRow,
+                        active && styles.selectRowActive,
+                      ]}
+                      onPress={() => setLanguage(option)}
+                    >
+                      <Text
+                        style={[
+                          styles.selectText,
+                          active && styles.selectTextActive,
+                        ]}
+                      >
+                        {option}
+                      </Text>
+                      {active ? (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={18}
+                          color="#B5A993"
+                        />
+                      ) : (
+                        <Ionicons
+                          name="ellipse-outline"
+                          size={18}
+                          color="#C3BCB1"
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                },
+              )}
             </View>
           </View>
         </ScrollView>

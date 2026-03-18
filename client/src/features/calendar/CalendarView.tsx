@@ -64,95 +64,97 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         markingType="multi-dot"
         enableSwipeMonths={true}
         hideExtraDays={true}
-        theme={{
-          backgroundColor: "transparent",
-          calendarBackground: "transparent",
+        theme={
+          {
+            backgroundColor: "transparent",
+            calendarBackground: "transparent",
 
-          /* ── Month header ── */
-          monthTextColor: TEXT_PRIMARY,
-          textMonthFontSize: 18,
-          textMonthFontWeight: "700",
-          textMonthFontFamily: "System",
+            /* ── Month header ── */
+            monthTextColor: TEXT_PRIMARY,
+            textMonthFontSize: 18,
+            textMonthFontWeight: "700",
+            textMonthFontFamily: "System",
 
-          /* ── Day header (Mon Tue…) ── */
-          textSectionTitleColor: DAY_HEADER,
-          textDayHeaderFontSize: 12,
-          textDayHeaderFontWeight: "600",
-          textDayHeaderFontFamily: "System",
+            /* ── Day header (Mon Tue…) ── */
+            textSectionTitleColor: DAY_HEADER,
+            textDayHeaderFontSize: 12,
+            textDayHeaderFontWeight: "600",
+            textDayHeaderFontFamily: "System",
 
-          /* ── Day numbers ── */
-          dayTextColor: TEXT_PRIMARY,
-          textDayFontSize: 15,
-          textDayFontWeight: "500",
-          textDayFontFamily: "System",
+            /* ── Day numbers ── */
+            dayTextColor: TEXT_PRIMARY,
+            textDayFontSize: 15,
+            textDayFontWeight: "500",
+            textDayFontFamily: "System",
 
-          /* ── Today ── */
-          todayTextColor: ACCENT,
-          todayBackgroundColor: ACCENT_LIGHT,
+            /* ── Today ── */
+            todayTextColor: ACCENT,
+            todayBackgroundColor: ACCENT_LIGHT,
 
-          /* ── Selected day ── */
-          selectedDayBackgroundColor: ACCENT,
-          selectedDayTextColor: "#FFFFFF",
+            /* ── Selected day ── */
+            selectedDayBackgroundColor: ACCENT,
+            selectedDayTextColor: "#FFFFFF",
 
-          /* ── Disabled (future) ── */
-          textDisabledColor: TEXT_DISABLED,
+            /* ── Disabled (future) ── */
+            textDisabledColor: TEXT_DISABLED,
 
-          /* ── Dots ── */
-          dotColor: DOT_DEFAULT,
-          selectedDotColor: "#FFFFFF",
+            /* ── Dots ── */
+            dotColor: DOT_DEFAULT,
+            selectedDotColor: "#FFFFFF",
 
-          /* ── Arrows ── */
-          arrowColor: ARROW_COLOR,
+            /* ── Arrows ── */
+            arrowColor: ARROW_COLOR,
 
-          /* ── Indicator (loading) ── */
-          indicatorColor: ACCENT,
+            /* ── Indicator (loading) ── */
+            indicatorColor: ACCENT,
 
-          /* ── Spacing ── */
-          "stylesheet.calendar.header": {
-            header: {
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              paddingVertical: 8,
-              paddingHorizontal: 4,
+            /* ── Spacing ── */
+            "stylesheet.calendar.header": {
+              header: {
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingVertical: 8,
+                paddingHorizontal: 4,
+              },
+              monthText: {
+                fontSize: 18,
+                fontWeight: "700",
+                color: TEXT_PRIMARY,
+              },
+              dayHeader: {
+                marginTop: 4,
+                marginBottom: 8,
+                width: 36,
+                textAlign: "center",
+                fontSize: 12,
+                fontWeight: "600",
+                color: DAY_HEADER,
+                textTransform: "uppercase",
+              },
+              arrow: {
+                padding: 8,
+              },
             },
-            monthText: {
-              fontSize: 18,
-              fontWeight: "700",
-              color: TEXT_PRIMARY,
+            "stylesheet.day.multiDot": {
+              base: {
+                width: 36,
+                height: 36,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 18,
+              },
+              today: {
+                backgroundColor: ACCENT_LIGHT,
+                borderRadius: 18,
+              },
+              selected: {
+                backgroundColor: ACCENT,
+                borderRadius: 18,
+              },
             },
-            dayHeader: {
-              marginTop: 4,
-              marginBottom: 8,
-              width: 36,
-              textAlign: "center",
-              fontSize: 12,
-              fontWeight: "600",
-              color: DAY_HEADER,
-              textTransform: "uppercase",
-            },
-            arrow: {
-              padding: 8,
-            },
-          },
-          "stylesheet.day.multiDot": {
-            base: {
-              width: 36,
-              height: 36,
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 18,
-            },
-            today: {
-              backgroundColor: ACCENT_LIGHT,
-              borderRadius: 18,
-            },
-            selected: {
-              backgroundColor: ACCENT,
-              borderRadius: 18,
-            },
-          },
-        }}
+          } as any
+        }
         style={styles.calendar}
       />
     </View>

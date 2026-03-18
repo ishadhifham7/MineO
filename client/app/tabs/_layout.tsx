@@ -105,20 +105,3 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBarBackgroundClip: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  tabBarBackgroundAndroid: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 20,
-    backgroundColor: "#FFFFFF",
-  },
-  subtleOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
-  },
-});

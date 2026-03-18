@@ -12,13 +12,13 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useGoal, DraftGoal } from "../../../src/features/goal/goal.context";
 import { generateGoalApi } from "../../../src/features/goal/goal.api";
 import httpClient from "../../../src/lib/http";
 
-// ================= Types =================
 type Message = {
   id: string;
   text: string;
@@ -30,7 +30,6 @@ type ChatResponse = {
   draftGoal?: DraftGoal | null;
 };
 
-// ================= AI Chat API =================
 const sendMessageToAI = async (
   conversation: {
     sender: string;
@@ -39,26 +38,20 @@ const sendMessageToAI = async (
   }[],
   message: string,
 ): Promise<ChatResponse> => {
-  try {
-    const response = await httpClient.post("/ai/chat", {
-      conversation: conversation.map((msg) => ({
-        role: msg.sender === "user" ? "user" : "assistant",
-        content: msg.content,
-      })),
-      message,
-    });
+  const response = await httpClient.post("/ai/chat", {
+    conversation: conversation.map((msg) => ({
+      role: msg.sender === "user" ? "user" : "assistant",
+      content: msg.content,
+    })),
+    message,
+  });
 
-    return {
-      message: response.data.message,
-      draftGoal: response.data.draftGoal ?? null,
-    };
-  } catch (error) {
-    console.error("AI chat error:", error);
-    throw error;
-  }
+  return {
+    message: response.data.message,
+    draftGoal: response.data.draftGoal ?? null,
+  };
 };
 
-// ================= Chat Screen =================
 const GoalChatScreen = () => {
   const { setDraftGoal, setCurrentGoal, setGoals } = useGoal();
   const chatListRef = useRef<FlatList<Message> | null>(null);
@@ -83,7 +76,20 @@ const GoalChatScreen = () => {
     });
   }, []);
 
-  // Render formatted goal plan
+  const renderMessage = ({ item }: { item: Message }) => {
+    const isUser = item.sender === "user";
+
+    return (
+      <View style={[styles.messageRow, isUser ? styles.userRow : styles.aiRow]}>
+        <View
+          style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}
+        >
+          <Text style={styles.messageText}>{item.text}</Text>
+        </View>
+      </View>
+    );
+  };
+
   const renderGoalPlan = (draft: DraftGoal) => {
     return (
       <View style={styles.planContainer}>
@@ -104,24 +110,10 @@ const GoalChatScreen = () => {
     );
   };
 
-  // Render chat bubble
-  const renderMessage = ({ item }: { item: Message }) => {
-    const isUser = item.sender === "user";
-
-    return (
-      <View style={[styles.messageRow, isUser ? styles.userRow : styles.aiRow]}>
-        <View
-          style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}
-        >
-          <Text style={styles.messageText}>{item.text}</Text>
-        </View>
-      </View>
-    );
-  };
-
-  // Send message
   const handleSend = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim()) {
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -134,7 +126,6 @@ const GoalChatScreen = () => {
     setLoading(true);
 
     try {
-      console.log("📤 Sending message to AI...");
       const { message: aiText, draftGoal: newDraft } = await sendMessageToAI(
         [...conversation, userMessage].map((msg) => ({
           sender: msg.sender,
@@ -144,39 +135,28 @@ const GoalChatScreen = () => {
         userMessage.text,
       );
 
-      console.log("=== Frontend Response Debug ===");
-      console.log("AI Message:", aiText?.substring(0, 100));
-      console.log("DraftGoal received:", newDraft ? "YES" : "NO");
-
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: aiText || "I'm here to help! What would you like to achieve?",
+        text: aiText || "I am here to help. What would you like to achieve?",
         sender: "ai",
       };
 
       setConversation((prev) => [...prev, aiMessage]);
 
-      // If backend returns a draftGoal, store it (but don't navigate yet)
       if (newDraft) {
-        console.log("✅ Setting currentDraft:", newDraft.title);
         setCurrentDraft(newDraft);
         setDraftGoal(newDraft);
-      } else {
-        console.log("💬 Conversational response (no goal draft)");
       }
     } catch (error: any) {
-      console.error("❌ AI chat error:", error);
-
-      // Show user-friendly error message
       const errorMessage: Message = {
         id: (Date.now() + 2).toString(),
         text:
-          error.response?.status === 500
-            ? "I'm having trouble connecting right now 😅 Try asking me again, or you can create a goal manually!"
-            : error.message?.includes("Network") ||
-                error.message?.includes("timeout")
-              ? "Can't reach the server. Please check your connection and try again."
-              : "Oops! Something went wrong. Please try again.",
+          error?.response?.status === 500
+            ? "I am having trouble connecting right now. Try asking again in a moment."
+            : error?.message?.includes("Network") ||
+                error?.message?.includes("timeout")
+              ? "Cannot reach the server. Check your connection and try again."
+              : "Something went wrong. Please try again.",
         sender: "ai",
       };
 
@@ -186,9 +166,10 @@ const GoalChatScreen = () => {
     }
   };
 
-  // Save goal and navigate to roadmap
   const handleSendToRoadmap = async () => {
-    if (!currentDraft) return;
+    if (!currentDraft) {
+      return;
+    }
 
     setSavingGoal(true);
     try {
@@ -200,8 +181,7 @@ const GoalChatScreen = () => {
 
       Alert.alert("Success", "Goal saved successfully!");
       router.push("/tabs/goal/roadmap");
-    } catch (error) {
-      console.error("Failed to save goal:", error);
+    } catch {
       Alert.alert("Error", "Could not save goal. Please try again.");
     } finally {
       setSavingGoal(false);
@@ -214,7 +194,6 @@ const GoalChatScreen = () => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Header */}
         <View style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={18} color="#2E2A26" />
@@ -231,48 +210,40 @@ const GoalChatScreen = () => {
             </Text>
           </View>
         </View>
-      ) : (
-        <>
-          {/* Chat */}
-          <FlatList
-            ref={chatListRef}
-            data={conversation}
-            renderItem={renderMessage}
-            keyExtractor={(item) => item.id}
-            onLayout={() => scrollToLatestMessage(false)}
-            onContentSizeChange={() => scrollToLatestMessage(true)}
-            contentContainerStyle={{
-              padding: 20,
-              paddingBottom: 20,
-            }}
-            showsVerticalScrollIndicator={false}
-          />
 
-          {/* Input */}
-          <View style={styles.inputWrapper}>
-            <TextInput
-              placeholder="Type your message..."
-              placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={inputText}
-              onChangeText={setInputText}
-              editable={!loading}
-            />
-            <Pressable
-              style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
-              onPress={handleSend}
-              disabled={!canSend}
+        {currentDraft ? (
+          <View style={styles.fullScreenPlanContainer}>
+            <ScrollView
+              style={styles.fullScreenScrollView}
+              contentContainerStyle={styles.fullScreenScrollContent}
+              showsVerticalScrollIndicator={false}
             >
-              {loading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+              {renderGoalPlan(currentDraft)}
+            </ScrollView>
+
+            <Pressable
+              style={styles.saveButton}
+              onPress={handleSendToRoadmap}
+              disabled={savingGoal}
+            >
+              {savingGoal ? (
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Ionicons name="paper-plane" size={20} color="#FFFFFF" />
+                <>
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={18}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.saveButtonText}>
+                    Save Goal & Open Roadmap
+                  </Text>
+                </>
               )}
             </Pressable>
           </View>
         ) : (
           <>
-            {/* Chat */}
             <FlatList
               ref={chatListRef}
               data={conversation}
@@ -280,12 +251,11 @@ const GoalChatScreen = () => {
               keyExtractor={(item) => item.id}
               onLayout={() => scrollToLatestMessage(false)}
               onContentSizeChange={() => scrollToLatestMessage(true)}
-              contentContainerStyle={[styles.chatContent, { paddingBottom: 16 }]}
+              contentContainerStyle={styles.chatContent}
               showsVerticalScrollIndicator={false}
             />
 
-            {/* Input */}
-            <View style={[styles.inputWrapper, { marginBottom: bottomOffset }]}>
+            <View style={styles.inputWrapper}>
               <TextInput
                 placeholder="Type your message..."
                 placeholderTextColor="#8C7F6A"
@@ -295,7 +265,10 @@ const GoalChatScreen = () => {
                 editable={!loading}
               />
               <Pressable
-                style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
+                style={[
+                  styles.sendButton,
+                  !canSend && styles.sendButtonDisabled,
+                ]}
                 onPress={handleSend}
                 disabled={!canSend}
               >
@@ -315,7 +288,6 @@ const GoalChatScreen = () => {
 
 export default GoalChatScreen;
 
-// ================= Styles =================
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -388,8 +360,6 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 10,
   },
-
-  // Full-screen goal plan styles
   fullScreenPlanContainer: {
     flex: 1,
     backgroundColor: "#F6F1E7",
@@ -462,7 +432,6 @@ const styles = StyleSheet.create({
     gap: 8,
     minHeight: 52,
     marginTop: 12,
-    marginHorizontal: 0,
     shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 10,
@@ -474,7 +443,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
-
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
