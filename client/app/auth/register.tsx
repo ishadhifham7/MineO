@@ -115,7 +115,7 @@ export default function SignupDetailsScreen() {
       if (country && country.trim()) signupData.country = country.trim();
       if (profilePhoto) signupData.profilePhoto = profilePhoto;
 
-      console.log('Sending signup data:', { ...signupData, password: '***' });
+      console.log("Sending signup data:", { ...signupData, password: "***" });
 
       await signupUser(signupData);
 
@@ -125,7 +125,7 @@ export default function SignupDetailsScreen() {
       Alert.alert("Success", "Account created");
       router.replace("/onboarding/step1");
     } catch (error: any) {
-      console.error('Signup failed:', error);
+      console.error("Signup failed:", error);
       Alert.alert("Signup Failed", error.message);
     } finally {
       setLoading(false);
@@ -334,4 +334,3 @@ const styles = StyleSheet.create({
     color: "#555",
   },
 });
-
