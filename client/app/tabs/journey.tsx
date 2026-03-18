@@ -154,7 +154,7 @@ export default function JourneyScreen() {
   // Show loading while checking auth or loading journals
   if (authLoading || isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -178,7 +178,7 @@ export default function JourneyScreen() {
   // Not authenticated - show login prompt
   if (!isAuthenticated) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -213,7 +213,7 @@ export default function JourneyScreen() {
   // Show error state
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -242,7 +242,7 @@ export default function JourneyScreen() {
 
   if (journals.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons
@@ -269,7 +269,7 @@ export default function JourneyScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <Ionicons

@@ -16,6 +16,7 @@ export const getJournalById = async (id: string) => {
 export const createJournal = async (payload: {
   date: string;
   title: string;
+  chapters: string[];
   isPinnedToTimeline: boolean;
   blocks: JournalBlock[];
 }) => {
@@ -30,7 +31,7 @@ export const updateCanvas = async (id: string, blocks: JournalBlock[]) => {
 
 export const updateMeta = async (
   id: string,
-  meta: { title?: string; isPinnedToTimeline?: boolean },
+  meta: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean },
 ) => {
   const res = await api.patch(`/${id}/meta`, meta);
   return res.data;

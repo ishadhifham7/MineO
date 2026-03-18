@@ -1,7 +1,6 @@
-// Environment configuration with automatic IP detection
-// This file auto-detects your computer's IP address from Expo
+// Environment configuration
+// Auto-detects the correct backend URL for web, Android emulator, and physical devices
 
-import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 const DEPLOYED_API_URL = "https://mineo-pcov.onrender.com";
@@ -111,6 +110,7 @@ const getApiUrl = (): string => {
     } catch (error) {
       console.warn("⚠️ Error during IP auto-detection:", error);
     }
+    return `http://localhost:${PORT}`;
   }
 
   // Fallback for when auto-detection fails
@@ -138,6 +138,8 @@ export const API_BASE_URL = env.API_BASE_URL;
 console.log("\n========================================");
 console.log("📡 API CONFIGURATION");
 console.log("========================================");
+console.log("Platform:", Platform.OS);
+console.log("Using EXPO_PUBLIC_API_URL:", Boolean(API_URL_FROM_ENV));
 console.log("API_URL:", env.API_URL);
 console.log("API_BASE_URL:", env.API_BASE_URL);
 console.log("========================================\n");

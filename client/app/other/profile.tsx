@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { useProfile } from "../../src/providers/ProfileProvider"; // ✅ adjust if your path differs
 
@@ -176,15 +177,29 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <View style={{ width: 28 }} />
-      </View>
+      <LinearGradient
+        colors={["#B5A993", "#8C7F6A"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.headerTextWrap}>
+            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerSubtitle}>Manage your account and preferences</Text>
+          </View>
+
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => refreshProfile()}>
+            <Ionicons name="refresh-outline" size={18} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Error banner */}
         {!!error && (
           <View style={styles.errorBanner}>
@@ -219,7 +234,19 @@ export default function ProfileScreen() {
           <Text style={styles.profileUsername}>@{username || "—"}</Text>
           <Text style={styles.profileBio}>{bio || "—"}</Text>
 
+          <View style={styles.metaRow}>
+            <View style={styles.metaPill}>
+              <Ionicons name="mail-outline" size={14} color="#8C7F6A" />
+              <Text style={styles.metaText}>{showEmail ? "Email Visible" : "Email Hidden"}</Text>
+            </View>
+            <View style={styles.metaPill}>
+              <Ionicons name="call-outline" size={14} color="#8C7F6A" />
+              <Text style={styles.metaText}>{showPhone ? "Phone Visible" : "Phone Hidden"}</Text>
+            </View>
+          </View>
+
           <TouchableOpacity style={styles.editProfileButton} onPress={() => setShowEditProfileModal(true)}>
+            <Ionicons name="create-outline" size={16} color="#FFFFFF" />
             <Text style={styles.editProfileButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>

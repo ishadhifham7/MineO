@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
@@ -75,7 +76,7 @@ function DonutChart({
           cx={center}
           cy={center}
           r={radius}
-          stroke="#f0f0f0"
+          stroke="#F6F1E7"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -123,11 +124,11 @@ export default function HomeScreen() {
   const [habitCalendar, setHabitCalendar] = useState<CalendarData>({});
 
   const milestones = [
-    { done: true, color: "#81C784" },
-    { done: true, color: "#64B5F6" },
-    { done: true, color: "#FF8A65" },
-    { done: false, isStar: true, color: "#E0E0E0" },
-    { done: false, isEnd: true, color: "#E0E0E0" },
+    { done: true, color: "#4CAF50" },
+    { done: true, color: "#B5A993" },
+    { done: true, color: "#E53935" },
+    { done: false, isStar: true, color: "#E5DFD3" },
+    { done: false, isEnd: true, color: "#E5DFD3" },
   ];
 
   //fetch goals whenever Home is opened (keeps up to date)
@@ -234,8 +235,8 @@ export default function HomeScreen() {
   }, [goals]);
 
   const getGoalRowBg = (completed: number, total: number) => {
-    if (!total || total <= 0) return "#F3F4F6"; // gray
-    if (completed <= 0) return "#F3F4F6";
+    if (!total || total <= 0) return "#F6F1E7"; // gray
+    if (completed <= 0) return "#F6F1E7";
 
     // Convert any total into a 1..6 bucket
     const ratio = completed / total;
@@ -244,19 +245,19 @@ export default function HomeScreen() {
     // setting background colors for the goals based on the progress
     switch (bucket) {
       case 1:
-        return "#DCFCE7";
+        return "#E8F5E9";
       case 2:
-        return "#DBEAFE";
+        return "#E3F2FD";
       case 3:
-        return "#EDE9FE";
+        return "#F6F1E7";
       case 4:
-        return "#FEF3C7";
+        return "#FFF8E1";
       case 5:
-        return "#FFE4E6";
+        return "#FFEBEE";
       case 6:
-        return "#D1FAE5";
+        return "#E8F5E9";
       default:
-        return "#F3F4F6";
+        return "#F6F1E7";
     }
   };
 
@@ -266,65 +267,45 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
-      {/* ===== Scenic Header ===== */}
-      <View style={styles.headerBg}>
-        {/* Sky */}
-        <View style={styles.skyLayer} />
-        <View style={styles.cloudLayer} />
-        {/* Hills */}
-        <View style={styles.hillBack} />
-        <View style={styles.hillFront} />
-        {/* Trees */}
-        <View style={[styles.tree, { left: 40, bottom: 55 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#81C784" }]} />
-          <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { left: 80, bottom: 65 }]}>
-          <View
-            style={[
-              styles.treeTop,
-              {
-                backgroundColor: "#66BB6A",
-                width: 28,
-                height: 28,
-                borderRadius: 14,
-              },
-            ]}
-          />
-          <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { right: 70, bottom: 50 }]}>
-          <View style={[styles.treeTop, { backgroundColor: "#A5D6A7" }]} />
-          <View style={styles.treeTrunk} />
-        </View>
-        <View style={[styles.tree, { right: 40, bottom: 40 }]}>
-          <View
-            style={[
-              styles.treeTop,
-              {
-                backgroundColor: "#FF8A65",
-                width: 30,
-                height: 30,
-                borderRadius: 15,
-              },
-            ]}
-          />
-          <View style={styles.treeTrunk} />
-        </View>
-        {/* Profile Icon - Top Right */}
-        <TouchableOpacity
-          style={styles.profileIconButton}
-          onPress={() => router.push("/other/profile")}
+      {/* ===== Hero Header ===== */}
+      <View style={styles.heroShell}>
+        <LinearGradient
+          colors={['#2E2A26', '#6B645C', '#B5A993']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerBg}
         >
-          <View style={styles.profileIconContainer}>
-            <Ionicons name="person" size={24} color="#333" />
+          <View style={styles.headerOrbOne} />
+          <View style={styles.headerOrbTwo} />
+
+          <TouchableOpacity
+            style={styles.profileIconButton}
+            onPress={() => router.push("/other/profile")}
+          >
+            <View style={styles.profileIconContainer}>
+              <Ionicons name="person" size={20} color="#2E2A26" />
+            </View>
+          </TouchableOpacity>
+
+          <Text style={styles.headerKicker}>TODAY'S FOCUS</Text>
+          <Text style={styles.headerHello}>Welcome back, {greetingName}</Text>
+          <Text style={styles.headerSub}>Build momentum with one intentional step.</Text>
+
+          <View style={styles.heroStatRow}>
+            <View style={styles.heroStatPill}>
+              <Text style={styles.heroStatValue}>{dailyWinPct}%</Text>
+              <Text style={styles.heroStatLabel}>Daily wins</Text>
+            </View>
+            <View style={styles.heroStatPill}>
+              <Text style={styles.heroStatValue}>{totalWinPct}%</Text>
+              <Text style={styles.heroStatLabel}>Monthly score</Text>
+            </View>
+            <View style={styles.heroStatPill}>
+              <Text style={styles.heroStatValue}>{displayGoals.length}</Text>
+              <Text style={styles.heroStatLabel}>Active goals</Text>
+            </View>
           </View>
-        </TouchableOpacity>
-        {/* Header Text */}
-        <View style={styles.headerTextWrap}>
-          <Text style={styles.headerHello}>Hello,</Text>
-          <Text style={styles.headerSub}>Nice to Meet You</Text>
-        </View>
+        </LinearGradient>
       </View>
 
       {/* ===== Search Bar ===== */}
@@ -393,7 +374,7 @@ export default function HomeScreen() {
       />
 
       {/* ===== Life Moments & Daily Wins ===== */}
-      <View style={styles.twoCardRow}>
+      <View style={[styles.twoCardRow, isCompact && styles.twoCardCol]}>
         {/* Life Moments */}
         <TouchableOpacity
           activeOpacity={0.85}
@@ -461,7 +442,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         {/* Daily Wins */}
-        <View style={[styles.card, styles.halfCard]}>
+        <View style={[styles.card, styles.halfCard, isCompact && styles.fullCard]}>
           <Text style={styles.cardTitle}>Daily Wins</Text>
           <Text style={styles.cardSubtitle}>TODAY</Text>
           {dailyWins.length === 0 && (
@@ -509,12 +490,28 @@ export default function HomeScreen() {
             />
             <View style={styles.legendList}>
               {winCategories.map((cat) => (
-                <View key={cat.name} style={styles.legendItem}>
-                  <View
-                    style={[styles.legendDot, { backgroundColor: cat.color }]}
-                  />
-                  <Text style={styles.legendName}>{cat.name}</Text>
-                  <Text style={styles.legendPct}>{cat.percentage}%</Text>
+                <View key={cat.name} style={styles.trackerCategoryRow}>
+                  <View style={styles.trackerCategoryLabel}>
+                    <View
+                      style={[
+                        styles.trackerCategoryDot,
+                        { backgroundColor: cat.color },
+                      ]}
+                    />
+                    <Text style={styles.trackerCategoryName}>{cat.name}</Text>
+                  </View>
+                  <View style={styles.progressBarContainer}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        {
+                          width: `${cat.percentage}%`,
+                          backgroundColor: cat.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.trackerCategoryPct}>{cat.percentage}%</Text>
                 </View>
               ))}
             </View>
@@ -583,7 +580,7 @@ export default function HomeScreen() {
                     <Ionicons
                       name="chevron-forward"
                       size={18}
-                      color="#9CA3AF"
+                      color="#8C7F6A"
                     />
                   </TouchableOpacity>
                 );
@@ -606,66 +603,73 @@ const styles = StyleSheet.create({
   },
 
   /* ---- Header ---- */
+  heroShell: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    marginBottom: 6,
+  },
   headerBg: {
     width: "100%",
-    height: 220,
-    backgroundColor: "#dce9f5",
+    minHeight: 235,
+    borderRadius: 30,
+    paddingHorizontal: 18,
+    paddingVertical: 20,
     overflow: "hidden",
     position: "relative",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
-  skyLayer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#e8eef6",
-  },
-  cloudLayer: {
+  headerOrbOne: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    width: 180,
-    height: 100,
-    backgroundColor: "#f3d4d0",
-    borderBottomLeftRadius: 100,
-    opacity: 0.5,
+    top: -35,
+    right: -25,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "rgba(255, 255, 255, 0.22)",
   },
-  hillBack: {
+  headerOrbTwo: {
     position: "absolute",
-    bottom: 0,
-    left: -30,
-    width: SCREEN_W + 60,
-    height: 100,
-    backgroundColor: "#c5ddb8",
-    borderTopLeftRadius: 200,
-    borderTopRightRadius: 200,
+    bottom: -45,
+    left: -35,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: "rgba(12, 22, 33, 0.18)",
   },
-  hillFront: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    width: SCREEN_W,
-    height: 60,
-    backgroundColor: "#d4c9a8",
-    borderTopLeftRadius: 300,
-    borderTopRightRadius: 100,
+  headerKicker: {
+    marginTop: 6,
+    fontSize: 11,
+    letterSpacing: 1.4,
+    fontFamily: "Roboto_500Medium",
+    color: "rgba(255,255,255,0.86)",
   },
-  tree: {
-    position: "absolute",
-    alignItems: "center",
+  headerHello: {
+    marginTop: 8,
+    fontSize: 27,
+    lineHeight: 33,
+    fontFamily: "Roboto_500Medium",
+    color: "#FFFFFF",
   },
-  treeTop: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+  headerSub: {
+    marginTop: 6,
+    maxWidth: "88%",
+    fontSize: 14,
+    fontFamily: "Roboto_400Regular",
+    color: "rgba(255,255,255,0.88)",
   },
-  treeTrunk: {
-    width: 4,
-    height: 14,
-    backgroundColor: "#8D6E63",
-    borderRadius: 2,
+  heroStatRow: {
+    marginTop: 18,
+    flexDirection: "row",
+    gap: 8,
   },
-  headerTextWrap: {
-    position: "absolute",
-    top: 60,
-    width: "100%",
+  heroStatPill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
     alignItems: "center",
   },
   headerHello: {
@@ -680,6 +684,9 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     color: "#666",
     marginTop: 2,
+    fontSize: 11,
+    color: "rgba(255,255,255,0.84)",
+    fontFamily: "Roboto_400Regular",
   },
 
   /* ---- Search ---- */
@@ -691,7 +698,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "#E9EEF5",
@@ -713,8 +720,8 @@ const styles = StyleSheet.create({
 
   /* ---- Shared ---- */
   sectionPadding: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    marginBottom: 14,
   },
   card: {
     backgroundColor: "#fff",
@@ -732,13 +739,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#222",
+    color: "#2E2A26",
   },
   cardSubtitle: {
     fontSize: 11,
     fontFamily: "Roboto_400Regular",
     fontWeight: "600",
-    color: "#aaa",
+    color: "#6B645C",
     letterSpacing: 1,
     marginTop: 2,
     marginBottom: 12,
@@ -747,7 +754,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#222",
+    color: "#2E2A26",
   },
 
   /* ---- Calendar ---- */
@@ -760,7 +767,7 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#333",
+    color: "#2E2A26",
   },
   dayHeaderRow: {
     flexDirection: "row",
@@ -771,7 +778,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     fontWeight: "600",
-    color: "#aaa",
+    color: "#8C7F6A",
     letterSpacing: 0.5,
   },
   calGrid: {
@@ -792,15 +799,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   calDaySelected: {
-    backgroundColor: "#64B5F6",
+    backgroundColor: "#B5A993",
   },
   calDayPhoto: {
-    backgroundColor: "#e8e8e8",
+    backgroundColor: "#E5DFD3",
   },
   calDayText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#444",
+    color: "#2E2A26",
   },
   calDayTextSelected: {
     color: "#fff",
@@ -810,17 +817,23 @@ const styles = StyleSheet.create({
   /* ---- Two-card row ---- */
   twoCardRow: {
     flexDirection: "row",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     gap: 12,
     marginBottom: 16,
+  },
+  twoCardCol: {
+    flexDirection: "column",
   },
   halfCard: {
     flex: 1,
   },
+  fullCard: {
+    width: "100%",
+  },
 
   /* ---- Life Moments ---- */
   momentImageWrap: {
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: "hidden",
     marginBottom: 12,
     position: "relative",
@@ -828,8 +841,8 @@ const styles = StyleSheet.create({
   momentImagePlaceholder: {
     width: "100%",
     height: 130,
-    backgroundColor: "#f0ece4",
-    borderRadius: 12,
+    backgroundColor: "#F6F1E7",
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -853,7 +866,7 @@ const styles = StyleSheet.create({
   momentCaption: {
     fontSize: 11,
     color: "#fff",
-    fontWeight: "600",
+    fontFamily: "Roboto_500Medium",
   },
   momentFooter: {
     flexDirection: "row",
@@ -873,14 +886,15 @@ const styles = StyleSheet.create({
   },
   moreText: {
     fontSize: 11,
-    color: "#999",
+    color: "#6B645C",
+    fontFamily: "Roboto_400Regular",
   },
 
   /* ---- Daily Wins ---- */
   winChip: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginBottom: 8,
@@ -891,8 +905,8 @@ const styles = StyleSheet.create({
   },
   winChipText: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#444",
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
   },
   doneRow: {
     flexDirection: "row",
@@ -904,40 +918,132 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#66BB6A",
+    backgroundColor: "#4CAF50",
   },
   doneText: {
     fontSize: 10,
-    fontWeight: "700",
-    color: "#666",
+    fontFamily: "Roboto_500Medium",
+    color: "#6B645C",
   },
   doneBarBg: {
     flex: 1,
     height: 6,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: "#E5DFD3",
     borderRadius: 3,
     overflow: "hidden",
   },
   doneBarFill: {
     height: "100%",
-    backgroundColor: "#66BB6A",
+    backgroundColor: "#4CAF50",
     borderRadius: 3,
   },
 
   /* ---- Win Tracker ---- */
-  trackerHeader: {
+  trackerCard: {
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E5DFD3",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  trackerCardInner: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5DFD3",
+  },
+  trackerCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 24,
+  },
+  trackerCardTitle: {
+    fontSize: 20,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#2E2A26",
+  },
+  trackerCardSubtitle: {
+    fontSize: 12,
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
+    marginTop: 4,
+    letterSpacing: 0.5,
+  },
+  totalBadge: {
+    backgroundColor: "#B5A993",
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 20,
+    justifyContent: "center",
   },
-  monthlyLabel: {
-    fontSize: 14,
-    color: "#aaa",
+  totalBadgeNumber: {
+    fontSize: 24,
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
-  trackerBody: {
+  trackerCategoriesContainer: {
+    gap: 14,
+  },
+  trackerCategoryRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+  },
+  trackerCategoryLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    width: 100,
+  },
+  trackerCategoryDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  trackerCategoryName: {
+    fontSize: 13,
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
+    flex: 1,
+  },
+  progressBarContainer: {
+    flex: 1,
+    height: 8,
+    backgroundColor: "#E5DFD3",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  trackerCategoryPct: {
+    fontSize: 13,
+    fontFamily: "Roboto_600SemiBold",
+    color: "#2E2A26",
+    width: 45,
+    textAlign: "right",
+  },
+  trackerFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "#F6F1E7",
+    gap: 6,
+  },
+  trackerFooterText: {
+    fontSize: 14,
+    fontFamily: "Roboto_500Medium",
+    color: "#B5A993",
   },
   donutCenter: {
     position: "absolute",
@@ -945,13 +1051,13 @@ const styles = StyleSheet.create({
   },
   donutCenterLabel: {
     fontSize: 26,
-    fontWeight: "700",
-    color: "#333",
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
   },
   donutCenterSub: {
     fontSize: 11,
-    fontWeight: "600",
-    color: "#aaa",
+    fontFamily: "Roboto_500Medium",
+    color: "#6B645C",
     letterSpacing: 1,
   },
   legendList: {
@@ -972,13 +1078,13 @@ const styles = StyleSheet.create({
   legendName: {
     flex: 1,
     fontSize: 13,
-    fontWeight: "500",
-    color: "#555",
+    fontFamily: "Roboto_400Regular",
+    color: "#6B645C",
   },
   legendPct: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#555",
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
   },
 
   /* ---- Goal Path ---- */
@@ -992,16 +1098,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#000000",
+    color: "#2E2A26",
   },
   goalEmptyText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: "#6B645C",
+    fontFamily: "Roboto_400Regular",
     marginTop: 6,
   },
   goalRow: {
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#F6F1E7",
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -1013,33 +1120,33 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Roboto_500Medium",
     fontWeight: "700",
-    color: "#111827",
+    color: "#2E2A26",
   },
   goalRowSub: {
     marginTop: 4,
     fontSize: 12,
     fontFamily: "Roboto_400Regular",
     fontWeight: "600",
-    color: "#6B7280",
+    color: "#6B645C",
   },
 
   /* ---- Profile Icon ---- */
   profileIconButton: {
     position: "absolute",
-    top: 40,
-    right: 20,
+    top: 16,
+    right: 16,
     zIndex: 10,
   },
   profileIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#fff",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.92)",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
   },

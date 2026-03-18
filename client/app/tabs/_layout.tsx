@@ -82,7 +82,7 @@ export default function TabsLayout() {
         name="habit"
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="repeat-outline" size={size} color={color} />
+            <Ionicons name="checkbox-outline" size={size} color={color} />
           ),
         }}
       />
@@ -94,6 +94,31 @@ export default function TabsLayout() {
           href: null,
         }}
       />
+
+      {/* Hide home-backup.tsx from tab bar */}
+      <Tabs.Screen
+        name="home-backup"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarBackgroundClip: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  tabBarBackgroundAndroid: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+  },
+  subtleOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 255, 255, 0.14)",
+  },
+});

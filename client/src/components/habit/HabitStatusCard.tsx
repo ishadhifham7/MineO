@@ -10,30 +10,52 @@ export default function HabitStatusCard({
   selectedValue?: number;
 }) {
   const options = [
-    { label: "Good", val: 1, color: "bg-[#87FF65]", textColor: "text-green-800" },
-    { label: "Average", val: 0.5, color: "bg-[#4B56FF]", textColor: "text-blue-800" },
-    { label: "Bad", val: 0, color: "bg-[#FF3B30]", textColor: "text-red-800" },
+    { label: "Good", val: 1, color: "#4CAF50" },
+    { label: "Average", val: 0.5, color: "#2196F3" },
+    { label: "Bad", val: 0, color: "#E53935" },
   ];
 
   return (
-    <View className="bg-white rounded-[16px] p-4 border border-black/5" style={{shadowColor: "#000", shadowOffset: {width: 0, height: 7}, shadowOpacity: 0.1, shadowRadius: 14, elevation: 5}}>
-      <Text className="font-black text-center text-base mb-2 uppercase tracking-tight text-[#2E2A26]">{title}</Text>
+    <View
+      className="bg-white rounded-[20px] p-4 border border-[#E5DFD3]"
+      style={{
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 2,
+      }}
+    >
+      <Text className="text-center text-[16px] mb-1 capitalize font-semibold text-[#2E2A26]">{title} Habit</Text>
       {selectedValue === undefined && (
-        <Text className="text-center text-xs text-gray-400 mb-2">No status logged today</Text>
+        <Text className="text-center text-[13px] text-[#8C7F6A] mb-3">No status logged today</Text>
       )}
-      <View className="flex-row justify-around px-2">
+      <View className="flex-row justify-between gap-2">
         {options.map((opt) => {
           const isSelected = selectedValue !== undefined && selectedValue === opt.val;
           const hasValue = selectedValue !== undefined;
           return (
-            <Pressable 
-              key={opt.label} 
-              onPress={() => onSelect(opt.val)} 
-              className="items-center active:opacity-70 px-3 py-1"
+            <Pressable
+              key={opt.label}
+              onPress={() => onSelect(opt.val)}
+              className="flex-1 items-center active:opacity-80 py-2 rounded-[14px] border"
+              style={{
+                borderColor: isSelected ? opt.color : "#E5DFD3",
+                backgroundColor: isSelected ? `${opt.color}18` : "#FFFFFF",
+                opacity: hasValue && !isSelected ? 0.6 : 1,
+              }}
             >
-              <View className={`w-12 h-12 rounded-full ${opt.color} border-2 ${isSelected ? 'border-black' : 'border-black/10'} mb-1 shadow-inner`} style={{ opacity: isSelected ? 1 : (hasValue ? 0.3 : 0.5) }} />
-              <Text className={`text-[9px] font-black uppercase italic ${opt.textColor}`} style={{ opacity: isSelected ? 1 : 0.6 }}>{opt.label}</Text>
-              {isSelected && <Text className="text-[8px] mt-0.5">✓</Text>}
+              <View
+                className="w-10 h-10 rounded-full mb-2"
+                style={{ backgroundColor: opt.color }}
+              />
+              <Text
+                className="text-[13px] font-semibold"
+                style={{ color: isSelected ? "#2E2A26" : "#6B645C" }}
+              >
+                {opt.label}
+              </Text>
+              {isSelected && <Text className="text-[12px] text-[#2E2A26] mt-0.5">Selected</Text>}
             </Pressable>
           );
         })}

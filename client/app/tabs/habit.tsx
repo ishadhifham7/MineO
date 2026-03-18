@@ -1,5 +1,15 @@
 // client/app/tabs/habits.tsx
-import { ScrollView, View, TextInput, Text, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, RefreshControl, Pressable } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+  Pressable,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import HabitHeader from "../../src/components/habit/HabitHeader";
@@ -12,13 +22,24 @@ import { HabitProvider, useHabit } from "../../src/features/habit/HabitContext";
 const getLocalDate = () => {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
 function HabitsContent() {
-  const { activeTab, setActiveTab, visibleCalendar, radarValues, updateDailyHabit, isLoading, isSaving, error, refreshCalendar, refreshRadar } = useHabit();
+  const {
+    activeTab,
+    setActiveTab,
+    visibleCalendar,
+    radarValues,
+    updateDailyHabit,
+    isLoading,
+    isSaving,
+    error,
+    refreshCalendar,
+    refreshRadar,
+  } = useHabit();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const today = getLocalDate();
 
@@ -67,29 +88,28 @@ function HabitsContent() {
   return (
     <SafeAreaView className="flex-1 bg-[#F4F6FA]" edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
-          contentContainerStyle={{ paddingBottom: 100 }}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 116 }}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#000"
-              colors={["#000"]}
+              tintColor="#8C7F6A"
+              colors={["#8C7F6A"]}
             />
           }
         >
-          
           <HabitHeader active={activeTab} onChange={setActiveTab} />
 
-          <View className="px-6 space-y-8">
-            {/* Enlarged Calendar with existing design logic */}
-            <View className="shadow-xl">
-               <HabitCalendar category={activeTab} data={visibleCalendar} />
+          <View className="px-4 pt-1 gap-5">
+            <View>
+              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Calendar</Text>
+              <HabitCalendar category={activeTab} data={visibleCalendar} />
             </View>
 
-            {/* Habit Logger */}
             <View>
+              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Daily Check In</Text>
               <HabitStatusCard
                 title={activeTab}
                 onSelect={handleStatusSelect}
@@ -97,22 +117,22 @@ function HabitsContent() {
               />
               {isSaving && (
                 <View className="mt-2 flex-row items-center justify-center">
-                  <ActivityIndicator size="small" color="#666" />
-                  <Text className="ml-2 text-xs text-gray-600">Saving...</Text>
+                  <ActivityIndicator size="small" color="#8C7F6A" />
+                  <Text className="ml-2 text-[12px] text-[#6B645C]">Saving...</Text>
                 </View>
               )}
             </View>
 
-            {/* Analysis Section */}
-            <View className="mt-4 pt-6">
+            <View>
+              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Weekly Analysis</Text>
               <HabitRadarChart values={radarValues} />
-              <View className="items-center mt-2">
-                <Pressable 
+              <View className="items-center mt-3">
+                <Pressable
                   onPress={async () => {
                     console.log('Manual radar refresh triggered');
                     await refreshRadar();
                   }}
-                  className="bg-gray-100 active:bg-gray-200 px-4 py-2 rounded-full mb-2"
+                  className="bg-[#EEE7DB] active:bg-[#E3DBCD] px-5 py-2 rounded-full"
                 >
                   <Text className="text-[10px] font-bold text-gray-700">
                     Refresh Radar Data

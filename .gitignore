@@ -45,5 +45,8 @@ coverage/
 *.temp
 .cache/
 
+# Uploaded files (local dev storage)
+uploads/
+
 # OS
 Thumbs.db

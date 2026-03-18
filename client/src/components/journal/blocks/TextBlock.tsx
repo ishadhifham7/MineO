@@ -77,6 +77,8 @@ export function TextBlock({
   const rotate = useSharedValue(rotation); // ✅ NEW
 
   const isResizing = useSharedValue(false);
+  // Separate React state for .enabled() — shared values must not be read during render
+  const [isResizingState, setIsResizingState] = useState(false);
 
   const startPosX = useSharedValue(0);
   const startPosY = useSharedValue(0);
@@ -124,7 +126,7 @@ export function TextBlock({
 
   /* ---- move ---- */
   const panGesture = Gesture.Pan()
-    .enabled(!isEditing && !isResizing.value)
+    .enabled(!isEditing && !isResizingState)
     .minDistance(10)
     .onBegin(() => runOnJS(onSelect)(id))
     .onUpdate((e) => {
@@ -147,7 +149,7 @@ export function TextBlock({
   const longPressGesture = Gesture.LongPress()
     .minDuration(250)
     .maxDistance(10)
-    .enabled(!isEditing && !isResizing.value)
+    .enabled(!isEditing && !isResizingState)
     .onStart((e) => {
       runOnJS(onSelect)(id);
       runOnJS(onLongPress)(id, e.absoluteX, e.absoluteY);
@@ -159,6 +161,7 @@ export function TextBlock({
   /* ---- resize helpers (UNCHANGED) ---- */
   const startResize = () => {
     isResizing.value = true;
+    setIsResizingState(true);
     startPosX.value = posX.value;
     startPosY.value = posY.value;
     startWidth.value = blockWidth.value;
@@ -168,6 +171,7 @@ export function TextBlock({
 
   const finishResize = () => {
     isResizing.value = false;
+    setIsResizingState(false);
     runOnJS(onResize)(
       id,
       blockWidth.value,

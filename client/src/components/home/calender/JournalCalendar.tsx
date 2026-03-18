@@ -13,8 +13,15 @@ import { getJournalDates } from "../../../features/journal/journal.api";
 
 interface MarkedDates {
   [date: string]: {
-    marked: boolean;
-    dotColor?: string;
+    customStyles?: {
+      container?: {
+        borderBottomWidth?: number;
+        borderBottomColor?: string;
+      };
+      text?: {
+        color?: string;
+      };
+    };
   };
 }
 
@@ -23,7 +30,7 @@ interface JournalCalendarProps {
   onMarkedDatePress?: (date: string) => void;
 }
 
-const DOT_COLOR = "#7C6F5B";
+const MARKER_COLOR = "#4CAF50";
 
 export default function JournalCalendar({
   userId,
@@ -89,7 +96,17 @@ export default function JournalCalendar({
       const marked: MarkedDates = {};
 
       dates.forEach((date) => {
-        marked[date] = { marked: true, dotColor: DOT_COLOR };
+        marked[date] = {
+          customStyles: {
+            container: {
+              borderBottomWidth: 2,
+              borderBottomColor: MARKER_COLOR,
+            },
+            text: {
+              color: "#2E2A26",
+            },
+          },
+        };
       });
 
       setMarkedDates(marked);
@@ -166,7 +183,7 @@ export default function JournalCalendar({
 
       {isLoading ? (
         <View style={styles.loadingWrap}>
-          <ActivityIndicator size="small" color={DOT_COLOR} />
+          <ActivityIndicator size="small" color={MARKER_COLOR} />
         </View>
       ) : error ? (
         <View style={styles.loadingWrap}>
@@ -177,7 +194,7 @@ export default function JournalCalendar({
           key={calendarKey}
           current={currentDate}
           enableSwipeMonths={true}
-          markingType="dot"
+          markingType="custom"
           markedDates={markedDates}
           onMonthChange={(month) => {
             // Only track the current month — do NOT update currentDate here.
@@ -186,7 +203,7 @@ export default function JournalCalendar({
             setCurrentMonth({ year: month.year, month: month.month });
           }}
           onDayPress={(day) => {
-            if (markedDates[day.dateString]?.marked && onMarkedDatePress) {
+            if (markedDates[day.dateString] && onMarkedDatePress) {
               onMarkedDatePress(day.dateString);
             }
           }}
@@ -218,7 +235,7 @@ export default function JournalCalendar({
             todayTextColor: "#7C6F5B",
             dayTextColor: "#2E2A26",
             textDisabledColor: "#d9e1e8",
-            dotColor: DOT_COLOR,
+            dotColor: MARKER_COLOR,
             selectedDotColor: "#ffffff",
             arrowColor: "#7C6F5B",
             monthTextColor: "#2E2A26",

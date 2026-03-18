@@ -1,5 +1,8 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 
 import firebasePlugin from './plugins/firebase.plugin';
 import authPlugin from './plugins/auth.plugin';
@@ -57,6 +60,22 @@ export async function buildApp() {
       callback(null, allowedOrigins.includes(origin));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  // Register multipart (file upload support)
+  await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10 MB max
+
+  // Serve uploaded files (local storage) with aggressive caching
+  await app.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false,
+    maxAge: '7d',
+    immutable: true,
+    lastModified: true,
+    etag: true,
   });
 
   // Register core plugins

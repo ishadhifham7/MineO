@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 
-
 import {
   View,
   Text,
@@ -9,7 +8,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 
@@ -18,19 +21,28 @@ const SignupScreen: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-    
-
 
   const handleNext = () => {
     if (!name || !email || !password) {
-    Alert.alert("Error", "Please fill all fields");
-    return;
+      Alert.alert("Error", "Please fill all fields");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert("Invalid Email", "Please enter a valid email address");
+      return;
+    }
+
+    if (password.trim().length < 6) {
+      Alert.alert("Weak Password", "Password must be at least 6 characters");
+      return;
     }
 
     // pass data to register stage
     router.push({
       pathname: "/auth/register",
-      params: { name, email, password },
+      params: { name: name.trim(), email: email.trim(), password: password.trim() },
     });
   };
 
@@ -53,41 +65,66 @@ const SignupScreen: React.FC = () => {
           style={styles.createNew}
           onPress={() => router.replace("/auth/login")}
         >
-          {" "}Login
-        </Text>
-      </Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backText}>← Back</Text>
+          </TouchableOpacity>
 
-      {/* text area for user name */}
-      <TextInput
-        placeholder="Full name"
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
+          <View style={styles.heroSection}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>
+              Start your MineO journey. Set up your credentials to continue.
+            </Text>
+          </View>
 
-      {/* Email */}
-      <TextInput
-        placeholder="Email"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
+          <View style={styles.formCard}>
+            <Text style={styles.inputLabel}>Full Name</Text>
+            <TextInput
+              placeholder="Your full name"
+              placeholderTextColor="#9CA3AF"
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+            />
 
-      {/* Password */}
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-      />
+            <Text style={styles.inputLabel}>Email</Text>
+            <TextInput
+              placeholder="you@example.com"
+              placeholderTextColor="#9CA3AF"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
 
-      {/* Signup button */}
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+            <Text style={styles.inputLabel}>Password</Text>
+            <TextInput
+              placeholder="Minimum 6 characters"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+            />
+
+            <TouchableOpacity style={styles.button} onPress={handleNext}>
+              <Text style={styles.buttonText}>Continue</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.footerText}>
+              Already have an account?
+              <Text
+                style={styles.loginLink}
+                onPress={() => router.replace("/auth/login")}
+              >
+                {" "}
+                Login
+              </Text>
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

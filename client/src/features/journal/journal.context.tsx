@@ -11,6 +11,7 @@ import type {
   ImageBlock,
 } from "../../../types/journal";
 import * as journalApi from "./journal.api"; // <-- new API layer
+import { getLocalToday } from "../../utils/date";
 
 // Type guards for discriminated union
 export function isTextBlock(block: JournalBlock): block is TextBlock {
@@ -38,6 +39,7 @@ export interface JournalState {
   entryId: string | null;
   date: string | null;
   title: string;
+  chapters: string[];
   isPinnedToTimeline: boolean;
   createdAt: number | null;
   updatedAt: number | null;
@@ -100,7 +102,7 @@ export type JournalAction =
   | { type: "SET_JOURNAL"; payload: Partial<JournalState> }
   | {
       type: "SET_META";
-      payload: { title?: string; isPinnedToTimeline?: boolean };
+      payload: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean };
     };
 
 // -------------------- Initial State --------------------
@@ -116,6 +118,7 @@ const initialState: JournalState = {
   entryId: null,
   date: null,
   title: "",
+  chapters: [],
   isPinnedToTimeline: false,
   createdAt: null,
   updatedAt: null,
@@ -409,12 +412,15 @@ interface JournalContextValue extends JournalState {
   pasteBlock: () => void;
 
   // -------------------- New helpers --------------------
-  setMeta: (meta: { title?: string; isPinnedToTimeline?: boolean }) => void;
+  setMeta: (meta: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean }) => void;
   loadJournal: (date: string) => Promise<void>;
   saveJournal: (metadata?: {
     title?: string;
+    chapters?: string[];
     isPinnedToTimeline?: boolean;
   }) => Promise<void>;
+  /** Reset canvas to a blank new entry without loading an existing one */
+  resetJournal: () => void;
 }
 
 // -------------------- Create Context --------------------
@@ -430,6 +436,25 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
 
   // -------------------- Load journal --------------------
   const loadJournal = async (date: string) => {
+    // If switching to a different date, clear stale data immediately
+    // so the UI doesn't flash the previous date's content
+    if (date !== state.date) {
+      dispatch({
+        type: "SET_JOURNAL",
+        payload: {
+          entryId: null,
+          date,
+          title: "",
+          chapters: [],
+          isPinnedToTimeline: false,
+          createdAt: null,
+          updatedAt: null,
+          blocks: [],
+          isNew: true,
+          error: null,
+        },
+      });
+    }
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const data = await journalApi.getJournalByDate(date);
@@ -440,6 +465,7 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
             entryId: data.id,
             date: data.date,
             title: data.title,
+            chapters: data.chapters || [],
             isPinnedToTimeline: data.isPinnedToTimeline,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
@@ -450,7 +476,18 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
       } else {
         dispatch({
           type: "SET_JOURNAL",
-          payload: { date, blocks: [], isNew: true, entryId: null },
+          payload: {
+            date,
+            blocks: [],
+            isNew: true,
+            entryId: null,
+            title: "",
+            chapters: [],
+            isPinnedToTimeline: false,
+            createdAt: null,
+            updatedAt: null,
+            error: null,
+          },
         });
       }
       dispatch({ type: "SET_ERROR", payload: null });
@@ -464,10 +501,11 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
   // -------------------- Manual Save --------------------
   const saveJournal = async (metadata?: {
     title?: string;
+    chapters?: string[];
     isPinnedToTimeline?: boolean;
   }) => {
     // Use current date if no date is set
-    const journalDate = state.date || new Date().toISOString().split("T")[0];
+    const journalDate = state.date || getLocalToday();
 
     // Set date if it wasn't set before
     if (!state.date) {
@@ -489,6 +527,7 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
         const res = await journalApi.createJournal({
           date: journalDate,
           title: metadata?.title || state.title,
+          chapters: metadata?.chapters || state.chapters,
           isPinnedToTimeline:
             metadata?.isPinnedToTimeline ?? state.isPinnedToTimeline,
           blocks: state.blocks,
@@ -521,6 +560,7 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
 
   const setMeta = async (meta: {
     title?: string;
+    chapters?: string[];
     isPinnedToTimeline?: boolean;
   }) => {
     dispatch({ type: "SET_META", payload: meta });
@@ -531,6 +571,27 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
         console.error("Meta update failed", err);
       }
     }
+  };
+
+  /** Reset to a fresh blank canvas so the next save creates a new entry */
+  const resetJournal = () => {
+    const today = getLocalToday();
+    dispatch({
+      type: "SET_JOURNAL",
+      payload: {
+        entryId: null,
+        date: today,
+        title: "",
+        chapters: [],
+        isPinnedToTimeline: false,
+        createdAt: null,
+        updatedAt: null,
+        blocks: [],
+        isNew: true,
+        error: null,
+      },
+    });
+    console.log("📝 Canvas reset — next save will create a new entry");
   };
 
   const value: JournalContextValue = {
@@ -580,6 +641,7 @@ export const JournalProvider: React.FC<{ children: ReactNode }> = ({
     loadJournal,
     setMeta,
     saveJournal,
+    resetJournal,
   };
 
   return (
