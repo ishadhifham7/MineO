@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 18,
     paddingHorizontal: 24,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     borderBottomWidth: 1,
     borderBottomColor: "#EEF2F7",
     flexDirection: "row",
@@ -235,14 +235,14 @@ const styles = StyleSheet.create({
   /* ===================== */
 
   stageCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1C1C1E",
     paddingVertical: 20,
     paddingHorizontal: 18,
     borderRadius: 20,
     overflow: "hidden",
     marginBottom: 18,
 
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
 
   generateText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   },
 
   continueText: {
-    color: "#111827",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
