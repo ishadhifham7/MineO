@@ -247,7 +247,7 @@ export default function SignupDetailsScreen() {
         </TouchableOpacity>
 
         <Text style={styles.backText} onPress={() => router.back()}>
-          <- Go Back
+          {"<- Go Back"}
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
