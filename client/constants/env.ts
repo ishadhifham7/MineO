@@ -3,10 +3,19 @@
 
 import { Platform } from "react-native";
 
-const LAN_IP = process.env.EXPO_PUBLIC_API_URL?.replace(/^https?:\/\//, "").replace(/:\d+$/, "") || "192.168.8.100";
+const API_URL_FROM_ENV = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, "");
+const LAN_IP =
+  process.env.EXPO_PUBLIC_API_URL
+    ?.replace(/^https?:\/\//, "")
+    .replace(/:\d+$/, "") || "192.168.8.100";
 const PORT = "3001";
 
 function getApiUrl(): string {
+  // If explicitly provided, always use env value as-is (supports https + custom ports).
+  if (API_URL_FROM_ENV) {
+    return API_URL_FROM_ENV;
+  }
+
   if (Platform.OS === "web") {
     // Web: use the same hostname the browser is on (works for both localhost and LAN)
     if (typeof window !== "undefined" && window.location) {
@@ -41,6 +50,7 @@ console.log("\n========================================");
 console.log("📡 API CONFIGURATION");
 console.log("========================================");
 console.log("Platform:", Platform.OS);
+console.log("Using EXPO_PUBLIC_API_URL:", Boolean(API_URL_FROM_ENV));
 console.log("API_URL:", env.API_URL);
 console.log("API_BASE_URL:", env.API_BASE_URL);
 console.log("========================================\n");

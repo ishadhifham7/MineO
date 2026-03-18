@@ -124,6 +124,14 @@ export default function TabsLayout() {
           href: null,
         }}
       />
+
+      {/* Hide home-backup.tsx from tab bar */}
+      <Tabs.Screen
+        name="home-backup"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
