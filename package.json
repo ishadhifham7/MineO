@@ -4,5 +4,8 @@
     "@react-native-picker/picker": "^2.11.4",
     "expo-video": "^55.0.10",
     "firebase": "^12.9.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
   }
 }
