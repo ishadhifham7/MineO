@@ -257,7 +257,7 @@ export default function SignupDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#fff",
     flexGrow: 1,
   },
   title: {
@@ -271,32 +271,32 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#162033",
+    backgroundColor: "#f2f2f2",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#2A3A58",
+    borderColor: "#ddd",
   },
   avatar: { width: "100%", height: "100%" },
-  avatarPlaceholder: { fontSize: 40, color: "#9FB0CC" },
+  avatarPlaceholder: { fontSize: 40, color: "#999" },
 
   card: {
-    backgroundColor: "#111A2E",
+    backgroundColor: "#fafafa",
     padding: 14,
     borderRadius: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#2A3A58",
+    borderColor: "#eee",
   },
   label: {
     fontWeight: "600",
     marginBottom: 8,
-    color: "#CFDBEF",
+    color: "#444",
   },
   input: {
-    backgroundColor: "#162033",
+    backgroundColor: "#f2f2f2",
     padding: 14,
     borderRadius: 10,
   },
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   },
 
   pickerContainer: {
-    backgroundColor: "#162033",
+    backgroundColor: "#f2f2f2",
     borderRadius: 10,
   },
 
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   backText: {
     marginTop: 20,
     textAlign: "center",
-    color: "#C3D0E8",
+    color: "#555",
   },
 });
 
