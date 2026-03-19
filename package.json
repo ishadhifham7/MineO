@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "start": "npm --prefix client start",
+    "start:client": "npm --prefix client start",
+    "start:server": "npm --prefix server run dev",
+    "dev": "powershell -ExecutionPolicy Bypass -File .\\start-dev.ps1"
+  },
   "dependencies": {
     "@expo-google-fonts/dancing-script": "^0.4.2",
     "@react-native-picker/picker": "^2.11.4",
