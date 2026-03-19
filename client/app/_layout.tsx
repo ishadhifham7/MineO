@@ -6,6 +6,7 @@ import { AuthProvider } from "../src/providers/AuthProvider";
 import { JourneyProvider } from "../src/providers/JourneyProvider";
 import { GoalProvider } from "../src/features/goal/goal.context";
 import { ProfileProvider } from "../src/providers/ProfileProvider";
+import { Colors } from "../constants/colors";
 import { useFonts } from "expo-font";
 import {
   DancingScript_400Regular,
@@ -31,8 +32,15 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: Colors.background,
+        }}
+      >
+        <ActivityIndicator color={Colors.primary} />
       </View>
     );
   }
@@ -40,7 +48,10 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#F4F6FA" }} edges={["top", "left", "right"]}>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: Colors.background }}
+          edges={["top", "left", "right"]}
+        >
           <AuthProvider>
             <JourneyProvider>
               <ProfileProvider>
@@ -49,7 +60,7 @@ export default function RootLayout() {
                     screenOptions={{
                       headerShown: false,
                       contentStyle: {
-                        backgroundColor: "#F4F6FA",
+                        backgroundColor: Colors.background,
                         paddingHorizontal: horizontalPadding,
                       },
                     }}
