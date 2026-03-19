@@ -328,14 +328,14 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6FA", // Match goal tracker background
+    backgroundColor: "#0B1220", // Match goal tracker background
   },
   header: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingTop: 48,
     paddingBottom: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#0F172A",
     borderBottomWidth: 2,
     borderBottomColor: "#4E6FA3",
     shadowColor: "#4E6FA3",
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   canvasWrapper: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#0B1220",
   },
   loadingContainer: {
     flex: 1,
