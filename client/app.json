@@ -41,19 +41,15 @@
     "plugins": [
       "expo-secure-store",
       "expo-router",
-<<<<<<< HEAD
       "@react-native-community/datetimepicker",
       "expo-font"
-    ]
-=======
-      "@react-native-community/datetimepicker"
     ],
+     
     "extra": {
       "router": {},
       "eas": {
         "projectId": "e2227da3-53f3-4953-bf7d-f5732021d7b8"
       }
     }
->>>>>>> cc77c775adfae5de49b3b708ca6511a1703a44f7
   }
 }
