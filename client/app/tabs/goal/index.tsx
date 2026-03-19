@@ -240,7 +240,7 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#0B1220" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   screen: { flex: 1 },
 
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingTop: 18,
     paddingBottom: 16,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -345,23 +345,23 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
   headerText: { marginLeft: 12 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#F3F7FF" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
   hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
 
   /* Goals list */
   listWrap: { marginTop: 14 },
   goalCard: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E5DFD3",
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
   },
   progressRingText: {
     fontSize: 13,
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     marginTop: 8,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E5DFD3",
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },

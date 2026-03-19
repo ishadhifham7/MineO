@@ -5,14 +5,14 @@ import { useRouter } from "expo-router";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0B1220",
+    backgroundColor: "rgb(228, 224, 224)",
     justifyContent: "center",
     alignItems: "center",
   },
   text: {
     fontSize: 40,
     fontWeight: "bold",
-    color: "#E8EEF9",
+    color: "#222",
   },
 });
 
