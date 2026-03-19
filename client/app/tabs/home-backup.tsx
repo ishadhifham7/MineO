@@ -42,19 +42,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 16,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e5e5",
   },
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#E8EEF9",
+    color: "#222",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: "#B6C6E1",
+    color: "#666",
   },
   calendarWrapper: {
     paddingHorizontal: 20,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 14,
-    color: "#C3D0E8",
+    color: "#555",
     fontWeight: "500",
   },
 });

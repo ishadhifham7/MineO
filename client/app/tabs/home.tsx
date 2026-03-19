@@ -651,7 +651,7 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#0B1220",
+    backgroundColor: "#F4F6FA",
   },
 
   /* ---- Header ---- */
@@ -746,14 +746,14 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "#E9EEF5",
     paddingHorizontal: 16,
     paddingVertical: 11,
     gap: 10,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -763,7 +763,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontFamily: "Roboto_400Regular",
-    color: "#DCE6F6",
+    color: "#333",
   },
 
   /* ---- Shared ---- */
@@ -772,12 +772,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   card: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#fff",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#EEF2F7",
     padding: 18,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -889,7 +889,7 @@ const styles = StyleSheet.create({
   momentImagePlaceholder: {
     width: "100%",
     height: 130,
-    backgroundColor: "#0B1220",
+    backgroundColor: "#F6F1E7",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
@@ -992,7 +992,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#E5DFD3",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
@@ -1095,7 +1095,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: "#0B1220",
+    backgroundColor: "#F6F1E7",
     gap: 6,
   },
   trackerFooterText: {
@@ -1202,7 +1202,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.92)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
