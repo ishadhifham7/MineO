@@ -12,40 +12,40 @@ jobs:
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2️⃣ Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
-      # 3️⃣ Install dependencies
-      - name: Install dependencies
-        run: npm install
-
-      # 4️⃣ Install backend dependencies
+      # 3️⃣ Install backend dependencies
       - name: Install backend dependencies
         working-directory: ./server
-        run: npm install
+        run: npm ci
 
-      # 5️⃣ Install client dependencies
+      # 4️⃣ Install client dependencies
       - name: Install client dependencies
         working-directory: ./client
-        run: npm install
+        run: npm ci
 
-      # 6️⃣ Run backend tests
+      # 5️⃣ Run backend tests
       - name: Run backend tests
         working-directory: ./server
         run: |
           echo "Running backend tests..."
           npm test
 
-      # 7️⃣ Install EAS CLI
+      # 6️⃣ Install EAS CLI
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      # 8️⃣ Verify Expo authentication
+      # 7️⃣ Verify Expo authentication
       - name: Verify Expo authentication
         run: |
           if [ -z "${EXPO_TOKEN}" ]; then
@@ -57,7 +57,7 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # 9️⃣ Build APK with EAS
+      # 8️⃣ Build APK with EAS
       - name: Build APK with EAS
         id: build
         working-directory: ./client
