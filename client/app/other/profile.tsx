@@ -153,7 +153,7 @@ export default function ProfileScreen() {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
         Alert.alert(
-          "Permission required",
+          "Permission Required",
           "Please allow photo access to change profile picture.",
         );
         return;

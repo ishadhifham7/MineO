@@ -22,7 +22,7 @@ const SignupScreen: React.FC = () => {
 
   const handleNext = () => {
     if (!name || !email || !password) {
-      Alert.alert("Error", "Please fill all fields");
+      Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
 
@@ -33,7 +33,7 @@ const SignupScreen: React.FC = () => {
     }
 
     if (password.trim().length < 6) {
-      Alert.alert("Weak Password", "Password must be at least 6 characters");
+      Alert.alert("Weak Password", "Password must be at least 6 characters long.");
       return;
     }
 
@@ -59,7 +59,7 @@ const SignupScreen: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backText}>{"<- Go Back"}</Text>
+            <Text style={styles.backText}>{"<- Back"}</Text>
           </TouchableOpacity>
 
           <Text style={styles.title}>Create Account</Text>

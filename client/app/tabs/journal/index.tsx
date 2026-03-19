@@ -159,7 +159,7 @@ export default function JournalScreen() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      alert("Permission required");
+      alert("Permission Required");
       return;
     }
 

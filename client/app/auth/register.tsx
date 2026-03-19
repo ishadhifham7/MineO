@@ -60,7 +60,7 @@ export default function SignupDetailsScreen() {
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission required", "Please allow photo access");
+      Alert.alert("Permission Required", "Please allow photo library access.");
       return;
     }
 
@@ -122,11 +122,11 @@ export default function SignupDetailsScreen() {
       // Refresh auth context to load user data
       await refreshAuth();
 
-      Alert.alert("Success", "Account created");
+      Alert.alert("Success", "Account created successfully");
       router.replace("/onboarding/step1");
     } catch (error: any) {
       console.error("Signup failed:", error);
-      Alert.alert("Signup Failed", error.message);
+      Alert.alert("Sign Up Failed", error.message);
     } finally {
       setLoading(false);
     }
@@ -226,7 +226,7 @@ export default function SignupDetailsScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Country</Text>
           <TextInput
-            placeholder="Enter your country"
+            placeholder="Enter your country name"
             style={styles.input}
             value={country}
             onChangeText={setCountry}
@@ -247,7 +247,7 @@ export default function SignupDetailsScreen() {
         </TouchableOpacity>
 
         <Text style={styles.backText} onPress={() => router.back()}>
-          {"<- Go Back"}
+          {"<- Back"}
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
