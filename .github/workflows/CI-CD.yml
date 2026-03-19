@@ -18,24 +18,29 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # 4️⃣ Run backend tests
+      # 4️⃣ Install backend dependencies
+      - name: Install backend dependencies
+        working-directory: ./server
+        run: npm install
+
+      # 5️⃣ Run backend tests
       - name: Run backend tests
         working-directory: ./server # adjust if your test file is in a different folder
         run: |
           echo "Running backend tests..."
           npm test
 
-      # 5️⃣ Install EAS CLI
+      # 6️⃣ Install EAS CLI
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      # 6️⃣ Build APK with EAS
+      # 7️⃣ Build APK with EAS
       - name: Build APK with EAS
         id: build
         run: |
