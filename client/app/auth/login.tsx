@@ -45,7 +45,7 @@ const LoginScreen: React.FC = () => {
       // navigate to main app
       router.replace("/tabs/home");
     } catch (error: any) {
-      Alert.alert("Login Failed", error.message);
+      Alert.alert("Log In Failed", error.message);
     } finally {
       setIsSubmitting(false);
     }

@@ -159,7 +159,7 @@ function JournalDateEditor() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       Alert.alert(
-        "Permission required",
+        "Permission Required",
         "Allow access to your photo library to add images.",
       );
       return;
