@@ -81,10 +81,6 @@ async function main() {
   process.env.REACT_NATIVE_PACKAGER_HOSTNAME = ip;
   process.env.EXPO_DEVTOOLS_LISTEN_ADDRESS = "0.0.0.0";
 
-  // Always force --lan so Expo uses REACT_NATIVE_PACKAGER_HOSTNAME.
-  // Without this flag, Expo ignores the env var and picks its own address.
-  expoArgs.push("--lan");
-
   if (useLan) {
     console.log(`\n📱 Starting Expo on network IP: ${ip}`);
     console.log(`🎯 Scan the QR code with your Expo Go app`);
@@ -98,6 +94,9 @@ async function main() {
       "⚠️  Cannot reach api.expo.dev — starting in offline mode (dependency validation skipped).\n",
     );
     expoArgs.push("--offline");
+  } else if (useLan) {
+    // Use LAN mode only when online so flags don't conflict with --offline.
+    expoArgs.push("--lan");
   }
 
   // Prepend local node_modules/.bin to PATH so the bundled Expo CLI
