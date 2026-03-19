@@ -135,11 +135,11 @@ export default function PreferencesScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F6F1E7",
+    backgroundColor: "#0B1220",
   },
   container: {
     flex: 1,
-    backgroundColor: "#F6F1E7",
+    backgroundColor: "#0B1220",
   },
   headerGradient: {
     paddingTop: 14,
@@ -200,13 +200,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#0F172A",
     borderRadius: 18,
     borderWidth: 1,
     borderColor: "#E5DFD3",
     padding: 12,
     gap: 10,
-    shadowColor: "#000",
+    shadowColor: "#F3F7FF",
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: "#E5DFD3",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#0F172A",
     paddingVertical: 10,
     alignItems: "center",
   },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#F6F1E7",
+    backgroundColor: "#0B1220",
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 12,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   selectRowActive: {
     borderColor: "#D9D2C5",
-    backgroundColor: "#F3EEE4",
+    backgroundColor: "#111A2E",
   },
   selectText: {
     fontSize: 14,
