@@ -58,7 +58,7 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
         width: 56,
         height: 56,
         borderRadius: 28,
-        backgroundColor: "#000",
+        backgroundColor: "#111A2E",
         alignItems: "center",
         justifyContent: "center",
       }}
@@ -146,7 +146,7 @@ export default function JournalScreen() {
       isBold: false,
       isItalic: false,
       isUnderline: false,
-      textColor: "#111",
+      textcolor: "#F3F7FF",
       textAlign: "left",
       fontSize: 16,
       lineHeight: 22,
@@ -344,7 +344,7 @@ export default function JournalScreen() {
               style={{
                 fontSize: 22,
                 fontWeight: "700",
-                color: "#111",
+                color: "#F3F7FF",
                 letterSpacing: 0.2,
               }}
             >
@@ -369,10 +369,10 @@ export default function JournalScreen() {
               paddingHorizontal: 22,
               height: 40,
               borderRadius: 20,
-              backgroundColor: "#111",
+              backgroundColor: "#111A2E",
               alignItems: "center",
               justifyContent: "center",
-              shadowColor: "#000",
+              shadowColor: "#F3F7FF",
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.15,
               shadowRadius: 4,
