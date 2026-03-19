@@ -123,7 +123,7 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F6F1E7",
+    backgroundColor: "#0B1220",
   },
   keyboardContainer: {
     flex: 1,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     color: "#6B645C",
   },
   formCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#0F172A",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#F8F5EF",
+    backgroundColor: "#111A2E",
     borderWidth: 1,
     borderColor: "#E6DDCF",
     paddingHorizontal: 14,
