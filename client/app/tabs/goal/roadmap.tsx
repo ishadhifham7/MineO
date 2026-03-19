@@ -245,11 +245,11 @@ export default GoalRoadmapScreen;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#0B1220",
+    backgroundColor: "#F6F1E7",
   },
   screen: {
     flex: 1,
-    backgroundColor: "#0B1220",
+    backgroundColor: "#F6F1E7",
   },
   hero: {
     paddingHorizontal: 18,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   },
   heroProgressFill: {
     height: "100%",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 999,
   },
   heroProgressMeta: {
@@ -336,12 +336,12 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   descriptionCard: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 18,
     borderWidth: 1,
     borderColor: "#E5DFD3",
     padding: 14,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
@@ -386,13 +386,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 18,
     borderWidth: 1,
     borderColor: "#E5DFD3",
     paddingHorizontal: 12,
     paddingVertical: 12,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "#D9D2C5",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
