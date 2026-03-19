@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/colors";
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -23,14 +24,14 @@ export default function TabsLayout() {
           bottom: Math.max(insets.bottom, 10),
           height: 58 + Math.max(insets.bottom, 6),
           borderTopWidth: 1,
-          borderColor: "#0066ff",
+          borderColor: Colors.border,
           borderRadius: 18,
-          backgroundColor: "#FFFFFF",
+          backgroundColor: Colors.surface,
           paddingTop: 8,
           paddingBottom: Math.max(insets.bottom, 8),
-          shadowColor: "#8FA3BF",
+          shadowColor: "#000000",
           shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.18,
+          shadowOpacity: 0.4,
           shadowRadius: 12,
           elevation: 8,
         },
@@ -38,8 +39,8 @@ export default function TabsLayout() {
           borderRadius: 12,
           marginHorizontal: 2,
         },
-        tabBarActiveTintColor: "#4E6FA3",
-        tabBarInactiveTintColor: "#9AABC5",
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textMuted,
       }}
     >
       <Tabs.Screen
