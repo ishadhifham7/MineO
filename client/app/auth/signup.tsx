@@ -123,17 +123,17 @@ export default SignupScreen;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#fff",
   },
   container: {
     flexGrow: 1,
     padding: 24,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#fff",
   },
   backText: {
     marginBottom: 20,
     fontSize: 14,
-    color: "#C3D0E8",
+    color: "#555",
   },
   title: {
     fontSize: 32,
@@ -141,17 +141,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subtitle: {
-    color: "#A9BCDA",
+    color: "#777",
     marginBottom: 24,
   },
   inputLabel: {
     marginBottom: 8,
-    color: "#CFDBEF",
+    color: "#444",
     fontSize: 13,
     fontWeight: "500",
   },
   input: {
-    backgroundColor: "#162033",
+    backgroundColor: "#f2f2f2",
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -169,10 +169,10 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 18,
     textAlign: "center",
-    color: "#B6C6E1",
+    color: "#666",
   },
   loginLink: {
-    color: "#F3F7FF",
+    color: "#000",
     fontWeight: "600",
   },
 });
