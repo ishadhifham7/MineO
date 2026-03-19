@@ -49,32 +49,32 @@ export default function Step3() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0B1220", padding: 30 },
+  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
 
   headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
-  subHeaderText: { fontSize: 16, color: "#B6C6E1", alignSelf: "flex-start", marginBottom: 30 },
+  subHeaderText: { fontSize: 16, color: "#666", alignSelf: "flex-start", marginBottom: 30 },
 
-  description: { fontSize: 16, textAlign: "center", color: "#CFDBEF", lineHeight: 24 },
+  description: { fontSize: 16, textAlign: "center", color: "#444", lineHeight: 24 },
 
   timeline: { flexDirection: "row", alignItems: "center", marginVertical: 40 },
-  line: { height: 2, flex: 1, backgroundColor: "#111A2E" },
+  line: { height: 2, flex: 1, backgroundColor: "#000" },
 
   dot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#23324D",
+    backgroundColor: "#D9E3F1",
     marginHorizontal: 15
   },
 
-  activeDot: { backgroundColor: "#111A2E" },
+  activeDot: { backgroundColor: "#000" },
 
   footer: { marginBottom: 40 },
   progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#23324D" },
-  activeBar: { backgroundColor: "#111A2E" },
+  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
+  activeBar: { backgroundColor: "#000" },
 
-  button: { backgroundColor: "#111A2E", padding: 18, borderRadius: 4, alignItems: "center" },
+  button: { backgroundColor: "#000", padding: 18, borderRadius: 4, alignItems: "center" },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" }
 });

@@ -146,7 +146,7 @@ function JournalDateEditor() {
       isBold: false,
       isItalic: false,
       isUnderline: false,
-      textcolor: "#F3F7FF",
+      textColor: "#111",
       textAlign: "left",
       fontSize: 16,
       lineHeight: 22,
@@ -492,7 +492,7 @@ export default function JournalDateRoute() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#0B1220",
+    backgroundColor: "#FDFAF5",
   },
   header: {
     flexDirection: "row",
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "rgba(0,0,0,0.1)",
-    backgroundColor: "#0B1220",
+    backgroundColor: "#FDFAF5",
   },
   backBtn: {
     flexDirection: "row",
@@ -510,13 +510,13 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 28,
-    color: "#DCE6F6",
+    color: "#333",
     lineHeight: 30,
     marginRight: 2,
   },
   backLabel: {
     fontSize: 16,
-    color: "#DCE6F6",
+    color: "#333",
     fontWeight: "500",
   },
   headerCenter: {
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    color: "#E8EEF9",
+    color: "#222",
     fontWeight: "600",
     marginTop: 2,
   },
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingVertical: 12,
     borderRadius: 24,
-    backgroundColor: "#111A2E",
+    backgroundColor: "#000",
   },
   startBtnText: {
     color: "#fff",
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#111A2E",
+    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -583,11 +583,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     height: 44,
     borderRadius: 24,
-    backgroundColor: "#111A2E",
+    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
