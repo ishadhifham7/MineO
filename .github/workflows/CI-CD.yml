@@ -29,18 +29,23 @@ jobs:
         working-directory: ./server
         run: npm install
 
-      # 5️⃣ Run backend tests
+      # 5️⃣ Install client dependencies
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm install
+
+      # 6️⃣ Run backend tests
       - name: Run backend tests
         working-directory: ./server
         run: |
           echo "Running backend tests..."
           npm test
 
-      # 6️⃣ Install EAS CLI
+      # 7️⃣ Install EAS CLI
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      # 7️⃣ Verify Expo authentication
+      # 8️⃣ Verify Expo authentication
       - name: Verify Expo authentication
         run: |
           if [ -z "${EXPO_TOKEN}" ]; then
@@ -52,9 +57,10 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # 8️⃣ Build APK with EAS
+      # 9️⃣ Build APK with EAS
       - name: Build APK with EAS
         id: build
+        working-directory: ./client
         run: |
           echo "Starting EAS build..."
           eas build -p android --profile preview --non-interactive --json > build-output.json
