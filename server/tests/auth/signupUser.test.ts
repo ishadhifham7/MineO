@@ -98,7 +98,7 @@ describe('signupUser', () => {
             dob: '2002-05-10',
         };
 
-        await expect(signupUser(input)).rejects.toThrow('User already exists');
+        await expect(signupUser(input)).rejects.toThrow('User with this email already exists');
 
         expect(bcrypt.hash).not.toHaveBeenCalled();
         expect(mockAdd).not.toHaveBeenCalled();
