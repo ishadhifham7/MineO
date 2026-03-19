@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { JourneyCanvas } from "../../src/components/journey/JourneyCanvas";
@@ -20,6 +19,10 @@ import { useAuth } from "../../src/providers/AuthProvider";
 import { useJourney } from "../../src/providers/JourneyProvider";
 import { JournalApi } from "../../src/services/journal.service";
 import type { JournalEntryWithBlocks } from "../../src/features/journal/journal.types";
+import {
+  HomeStyleScreen,
+  SectionCard,
+} from "../../src/components/ui/HomeStyleScreen";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -154,46 +157,32 @@ export default function JourneyScreen() {
   // Show loading while checking auth or loading journals
   if (authLoading || isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.header}>
-          <View style={styles.headerTitleRow}>
-            <Ionicons
-              name="map"
-              size={28}
-              color="#4E6FA3"
-              style={styles.headerIcon}
-            />
-            <Text style={styles.headerTitle}>Journey Map</Text>
-          </View>
-          <Text style={styles.headerSubtitle}>Every step tells a story</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4E6FA3" />
+      <HomeStyleScreen
+        kicker="Progress Path"
+        title="Journey Map"
+        subtitle="Every step tells a story"
+        scrollable={false}
+      >
+        <SectionCard style={styles.centerCard}>
+          <ActivityIndicator size="large" color="#6B645C" />
           <Text style={styles.loadingText}>Loading your journey map...</Text>
-        </View>
-      </SafeAreaView>
+        </SectionCard>
+      </HomeStyleScreen>
     );
   }
 
   // Not authenticated - show login prompt
   if (!isAuthenticated) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.header}>
-          <View style={styles.headerTitleRow}>
-            <Ionicons
-              name="map"
-              size={28}
-              color="#4E6FA3"
-              style={styles.headerIcon}
-            />
-            <Text style={styles.headerTitle}>Journey Map</Text>
-          </View>
-          <Text style={styles.headerSubtitle}>Every step tells a story</Text>
-        </View>
-        <View style={styles.emptyContainer}>
+      <HomeStyleScreen
+        kicker="Progress Path"
+        title="Journey Map"
+        subtitle="Every step tells a story"
+        scrollable={false}
+      >
+        <SectionCard style={styles.centerCard}>
           <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>LOCK</Text>
+            <Ionicons name="lock-closed-outline" size={34} color="#8C7F6A" />
           </View>
           <Text style={styles.emptyTitle}>Please Login</Text>
           <Text style={styles.emptySubtitle}>
@@ -205,85 +194,65 @@ export default function JourneyScreen() {
           >
             <Text style={styles.loginButtonText}>Go to Login</Text>
           </Pressable>
-        </View>
-      </SafeAreaView>
+        </SectionCard>
+      </HomeStyleScreen>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.header}>
-          <View style={styles.headerTitleRow}>
-            <Ionicons
-              name="map"
-              size={28}
-              color="#4E6FA3"
-              style={styles.headerIcon}
-            />
-            <Text style={styles.headerTitle}>Journey Map</Text>
-          </View>
-          <Text style={styles.headerSubtitle}>Every step tells a story</Text>
-        </View>
-        <View style={styles.emptyContainer}>
+      <HomeStyleScreen
+        kicker="Progress Path"
+        title="Journey Map"
+        subtitle="Every step tells a story"
+        scrollable={false}
+      >
+        <SectionCard style={styles.centerCard}>
           <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>!</Text>
+            <Ionicons name="alert-circle-outline" size={34} color="#8C7F6A" />
           </View>
           <Text style={styles.emptyTitle}>Error Loading Journey</Text>
           <Text style={styles.emptySubtitle}>{error}</Text>
           <Pressable style={styles.loginButton} onPress={refreshJourneys}>
             <Text style={styles.loginButtonText}>Try Again</Text>
           </Pressable>
-        </View>
-      </SafeAreaView>
+        </SectionCard>
+      </HomeStyleScreen>
     );
   }
 
   if (journals.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.header}>
-          <View style={styles.headerTitleRow}>
-            <Ionicons
-              name="map"
-              size={28}
-              color="#4E6FA3"
-              style={styles.headerIcon}
-            />
-            <Text style={styles.headerTitle}>Journey Map</Text>
-          </View>
-          <Text style={styles.headerSubtitle}>Every step tells a story</Text>
-        </View>
-        <View style={styles.emptyContainer}>
+      <HomeStyleScreen
+        kicker="Progress Path"
+        title="Journey Map"
+        subtitle="Every step tells a story"
+        scrollable={false}
+      >
+        <SectionCard style={styles.centerCard}>
           <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>J</Text>
+            <Ionicons name="book-outline" size={34} color="#8C7F6A" />
           </View>
           <Text style={styles.emptyTitle}>No journals yet</Text>
           <Text style={styles.emptySubtitle}>
             Start writing to see your journey map unfold
           </Text>
-        </View>
-      </SafeAreaView>
+        </SectionCard>
+      </HomeStyleScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.header}>
-        <View style={styles.headerTitleRow}>
-          <Ionicons
-            name="map"
-            size={28}
-            color="#4E6FA3"
-            style={styles.headerIcon}
-          />
-          <Text style={styles.headerTitle}>Journey Map</Text>
-        </View>
-        <Text style={styles.headerSubtitle}>Every step tells a story</Text>
-      </View>
-
-      <View style={styles.canvasWrapper}>
+    <HomeStyleScreen
+      kicker="Progress Path"
+      title="Journey Map"
+      subtitle="Every step tells a story"
+      stats={[{ value: journals.length, label: "Entries" }]}
+      scrollable={false}
+      contentContainerStyle={styles.screenContent}
+    >
+      <SectionCard style={styles.canvasCard}>
         <JourneyCanvas
           contentHeight={contentHeight}
           refreshControl={
@@ -312,7 +281,7 @@ export default function JourneyScreen() {
             />
           ))}
         </JourneyCanvas>
-      </View>
+      </SectionCard>
 
       {/* Journal Modal */}
       <JournalModal
@@ -321,53 +290,26 @@ export default function JourneyScreen() {
         loading={loadingJournal}
         onClose={handleCloseModal}
       />
-    </SafeAreaView>
+    </HomeStyleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screenContent: {
     flex: 1,
-    backgroundColor: "#F4F6FA", // Match goal tracker background
+    paddingBottom: 94,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingTop: 48,
-    paddingBottom: 20,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 2,
-    borderBottomColor: "#4E6FA3",
-    shadowColor: "#4E6FA3",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+  canvasCard: {
+    flex: 1,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    overflow: "hidden",
   },
-  headerTitleRow: {
-    flexDirection: "row",
+  centerCard: {
+    flex: 1,
     alignItems: "center",
-    gap: 8,
-  },
-  headerIcon: {
-    opacity: 0.9,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "800",
-    color: "#111827",
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#4E6FA3",
-    marginTop: 6,
-    fontStyle: "italic",
-  },
-  canvasWrapper: {
-    flex: 1,
-    backgroundColor: "#F4F6FA",
+    justifyContent: "center",
+    gap: 12,
   },
   loadingContainer: {
     flex: 1,
@@ -377,59 +319,48 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#6B7280",
+    color: "#6B645C",
     fontWeight: "500",
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 40,
-  },
   emptyIconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
     backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 8,
     borderWidth: 2,
-    borderColor: "#E5E7EB",
-    shadowColor: "#4E6FA3",
+    borderColor: "#E8E4DD",
+    shadowColor: "#8C7F6A",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
-  },
-  emptyIcon: {
-    fontSize: 48,
   },
   emptyTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 10,
+    color: "#2E2A26",
+    marginBottom: 4,
   },
   emptySubtitle: {
     fontSize: 15,
-    color: "#6B7280",
+    color: "#6B645C",
     textAlign: "center",
     lineHeight: 22,
   },
   loginButton: {
-    marginTop: 28,
+    marginTop: 18,
     paddingHorizontal: 36,
-    paddingVertical: 16,
-    backgroundColor: "#4E6FA3",
+    paddingVertical: 12,
+    backgroundColor: "#2E2A26",
     borderRadius: 14,
-    shadowColor: "#4E6FA3",
-    shadowOpacity: 0.35,
+    shadowColor: "#2E2A26",
+    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
     elevation: 6,
-    borderWidth: 1,
-    borderColor: "#3F5D8A",
   },
   loginButtonText: {
     color: "#FFFFFF",

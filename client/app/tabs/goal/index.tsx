@@ -1,17 +1,19 @@
 import React, { useEffect, useMemo } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
   Pressable,
-  ScrollView,
 } from "react-native";
 
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGoal } from "../../../src/features/goal/goal.context";
+import {
+  HomeStyleScreen,
+  SectionCard,
+} from "../../../src/components/ui/HomeStyleScreen";
 
 type GoalItem = {
   id: string;
@@ -75,95 +77,67 @@ export default function GoalsHome() {
   }, [goals]);
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.screen}>
-        <LinearGradient
-          colors={["#B5A993", "#8C7F6A"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.hero}
-        >
-          <Text style={styles.heroTitle}>Your Goals</Text>
-          <Text style={styles.heroSubtitle}>
-            Keep moving forward, one milestone at a time
-          </Text>
-
-          <View style={styles.heroStatsRow}>
-            <View style={styles.heroStatCard}>
-              <Text style={styles.heroStatValue}>{goals.length}</Text>
-              <Text style={styles.heroStatLabel}>Total</Text>
-            </View>
-            <View style={styles.heroStatCard}>
-              <Text style={styles.heroStatValue}>{activeCount}</Text>
-              <Text style={styles.heroStatLabel}>Active</Text>
-            </View>
-            <View style={styles.heroStatCard}>
-              <Text style={styles.heroStatValue}>{completedCount}</Text>
-              <Text style={styles.heroStatLabel}>Done</Text>
-            </View>
+    <HomeStyleScreen
+      kicker="Goal Plan"
+      title="Your Goals"
+      subtitle="Keep moving forward, one milestone at a time"
+      stats={[
+        { value: goals.length, label: "Total" },
+        { value: activeCount, label: "Active" },
+        { value: completedCount, label: "Done" },
+      ]}
+    >
+      <SectionCard>
+        <View style={styles.sectionHeader}>
+          <View>
+            <Text style={styles.sectionTitle}>Goal Progress</Text>
+            <Text style={styles.sectionSubtitle}>Tap any goal to open roadmap</Text>
           </View>
-        </LinearGradient>
+          <View style={styles.countPill}>
+            <Text style={styles.countPillText}>{goals.length}</Text>
+          </View>
+        </View>
 
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>Goal Progress</Text>
-              <Text style={styles.sectionSubtitle}>
-                Tap any goal to open roadmap
+        <View style={styles.listWrap}>
+          {goals.length > 0 ? (
+            goals.map((goal: GoalItem) => (
+              <GoalListCard
+                key={goal.id}
+                goal={goal}
+                onPress={() => router.push(`/tabs/goal/roadmap?id=${goal.id}`)}
+              />
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconWrap}>
+                <Ionicons name="flag-outline" size={34} color="#8C7F6A" />
+              </View>
+              <Text style={styles.emptyTitle}>No goals yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Create your first goal and start tracking your progress.
               </Text>
             </View>
-            <View style={styles.countPill}>
-              <Text style={styles.countPillText}>{goals.length}</Text>
-            </View>
-          </View>
+          )}
+        </View>
+      </SectionCard>
 
-          {/* Goals list */}
-          <View style={styles.listWrap}>
-            {goals.length > 0 ? (
-              goals.map((goal: GoalItem) => (
-                <GoalListCard
-                  key={goal.id}
-                  goal={goal}
-                  onPress={() =>
-                    router.push(`/tabs/goal/roadmap?id=${goal.id}`)
-                  }
-                />
-              ))
-            ) : (
-              <View style={styles.emptyState}>
-                <View style={styles.emptyIconWrap}>
-                  <Ionicons name="flag-outline" size={34} color="#8C7F6A" />
-                </View>
-                <Text style={styles.emptyTitle}>No goals yet</Text>
-                <Text style={styles.emptySubtitle}>
-                  Create your first goal and start tracking your progress.
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.ctaWrap}>
-            <Pressable
-              onPress={() => router.push("/tabs/goal/chat")}
-              style={({ pressed }) => [pressed && { opacity: 0.9 }]}
-            >
-              <LinearGradient
-                colors={["#2E2A26", "#4A433A"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.createBtn}
-              >
-                <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
-                <Text style={styles.createText}>Create New Goal</Text>
-              </LinearGradient>
-            </Pressable>
-          </View>
-        </ScrollView>
+      <View style={styles.ctaWrap}>
+        <Pressable
+          onPress={() => router.push("/tabs/goal/chat")}
+          style={({ pressed }) => [pressed && { opacity: 0.9 }]}
+        >
+          <LinearGradient
+            colors={["#2E2A26", "#4A433A"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.createBtn}
+          >
+            <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.createText}>Create New Goal</Text>
+          </LinearGradient>
+        </Pressable>
       </View>
-    </SafeAreaView>
+    </HomeStyleScreen>
   );
 }
 
@@ -240,71 +214,6 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
-
-  screen: { flex: 1 },
-
-  hero: {
-    marginHorizontal: 18,
-    marginTop: 12,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontFamily: "Roboto_700Bold",
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  heroSubtitle: {
-    marginTop: 6,
-    fontSize: 14,
-    lineHeight: 20,
-    fontFamily: "Roboto_400Regular",
-    color: "rgba(255, 255, 255, 0.92)",
-  },
-  heroStatsRow: {
-    marginTop: 14,
-    flexDirection: "row",
-    gap: 10,
-  },
-  heroStatCard: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 14,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.25)",
-  },
-  heroStatValue: {
-    fontSize: 20,
-    fontFamily: "Roboto_700Bold",
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  heroStatLabel: {
-    marginTop: 3,
-    fontSize: 11,
-    fontFamily: "Roboto_500Medium",
-    fontWeight: "500",
-    color: "rgba(255, 255, 255, 0.9)",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-
-  scrollContent: {
-    paddingHorizontal: 18,
-    paddingTop: 14,
-  },
-
   sectionHeader: {
     marginTop: 4,
     flexDirection: "row",
