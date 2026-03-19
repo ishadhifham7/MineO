@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
   errorBanner: {
     margin: 16,
     padding: 14,
-    backgroundColor: "#FFF7F5",
+    backgroundColor: "#0B1220",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(149,67,44,0.20)",
