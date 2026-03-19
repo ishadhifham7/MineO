@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -28,6 +27,10 @@ import type {
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
+import {
+  HomeStyleScreen,
+  SectionCard,
+} from "../../../src/components/ui/HomeStyleScreen";
 
 /* ---------------- Add Button with rotation ---------------- */
 
@@ -325,80 +328,91 @@ export default function JournalScreen() {
   const formattedDate = formatJournalDate(date);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <HomeStyleScreen
+      kicker="Daily Journal"
+      title="Journal Canvas"
+      subtitle="Write freely, save your story"
+      scrollable={false}
+      contentContainerStyle={{ flex: 1, paddingBottom: 86 }}
+      stats={[
+        {
+          value: typeof formattedDate === "object" ? formattedDate.weekday : "",
+          label: "Day",
+        },
+      ]}
+    >
       <View style={{ flex: 1 }}>
         {/* Date Header + Save Button */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingHorizontal: 20,
-            paddingTop: 12,
-            paddingBottom: 4,
-          }}
-        >
-          {/* Date (left) */}
-          <View>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "700",
-                color: "#111",
-                letterSpacing: 0.2,
-              }}
-            >
-              {typeof formattedDate === "object" ? formattedDate.day : ""}
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: "400",
-                color: "#888",
-                marginTop: 2,
-              }}
-            >
-              {typeof formattedDate === "object" ? formattedDate.weekday : ""}
-            </Text>
-          </View>
-
-          {/* Save button (right) */}
-          <Pressable
-            onPress={() => setChapterSliderVisible(true)}
+        <SectionCard style={{ marginHorizontal: 16, marginBottom: 10 }}>
+          <View
             style={{
-              paddingHorizontal: 22,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: "#111",
+              flexDirection: "row",
               alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 4,
-              elevation: 3,
+              justifyContent: "space-between",
             }}
           >
-            <Text
+            {/* Date (left) */}
+            <View>
+              <Text
+                style={{
+                  fontSize: 22,
+                  fontWeight: "700",
+                  color: "#2E2A26",
+                  letterSpacing: 0.2,
+                }}
+              >
+                {typeof formattedDate === "object" ? formattedDate.day : ""}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "400",
+                  color: "#6B645C",
+                  marginTop: 2,
+                }}
+              >
+                {typeof formattedDate === "object" ? formattedDate.weekday : ""}
+              </Text>
+            </View>
+
+            {/* Save button (right) */}
+            <Pressable
+              onPress={() => setChapterSliderVisible(true)}
               style={{
-                color: "#fff",
-                fontSize: 15,
-                fontWeight: "600",
-                letterSpacing: 0.5,
+                paddingHorizontal: 22,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: "#2E2A26",
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+                elevation: 3,
               }}
             >
-              Save
-            </Text>
-          </Pressable>
-        </View>
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 15,
+                  fontWeight: "600",
+                  letterSpacing: 0.5,
+                }}
+              >
+                Save
+              </Text>
+            </Pressable>
+          </View>
+        </SectionCard>
 
         {/* Canvas container with margins — Toolbar sits inside here */}
         <View
           style={{
             flex: 1,
-            marginTop: 30,
+            marginTop: 2,
             marginBottom: 100,
-            marginHorizontal: 12,
+            marginHorizontal: 16,
             borderRadius: 16,
             overflow: "hidden",
           }}
@@ -502,6 +516,6 @@ export default function JournalScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </HomeStyleScreen>
   );
 }

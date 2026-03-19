@@ -15,6 +15,7 @@ import {
 import {
   Roboto_400Regular,
   Roboto_500Medium,
+  Roboto_700Bold,
 } from "@expo-google-fonts/roboto";
 import { View, ActivityIndicator, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -57,6 +58,7 @@ export default function RootLayout() {
     DancingScript_700Bold,
     Roboto_400Regular,
     Roboto_500Medium,
+    Roboto_700Bold,
   });
 
   if (!fontsLoaded) {

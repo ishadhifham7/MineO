@@ -1,11 +1,9 @@
 import React, { useMemo } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
   Pressable,
-  ScrollView,
   Platform,
 } from "react-native";
 
@@ -13,6 +11,10 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import CreateGoal from "../../src/components/goal/CreateGoal";
+import {
+  HomeStyleScreen,
+  SectionCard,
+} from "../../src/components/ui/HomeStyleScreen";
 
 type Goal = {
   id: string;
@@ -81,59 +83,50 @@ export default function GoalsRoute() {
   if (screen === "create") {
     return <CreateGoal onBack={handleBack} />;
   }
+
+  const activeGoals = goals.filter((goal) => goal.progressPct < 100).length;
+
   // Home screen (default)
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.screen}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.headerRow}>
-            <View style={styles.headerIcon}>
-              <Ionicons name="sparkles-outline" size={18} color="#ffffff" />
-            </View>
-            <View style={styles.headerText}>
-              <Text style={styles.hTitle}>Your Goals</Text>
-              <Text style={styles.hSub}>Small steps create big change</Text>
-            </View>
-          </View>
-
-          {/* Goals list */}
-          <View style={styles.listWrap}>
-            {goals.map((g) => (
-              <GoalListCard
-                key={g.id}
-                goal={g}
-                onPress={() => router.push(`/goal/${g.id}`)}
-              />
-            ))}
-          </View>
-
-          {/* Spacer so list doesn't hide behind bottom button */}
-          <View style={{ height: 110 }} />
-        </ScrollView>
-
-        {/* Bottom Create Button */}
-        <View style={styles.bottomBar}>
-          <Pressable
-            onPress={handleCreateGoal}
-            style={({ pressed }) => [pressed && { opacity: 0.92 }]}
-          >
-            <LinearGradient
-              colors={["#63D1E6", "#B39DDB"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.createBtn}
-            >
-              <Ionicons name="add" size={20} color="#fff" />
-              <Text style={styles.createText}>Create New Goal</Text>
-            </LinearGradient>
-          </Pressable>
+    <HomeStyleScreen
+      kicker="Goal Plan"
+      title="Your Goals"
+      subtitle="Small steps create big change"
+      stats={[
+        { value: goals.length, label: "Total" },
+        { value: activeGoals, label: "Active" },
+        { value: goals.length - activeGoals, label: "Done" },
+      ]}
+    >
+      <SectionCard>
+        <View style={styles.listWrap}>
+          {goals.map((g) => (
+            <GoalListCard
+              key={g.id}
+              goal={g}
+              onPress={() => router.push(`/goal/${g.id}`)}
+            />
+          ))}
         </View>
+      </SectionCard>
+
+      <View style={styles.bottomBar}>
+        <Pressable
+          onPress={handleCreateGoal}
+          style={({ pressed }) => [pressed && { opacity: 0.92 }]}
+        >
+          <LinearGradient
+            colors={["#2E2A26", "#4A433A"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.createBtn}
+          >
+            <Ionicons name="add" size={20} color="#fff" />
+            <Text style={styles.createText}>Create New Goal</Text>
+          </LinearGradient>
+        </Pressable>
       </View>
-    </SafeAreaView>
+    </HomeStyleScreen>
   );
 }
 
@@ -179,36 +172,8 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
-
-  screen: { flex: 1 },
-
-  scrollContent: {
-    paddingHorizontal: 18,
-    paddingTop: 14,
-  },
-
-  /* Header */
-  headerRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
-  headerIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  headerText: { marginLeft: 12 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
-  hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
-
   /* Goals list */
-  listWrap: { marginTop: 14 },
+  listWrap: { marginTop: 2 },
   goalCard: {
     marginTop: 12,
     backgroundColor: "#FFFFFF",
@@ -262,10 +227,8 @@ const styles = StyleSheet.create({
 
   /* Bottom create button */
   bottomBar: {
-    position: "absolute",
-    left: 18,
-    right: 18,
-    bottom: Platform.OS === "ios" ? 24 : 18,
+    marginTop: 6,
+    marginBottom: Platform.OS === "ios" ? 10 : 6,
   },
   createBtn: {
     height: 58,

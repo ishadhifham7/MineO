@@ -10,13 +10,16 @@ import {
   RefreshControl,
   Pressable,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import HabitHeader from "../../src/components/habit/HabitHeader";
 import HabitCalendar from "../../src/components/habit/HabitCalendar";
 import HabitStatusCard from "../../src/components/habit/HabitStatusCard";
 import HabitRadarChart from "../../src/components/habit/HabitRadarChart";
 import { HabitProvider, useHabit } from "../../src/features/habit/HabitContext";
+import {
+  HomeStyleScreen,
+  SectionCard,
+} from "../../src/components/ui/HomeStyleScreen";
 
 // Get local date in YYYY-MM-DD format (not UTC)
 const getLocalDate = () => {
@@ -69,28 +72,55 @@ function HabitsContent() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center" edges={['top']}>
-        <ActivityIndicator size="large" color="#000" />
-        <Text className="mt-4 text-gray-600">Loading habits...</Text>
-      </SafeAreaView>
+      <HomeStyleScreen
+        kicker="Daily Rhythm"
+        title="Habit Studio"
+        subtitle="Track your mind, body, and spirit every day"
+        scrollable={false}
+      >
+        <SectionCard style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 10 }}>
+          <ActivityIndicator size="large" color="#6B645C" />
+          <Text className="text-gray-600">Loading habits...</Text>
+        </SectionCard>
+      </HomeStyleScreen>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F4F6FA] items-center justify-center px-6" edges={['top']}>
-        <Text className="text-red-600 text-center mb-4">Error loading habits</Text>
-        <Text className="text-gray-600 text-center">{error}</Text>
-      </SafeAreaView>
+      <HomeStyleScreen
+        kicker="Daily Rhythm"
+        title="Habit Studio"
+        subtitle="Track your mind, body, and spirit every day"
+        scrollable={false}
+      >
+        <SectionCard style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <Text className="text-red-600 text-center">Error loading habits</Text>
+          <Text className="text-gray-600 text-center">{error}</Text>
+        </SectionCard>
+      </HomeStyleScreen>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F4F6FA]" edges={['top']}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+    <HomeStyleScreen
+      kicker="Daily Rhythm"
+      title="Habit Studio"
+      subtitle="Track your mind, body, and spirit every day"
+      stats={[
+        { value: activeTab, label: "Focus" },
+        { value: today, label: "Today" },
+      ]}
+      scrollable={false}
+      contentContainerStyle={{ flex: 1, paddingBottom: 90 }}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+      >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 116 }}
+          contentContainerStyle={{ paddingBottom: 116, paddingHorizontal: 16, gap: 12 }}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -100,14 +130,18 @@ function HabitsContent() {
             />
           }
         >
-          <HabitHeader active={activeTab} onChange={setActiveTab} />
+          <SectionCard>
+            <HabitHeader active={activeTab} onChange={setActiveTab} />
+          </SectionCard>
 
-          <View className="px-4 pt-1 gap-5">
+          <SectionCard>
             <View>
               <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Calendar</Text>
               <HabitCalendar category={activeTab} data={visibleCalendar} />
             </View>
+          </SectionCard>
 
+          <SectionCard>
             <View>
               <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Daily Check In</Text>
               <HabitStatusCard
@@ -122,7 +156,9 @@ function HabitsContent() {
                 </View>
               )}
             </View>
+          </SectionCard>
 
+          <SectionCard>
             <View>
               <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Weekly Analysis</Text>
               <HabitRadarChart values={radarValues} />
@@ -143,10 +179,10 @@ function HabitsContent() {
                 </Text>
               </View>
             </View>
-          </View>
+          </SectionCard>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </HomeStyleScreen>
   );
 }
 
