@@ -26,7 +26,7 @@ jobs:
 
       # 4️⃣ Run backend tests
       - name: Run backend tests
-        working-directory: ./server   # adjust if your test file is in a different folder
+        working-directory: ./server # adjust if your test file is in a different folder
         run: |
           echo "Running backend tests..."
           npm test
@@ -43,11 +43,6 @@ jobs:
           eas build -p android --profile preview --non-interactive --json > build-output.json
           echo "EAS build finished."
           APK_URL=$(jq -r '.artifacts.buildUrl' build-output.json)
-          echo "APK Download URL: $APK_URL"
           echo "APK_URL=$APK_URL" >> $GITHUB_ENV
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      # 7️⃣ Show APK download URL in logs
-      - name: Show APK URL
-        run: echo "Your APK is ready! Download it here: $APK_URL"
