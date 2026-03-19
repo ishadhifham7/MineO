@@ -5,9 +5,19 @@ export async function authRoutes(app: FastifyInstance) {
   //  signup
   app.post('/signup', async (request, reply) => {
     try {
+      console.log('📥 Signup request received:', request.body);
       const { name, email, password, dob, bio, gender, country, profilePhoto } =
       request.body as any;
 
+      // Validate required fields
+      if (!name || !email || !password || !dob) {
+        console.log('❌ Missing required fields:', { name: !!name, email: !!email, password: !!password, dob: !!dob });
+        return reply.status(400).send({
+          message: 'Name, email, password, and date of birth are required',
+        });
+      }
+
+      console.log('🔵 Calling signupUser service...');
       const result = await signupUser({
         name,
         email,
@@ -19,11 +29,25 @@ export async function authRoutes(app: FastifyInstance) {
         profilePhoto,
       });
 
+      console.log('✅ Signup successful:', result.id);
+      
+      // Generate JWT token for auto-login
+      const jwt = require('jsonwebtoken');
+      const token = jwt.sign(
+        { userId: result.id, email },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '7d' }
+      );
+
       return reply.send({
         message: 'User created',
         userId: result.id,
+        token, // Return token for auto-login
       });
     } catch (error: any) {
+      console.error('❌ Signup route error:', error);
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error stack:', error.stack);
       return reply.status(400).send({
         message: error.message,
       });

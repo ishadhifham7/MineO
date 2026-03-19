@@ -53,7 +53,7 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
       onPress={onPress}
       style={{
         position: "absolute",
-        bottom: 24,
+        bottom: 110,
         right: 24,
         width: 56,
         height: 56,
@@ -397,7 +397,7 @@ export default function JournalScreen() {
           style={{
             flex: 1,
             marginTop: 30,
-            marginBottom: 4,
+            marginBottom: 100,
             marginHorizontal: 12,
             borderRadius: 16,
             overflow: "hidden",

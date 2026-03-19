@@ -49,7 +49,7 @@ function DonutChart({
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
       <Svg width={size} height={size}>
-        <Circle cx={center} cy={center} r={radius} stroke="#f0f0f0" strokeWidth={strokeWidth} fill="none" />
+        <Circle cx={center} cy={center} r={radius} stroke="#af0000" strokeWidth={strokeWidth} fill="none" />
         <G rotation="-90" origin={`${center}, ${center}`}>
           {data.map((segment, i) => {
             const segmentLength = (segment.percentage / 100) * circumference;

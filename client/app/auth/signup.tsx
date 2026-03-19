@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 
-
 import {
   View,
   Text,
@@ -9,129 +8,171 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
-
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SignupScreen: React.FC = () => {
   const router = useRouter();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-    
-
 
   const handleNext = () => {
     if (!name || !email || !password) {
-    Alert.alert("Error", "Please fill all fields");
-    return;
+      Alert.alert("Error", "Please fill all fields");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert("Invalid Email", "Please enter a valid email address");
+      return;
+    }
+
+    if (password.trim().length < 6) {
+      Alert.alert("Weak Password", "Password must be at least 6 characters");
+      return;
     }
 
     // pass data to register stage
     router.push({
       pathname: "/auth/register",
-      params: { name, email, password },
+      params: {
+        name: name.trim(),
+        email: email.trim(),
+        password: password.trim(),
+      },
     });
   };
 
-
-  return(
-    <View style={styles.container}>
-
-      {/* Go back button */}
-      <TouchableOpacity onPress={() => router.back()}>
-        <Text style={styles.backText}>← Go Back</Text>
-      </TouchableOpacity>
-
-      {/* Title */}
-      <Text style={styles.title}>Create{"\n"}Account</Text>
-
-      {/* Subtitle */}
-      <Text style={styles.subtitle}>
-        Already have an account?
-        <Text
-          style={styles.createNew}
-          onPress={() => router.replace("/auth/login")}
+  return (
+    <SafeAreaView style={styles.safe}>
+      <KeyboardAvoidingView
+        style={styles.safe}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
         >
-          {" "}Login
-        </Text>
-      </Text>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={styles.backText}>{"<- Go Back"}</Text>
+          </TouchableOpacity>
 
-      {/* text area for user name */}
-      <TextInput
-        placeholder="Full name"
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
+          <Text style={styles.title}>Create Account</Text>
 
-      {/* Email */}
-      <TextInput
-        placeholder="Email"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
+          <Text style={styles.subtitle}>
+            Start your MineO journey. Set up your credentials to continue.
+          </Text>
 
-      {/* Password */}
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-      />
+          <Text style={styles.inputLabel}>Full Name</Text>
+          <TextInput
+            placeholder="Your full name"
+            placeholderTextColor="#9CA3AF"
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+          />
 
-      {/* Signup button */}
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+          <Text style={styles.inputLabel}>Email</Text>
+          <TextInput
+            placeholder="you@example.com"
+            placeholderTextColor="#9CA3AF"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <Text style={styles.inputLabel}>Password</Text>
+          <TextInput
+            placeholder="Minimum 6 characters"
+            placeholderTextColor="#9CA3AF"
+            secureTextEntry
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleNext}>
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.footerText}>
+            Already have an account?
+            <Text
+              style={styles.loginLink}
+              onPress={() => router.replace("/auth/login")}
+            >
+              {" "}
+              Login
+            </Text>
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 export default SignupScreen;
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 24,
-      backgroundColor: "#fff",
-      justifyContent: "center",
-    },
-    backText: {
-      marginBottom: 20,
-      fontSize: 14,
-      color: "#555",
-    },
-    title: {
-      fontSize: 32,
-      fontWeight: "600",
-      marginBottom: 20,
-    },
-    subtitle: {
-      color: "#777",
-      marginBottom: 30,
-    },
-    createNew: {
-      color: "#000",
-      fontWeight: "600",
-    },
-    input: {
-      backgroundColor: "#f2f2f2",
-      padding: 16,
-      borderRadius: 12,
-      marginBottom: 16,
-    },
-    button: {
-      backgroundColor: "#E6E26A",
-      padding: 18,
-      borderRadius: 12,
-      alignItems: "center",
-      marginTop: 30,
-    },
-    buttonText: {
-      fontWeight: "600",
-    },
+  safe: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  container: {
+    flexGrow: 1,
+    padding: 24,
+    backgroundColor: "#fff",
+  },
+  backText: {
+    marginBottom: 20,
+    fontSize: 14,
+    color: "#555",
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "600",
+    marginBottom: 10,
+  },
+  subtitle: {
+    color: "#777",
+    marginBottom: 24,
+  },
+  inputLabel: {
+    marginBottom: 8,
+    color: "#444",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  input: {
+    backgroundColor: "#f2f2f2",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: "#A7C4E8",
+    padding: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  buttonText: {
+    fontWeight: "600",
+  },
+  footerText: {
+    marginTop: 18,
+    textAlign: "center",
+    color: "#666",
+  },
+  loginLink: {
+    color: "#000",
+    fontWeight: "600",
+  },
 });

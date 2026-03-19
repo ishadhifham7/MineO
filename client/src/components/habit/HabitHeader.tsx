@@ -5,25 +5,28 @@ const tabs: Category[] = ["spiritual", "mental", "physical"];
 
 export default function HabitHeader({ active, onChange }: { active: Category; onChange: (c: Category) => void }) {
   return (
-    <View className="items-center py-8">
-      <View className="bg-[#2E2A26] px-12 py-3 rounded-full mb-10 shadow-lg">
-        <Text className="text-white font-black text-lg tracking-widest uppercase">Mineo Tracker</Text>
+    <View className="pt-4 pb-4 px-4">
+      <View className="bg-[#8C7F6A] rounded-[20px] px-5 py-5 mb-4">
+        <Text className="text-white text-[26px] font-bold">Habit Tracker</Text>
+        <Text className="text-[#F6F1E7] text-[14px] mt-1">Build momentum one day at a time</Text>
       </View>
 
-      <View className="flex-row gap-4">
+      <View className="bg-white rounded-[18px] p-2 border border-[#E5DFD3]">
+        <View className="flex-row gap-2">
         {tabs.map((tab) => (
           <Pressable
             key={tab}
             onPress={() => onChange(tab)}
-            className={`px-5 py-2.5 rounded-full border-2 transition-all ${
-              active === tab ? "bg-[#2E2A26] border-[#2E2A26]" : "bg-transparent border-[#2E2A26]/20"
+            className={`flex-1 py-2.5 rounded-[14px] border ${
+              active === tab ? "bg-[#B5A993] border-[#B5A993]" : "bg-white border-transparent"
             }`}
           >
-            <Text className={`capitalize font-bold text-xs ${active === tab ? "text-white" : "text-[#2E2A26]"}`}>
+            <Text className={`capitalize text-center text-[13px] font-semibold ${active === tab ? "text-white" : "text-[#6B645C]"}`}>
               {tab}
             </Text>
           </Pressable>
         ))}
+        </View>
       </View>
     </View>
   );

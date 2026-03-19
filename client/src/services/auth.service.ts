@@ -8,7 +8,7 @@ import { saveToken, removeToken } from "../utils/tokenStorage";
  */
 const authClient = axios.create({
   baseURL: env.API_BASE_URL,
-  timeout: 30000, // 30 seconds for auth requests
+  timeout: 60000, // 60 seconds for auth requests (increased for Firebase operations)
   headers: {
     "Content-Type": "application/json",
   },
@@ -40,12 +40,25 @@ export const signupUser = async (data: {
     }
     return response.data;
   } catch (error: any) {
-    console.error("Signup error:", error.message);
+    console.error("❌ Signup error:", error.message);
+    console.error("📡 Backend URL:", env.API_BASE_URL);
+
     if (error.response) {
+      // Server responded with an error
+      console.error("❌ Server responded with error:", error.response.status);
       throw new Error(error.response.data?.message || "Signup failed");
     } else if (error.request) {
+      // Request was made but no response received
+      console.error("❌ No response from backend:", env.API_BASE_URL);
+      console.error("💡 Solution:");
+      console.error("   1. Verify EXPO_PUBLIC_API_URL in client/.env");
+      console.error("   2. Confirm deployed backend is up and healthy");
+      console.error("   3. Check mobile network connectivity");
       throw new Error(
-        "Network error. Please check your connection and ensure backend is running.",
+        `Cannot connect to backend at ${env.API_URL}.\nPlease ensure:\n` +
+          "1. EXPO_PUBLIC_API_URL points to a reachable backend\n" +
+          "2. Deployment is healthy\n" +
+          "3. Device has internet access",
       );
     } else {
       throw new Error(error.message || "Signup failed");
@@ -74,6 +87,7 @@ export const loginUser = async (email: string, password: string) => {
     return response.data;
   } catch (error: any) {
     console.error("❌ Login error:", error);
+    console.error("📡 Backend URL:", env.API_BASE_URL);
 
     if (error.response) {
       // Server responded with error
@@ -89,9 +103,15 @@ export const loginUser = async (email: string, password: string) => {
         "❌ No response from server. Backend URL:",
         env.API_BASE_URL,
       );
+      console.error("💡 Solution:");
+      console.error("   1. Verify EXPO_PUBLIC_API_URL in client/.env");
+      console.error("   2. Confirm deployed backend is up and healthy");
+      console.error("   3. Check mobile network connectivity");
       throw new Error(
-        "Cannot reach server. Please check if backend is running at " +
-          env.API_URL,
+        `Cannot connect to backend at ${env.API_URL}.\nPlease ensure:\n` +
+          "1. EXPO_PUBLIC_API_URL points to a reachable backend\n" +
+          "2. Deployment is healthy\n" +
+          "3. Device has internet access",
       );
     } else {
       // Request setup error

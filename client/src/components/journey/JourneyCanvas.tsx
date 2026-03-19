@@ -4,7 +4,7 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  RefreshControl,
+  type RefreshControlProps,
 } from "react-native";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -12,7 +12,7 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 type JourneyCanvasProps = {
   children: React.ReactNode;
   contentHeight: number;
-  refreshControl?: React.ReactElement<typeof RefreshControl>;
+  refreshControl?: React.ReactElement<RefreshControlProps>;
 };
 
 export const JourneyCanvas: React.FC<JourneyCanvasProps> = ({
@@ -31,9 +31,7 @@ export const JourneyCanvas: React.FC<JourneyCanvasProps> = ({
       bounces={true}
       refreshControl={refreshControl}
     >
-      <View style={styles.inner}>
-        {children}
-      </View>
+      <View style={styles.inner}>{children}</View>
     </ScrollView>
   );
 };

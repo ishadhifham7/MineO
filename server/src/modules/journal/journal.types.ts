@@ -37,9 +37,11 @@ export interface JournalEntry {
   userId: string; // Owner of the journal entry
   date: string;
   title?: string;
+  chapters?: string[];
   isPinnedToTimeline: boolean;
   createdAt: number;
   updatedAt: number;
+  summary?: string; // Preview text for calendar
 }
 
 export interface DayJournal extends JournalEntry {
