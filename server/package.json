@@ -4,6 +4,7 @@
   "description": "Backend for MineO app",
   "main": "dist/server.js",
   "scripts": {
+    "predev": "node scripts/ensure-port-free.js 3001",
     "dev": "SET PORT=3001&& nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
