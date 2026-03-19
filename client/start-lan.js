@@ -70,7 +70,50 @@ function checkExpoConnectivity() {
   });
 }
 
+// Keep Metro on a stable port so QR connectivity is predictable on Windows.
+// When 8081 is occupied by a stale process, Expo may jump to 8083 which can
+// be blocked by firewall rules configured only for 8081.
+function ensureMetroPortFree(port = 8081) {
+  if (process.platform !== "win32") return;
+
+  try {
+    const { execSync } = require("child_process");
+    const output = execSync(
+      `cmd /c "netstat -ano | findstr :${port} | findstr LISTENING"`,
+      {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    );
+
+    const pids = [...new Set(
+      output
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => line.split(/\s+/).pop())
+        .filter(Boolean),
+    )];
+
+    for (const pid of pids) {
+      // Avoid killing the current process by accident.
+      if (String(process.pid) === String(pid)) continue;
+      try {
+        execSync(`cmd /c "taskkill /F /PID ${pid}"`, {
+          stdio: ["ignore", "pipe", "ignore"],
+        });
+        console.log(`🧹 Freed port ${port} by stopping PID ${pid}`);
+      } catch {
+        console.warn(`⚠️ Could not stop PID ${pid} on port ${port}`);
+      }
+    }
+  } catch {
+    // No listener found on the port, nothing to do.
+  }
+}
+
 async function main() {
+  const METRO_PORT = 8081;
   const isOnline = await checkExpoConnectivity();
 
   const expoArgs = ["expo", "start", "--clear"];
@@ -81,12 +124,15 @@ async function main() {
   process.env.REACT_NATIVE_PACKAGER_HOSTNAME = ip;
   process.env.EXPO_DEVTOOLS_LISTEN_ADDRESS = "0.0.0.0";
 
+  ensureMetroPortFree(METRO_PORT);
+  expoArgs.push("--port", String(METRO_PORT));
+
   if (useLan) {
     console.log(`\n📱 Starting Expo on network IP: ${ip}`);
     console.log(`🎯 Scan the QR code with your Expo Go app`);
     console.log(`📍 Make sure your phone is on the same WiFi network\n`);
   } else {
-    console.log(`\n📱 Metro will be reachable at: ${ip}:8081`);
+    console.log(`\n📱 Metro will be reachable at: ${ip}:${METRO_PORT}`);
   }
 
   if (!isOnline) {
