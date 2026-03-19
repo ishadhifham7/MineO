@@ -219,7 +219,7 @@ export default function WinTrackerScreen() {
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#0B1220" },
+  safe: { flex: 1, backgroundColor: "#F5F5F5" },
 
   header: {
     flexDirection: "row",
@@ -232,20 +232,20 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFF",
     alignItems: "center",
     justifyContent: "center",
     boxShadow: "0px 4px 10px rgba(0,0,0,0.12)",
     elevation: 4,
   },
   headerText: { marginLeft: 14, paddingTop: 2 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#F3F7FF" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
   hSub: { marginTop: 4, fontSize: 14, color: "#6B6B6B" },
 
   content: { flex: 1, paddingHorizontal: 18 },
 
   card: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFF",
     borderRadius: 18,
     padding: 20,
     marginBottom: 16,
@@ -257,8 +257,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
   },
-  donutCenterLabel: { fontSize: 32, fontWeight: "700", color: "#DCE6F6" },
-  donutCenterSub: { fontSize: 12, color: "#9FB0CC", fontWeight: "600", letterSpacing: 1 },
+  donutCenterLabel: { fontSize: 32, fontWeight: "700", color: "#333" },
+  donutCenterSub: { fontSize: 12, color: "#999", fontWeight: "600", letterSpacing: 1 },
 
   legendGrid: {
     flexDirection: "row",
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   },
   legendCard: {
     width: (SCREEN_WIDTH - 76) / 2,
-    backgroundColor: "#111A2E",
+    backgroundColor: "#FAFAFA",
     borderRadius: 14,
     padding: 12,
     alignItems: "center",
@@ -281,13 +281,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 4,
   },
-  legendName: { fontSize: 13, fontWeight: "600", color: "#C3D0E8" },
-  legendPct: { fontSize: 18, fontWeight: "800", color: "#E8EEF9" },
+  legendName: { fontSize: 13, fontWeight: "600", color: "#555" },
+  legendPct: { fontSize: 18, fontWeight: "800", color: "#222" },
 
   sectionTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#E8EEF9",
+    color: "#222",
     marginBottom: 12,
     marginTop: 4,
   },
@@ -295,14 +295,14 @@ const styles = StyleSheet.create({
   dayRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFF",
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 14,
     marginBottom: 6,
     gap: 10,
   },
-  dayDate: { fontSize: 14, fontWeight: "700", color: "#C3D0E8", width: 28 },
+  dayDate: { fontSize: 14, fontWeight: "700", color: "#555", width: 28 },
   dayBars: {
     flex: 1,
     flexDirection: "row",
@@ -312,5 +312,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
   },
   dayBarSegment: { height: "100%" },
-  dayAvg: { fontSize: 13, fontWeight: "700", color: "#DCE6F6", width: 36, textAlign: "right" },
+  dayAvg: { fontSize: 13, fontWeight: "700", color: "#333", width: 36, textAlign: "right" },
 });

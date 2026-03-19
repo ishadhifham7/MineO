@@ -199,7 +199,7 @@ function MoodCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#0B1220" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   header: {
     flexDirection: "row",
@@ -212,10 +212,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
 
   headerText: { marginLeft: 14, paddingTop: 2 },
 
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#F3F7FF" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
   hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
 
   content: {
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   optional: { fontWeight: "700", color: "#8A8A8A" },
 
   goalItem: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -260,10 +260,10 @@ const styles = StyleSheet.create({
   goalItemActive: {
     borderWidth: 1,
     borderColor: "#BFE8F3",
-    backgroundColor: "#111A2E",
+    backgroundColor: "#EAF7FB",
   },
 
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#F3F7FF" },
+  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
   goalSub: { marginTop: 4, fontSize: 12, color: "#6B6B6B", fontWeight: "600" },
 
   moodRow: { flexDirection: "row", gap: 12 },
@@ -271,11 +271,11 @@ const styles = StyleSheet.create({
   moodCard: {
     flex: 1,
     height: 84,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.10,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -286,14 +286,14 @@ const styles = StyleSheet.create({
   moodCardActive: { backgroundColor: "#8DD7A1" },
 
   moodEmoji: { fontSize: 28, marginBottom: 8 },
-  moodLabel: { fontSize: 12, fontWeight: "900", color: "#DCE6F6" },
+  moodLabel: { fontSize: 12, fontWeight: "900", color: "#333" },
 
   noteWrap: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -303,14 +303,14 @@ const styles = StyleSheet.create({
   noteInput: {
     minHeight: 54,
     fontSize: 13,
-    color: "#F3F7FF",
+    color: "#111",
     fontWeight: "600",
     lineHeight: 18,
   },
 
   messagePill: {
     marginTop: 16,
-    backgroundColor: "#111A2E",
+    backgroundColor: "#EAF7EE",
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 9 },

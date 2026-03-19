@@ -179,7 +179,7 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#0B1220" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   screen: { flex: 1 },
 
@@ -194,30 +194,30 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
   headerText: { marginLeft: 12 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#F3F7FF" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
   hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
 
   /* Goals list */
   listWrap: { marginTop: 14 },
   goalCard: {
     marginTop: 12,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
@@ -228,13 +228,13 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 27,
     borderWidth: 3,
-    borderColor: "#2A3A58",
+    borderColor: "#E6E6E6",
     alignItems: "center",
     justifyContent: "center",
   },
-  ringText: { fontSize: 12, fontWeight: "900", color: "#DCE6F6" },
+  ringText: { fontSize: 12, fontWeight: "900", color: "#333" },
 
-  goalTitle: { fontSize: 16, fontWeight: "900", color: "#F3F7FF" },
+  goalTitle: { fontSize: 16, fontWeight: "900", color: "#111" },
 
   metaRow: {
     marginTop: 6,
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
