@@ -40,7 +40,19 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      # 7️⃣ Build APK with EAS
+      # 7️⃣ Verify Expo authentication
+      - name: Verify Expo authentication
+        run: |
+          if [ -z "${EXPO_TOKEN}" ]; then
+            echo "::error::Missing EXPO_TOKEN secret. Add it in GitHub: Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "EXPO_TOKEN is present. Verifying account..."
+          eas whoami --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # 8️⃣ Build APK with EAS
       - name: Build APK with EAS
         id: build
         run: |
