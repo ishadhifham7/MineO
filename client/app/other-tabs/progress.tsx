@@ -145,7 +145,7 @@ const toneStyles = StyleSheet.create({
   orange: { borderColor: "#F1E2C9" },
 });
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#0B1220" },
+  safe: { flex: 1, backgroundColor: "#F4F6FA" },
 
   header: {
     flexDirection: "row",
@@ -158,10 +158,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
 
   headerText: { marginLeft: 14, paddingTop: 2 },
-  hTitle: { fontSize: 26, fontWeight: "800", color: "#F3F7FF" },
+  hTitle: { fontSize: 26, fontWeight: "800", color: "#111" },
   hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
 
   content: {
@@ -187,12 +187,12 @@ const styles = StyleSheet.create({
 
   statCard: {
     width: "48%",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
 
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.10,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 26,
     fontWeight: "900",
-    color: "#F3F7FF",
+    color: "#111",
   },
 
   statLabel: {
@@ -217,15 +217,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     fontWeight: "900",
-    color: "#F3F7FF",
+    color: "#111",
   },
 
   /* Category card */
   categoryCard: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 14,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#F3F7FF",
+    color: "#111",
   },
 
   categoryCount: {
@@ -260,10 +260,10 @@ const styles = StyleSheet.create({
 
   /* Journey card */
   journeyCard: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 14,
-    shadowColor: "#F3F7FF",
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -273,14 +273,14 @@ const styles = StyleSheet.create({
   journeyTitle: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#F3F7FF",
+    color: "#111",
   },
 
   progressTrack: {
     marginTop: 12,
     height: 8,
     borderRadius: 8,
-    backgroundColor: "#23324D",
+    backgroundColor: "#E6E6E6",
     overflow: "hidden",
   },
 
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   /* Motivation */
   motivationCard: {
     marginTop: 14,
-    backgroundColor: "#111A2E",
+    backgroundColor: "#EAF7FB",
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 14,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   motivationTitle: {
     fontSize: 15,
     fontWeight: "900",
-    color: "#F3F7FF",
+    color: "#111",
   },
   motivationSub: {
     marginTop: 6,
