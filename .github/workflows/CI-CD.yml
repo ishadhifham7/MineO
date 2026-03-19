@@ -31,7 +31,7 @@ jobs:
 
       # 5️⃣ Run backend tests
       - name: Run backend tests
-        working-directory: ./server # adjust if your test file is in a different folder
+        working-directory: ./server
         run: |
           echo "Running backend tests..."
           npm test
