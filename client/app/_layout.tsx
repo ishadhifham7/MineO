@@ -6,6 +6,7 @@ import { AuthProvider } from "../src/providers/AuthProvider";
 import { JourneyProvider } from "../src/providers/JourneyProvider";
 import { GoalProvider } from "../src/features/goal/goal.context";
 import { ProfileProvider } from "../src/providers/ProfileProvider";
+import { AppThemeProvider, useAppTheme } from "../src/design-system";
 import { useFonts } from "expo-font";
 import {
   DancingScript_400Regular,
@@ -17,6 +18,35 @@ import {
 } from "@expo-google-fonts/roboto";
 import { View, ActivityIndicator, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+function AppShell({ horizontalPadding }: { horizontalPadding: number }) {
+  const { theme } = useAppTheme();
+
+  return (
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      edges={["top", "left", "right"]}
+    >
+      <AuthProvider>
+        <JourneyProvider>
+          <ProfileProvider>
+            <GoalProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: {
+                    backgroundColor: theme.colors.background,
+                    paddingHorizontal: horizontalPadding,
+                  },
+                }}
+              />
+            </GoalProvider>
+          </ProfileProvider>
+        </JourneyProvider>
+      </AuthProvider>
+    </SafeAreaView>
+  );
+}
 
 export default function RootLayout() {
   const { width } = useWindowDimensions();
@@ -40,25 +70,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#F4F6FA" }} edges={["top", "left", "right"]}>
-          <AuthProvider>
-            <JourneyProvider>
-              <ProfileProvider>
-                <GoalProvider>
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                      contentStyle: {
-                        backgroundColor: "#F4F6FA",
-                        paddingHorizontal: horizontalPadding,
-                      },
-                    }}
-                  />
-                </GoalProvider>
-              </ProfileProvider>
-            </JourneyProvider>
-          </AuthProvider>
-        </SafeAreaView>
+        <AppThemeProvider>
+          <AppShell horizontalPadding={horizontalPadding} />
+        </AppThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
