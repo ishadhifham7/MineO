@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
+      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -29,8 +29,8 @@ jobs:
         working-directory: ./server   # adjust if your test file is in a different folder
         run: |
           echo "Running backend tests..."
-          npm test   # or the command you use for backend tests
-          
+          npm test
+
       # 5️⃣ Install EAS CLI
       - name: Install EAS CLI
         run: npm install -g eas-cli
@@ -42,13 +42,12 @@ jobs:
           echo "Starting EAS build..."
           eas build -p android --profile preview --non-interactive --json > build-output.json
           echo "EAS build finished."
-          # Extract the APK URL
           APK_URL=$(jq -r '.artifacts.buildUrl' build-output.json)
           echo "APK Download URL: $APK_URL"
           echo "APK_URL=$APK_URL" >> $GITHUB_ENV
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # 7️⃣ Show APK URL
+      # 7️⃣ Show APK download URL in logs
       - name: Show APK URL
         run: echo "Your APK is ready! Download it here: $APK_URL"
