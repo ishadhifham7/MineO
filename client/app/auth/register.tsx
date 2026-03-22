@@ -19,10 +19,21 @@ import {
 } from "react-native";
 
 import { Picker } from "@react-native-picker/picker";
+import { useAppTheme } from "../../src/design-system";
+import type { AppTheme } from "../../src/design-system";
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const AUTH_BUTTON_COLOR = "#8C7F6A";
 
 export default function SignupDetailsScreen() {
   const router = useRouter();
   const { refreshAuth } = useAuth();
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const params = useLocalSearchParams();
 
   const { name, email, password } = params as {
@@ -119,8 +130,13 @@ export default function SignupDetailsScreen() {
 
       await signupUser(signupData);
 
-      // Refresh auth context to load user data
-      await refreshAuth();
+      // Prevent UI from getting stuck if auth refresh is slow.
+      await Promise.race([
+        refreshAuth().catch((err) => {
+          console.warn("Auth refresh after signup failed:", err);
+        }),
+        wait(2500),
+      ]);
 
       Alert.alert("Success", "Account created successfully");
       router.replace("/onboarding/step1");
@@ -240,7 +256,7 @@ export default function SignupDetailsScreen() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator />
+            <ActivityIndicator color={theme.colors.primaryForeground} />
           ) : (
             <Text style={styles.buttonText}>Sign Up</Text>
           )}
@@ -254,84 +270,87 @@ export default function SignupDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    backgroundColor: "#fff",
-    flexGrow: 1,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "600",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  avatarContainer: {
-    alignSelf: "center",
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "#f2f2f2",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  avatar: { width: "100%", height: "100%" },
-  avatarPlaceholder: { fontSize: 40, color: "#999" },
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      padding: 24,
+      backgroundColor: theme.colors.background,
+      flexGrow: 1,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "600",
+      marginBottom: 16,
+      textAlign: "center",
+      color: theme.colors.text,
+    },
+    avatarContainer: {
+      alignSelf: "center",
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: theme.colors.surfaceAlt,
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 24,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    avatar: { width: "100%", height: "100%" },
+    avatarPlaceholder: { fontSize: 40, color: theme.colors.textMuted },
 
-  card: {
-    backgroundColor: "#fafafa",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  label: {
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#444",
-  },
-  input: {
-    backgroundColor: "#f2f2f2",
-    padding: 14,
-    borderRadius: 10,
-  },
+    card: {
+      backgroundColor: theme.colors.surface,
+      padding: 14,
+      borderRadius: 14,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    label: {
+      fontWeight: "600",
+      marginBottom: 8,
+      color: theme.colors.text,
+    },
+    input: {
+      backgroundColor: theme.colors.surfaceAlt,
+      color: theme.colors.text,
+      padding: 14,
+      borderRadius: 10,
+    },
 
-  dobRow: {
-    flexDirection: "row",
-  },
-  dobPicker: {
-    flex: 1,
-  },
+    dobRow: {
+      flexDirection: "row",
+    },
+    dobPicker: {
+      flex: 1,
+    },
 
-  pickerContainer: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 10,
-  },
+    pickerContainer: {
+      backgroundColor: theme.colors.surfaceAlt,
+      borderRadius: 10,
+    },
 
-  error: {
-    color: "red",
-    marginBottom: 10,
-    marginLeft: 4,
-  },
+    error: {
+      color: theme.colors.danger,
+      marginBottom: 10,
+      marginLeft: 4,
+    },
 
-  button: {
-    backgroundColor: "#A7C4E8",
-    padding: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 14,
-  },
-  buttonText: { fontWeight: "600" },
+    button: {
+      backgroundColor: AUTH_BUTTON_COLOR,
+      padding: 18,
+      borderRadius: 12,
+      alignItems: "center",
+      marginTop: 14,
+    },
+    buttonText: { fontWeight: "600", color: theme.colors.primaryForeground },
 
-  backText: {
-    marginTop: 20,
-    textAlign: "center",
-    color: "#555",
-  },
-});
+    backText: {
+      marginTop: 20,
+      textAlign: "center",
+      color: theme.colors.textMuted,
+    },
+  });
 

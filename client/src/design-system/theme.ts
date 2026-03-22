@@ -140,18 +140,18 @@ const shadows = (mode: ThemeMode): ThemeShadows => ({
 });
 
 export const lightColors: ThemeColors = {
-  background: "#F4F6FA",
+  background: "#F6F1E7",
   surface: "#FFFFFF",
-  surfaceAlt: "#F8FAFC",
-  border: "#DCE4F0",
-  text: "#1E293B",
-  textMuted: "#64748B",
-  primary: "#4E6FA3",
+  surfaceAlt: "#F3EEE4",
+  border: "#E5DFD3",
+  text: "#2E2A26",
+  textMuted: "#6B645C",
+  primary: "#95B3D6",
   primaryForeground: "#FFFFFF",
-  success: "#22C55E",
-  warning: "#F59E0B",
-  danger: "#EF4444",
-  overlay: "rgba(2, 6, 23, 0.45)",
+  success: "#3E9B6B",
+  warning: "#C9903F",
+  danger: "#D95C57",
+  overlay: "rgba(46, 42, 38, 0.45)",
 };
 
 export const darkColors: ThemeColors = {

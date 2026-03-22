@@ -1,23 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 import { useRouter } from "expo-router";
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "rgb(228, 224, 224)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "#222",
-  },
-});
+import { useAppTheme } from "../src/design-system";
 
 export default function SplashScreen() {
   const router = useRouter();
+  const { theme } = useAppTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -33,10 +21,22 @@ export default function SplashScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Animated.Text style={[styles.text, { color: theme.colors.text, opacity: fadeAnim }]}>
         MineO
       </Animated.Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  text: {
+    fontSize: 40,
+    fontWeight: "bold",
+  },
+});

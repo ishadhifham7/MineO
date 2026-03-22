@@ -13,9 +13,15 @@ import {
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAppTheme } from "../../src/design-system";
+import type { AppTheme } from "../../src/design-system";
+
+const AUTH_BUTTON_COLOR = "#95B3D6";
 
 const SignupScreen: React.FC = () => {
   const router = useRouter();
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -71,7 +77,7 @@ const SignupScreen: React.FC = () => {
           <Text style={styles.inputLabel}>Full Name</Text>
           <TextInput
             placeholder="Your full name"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={theme.colors.textMuted}
             style={styles.input}
             value={name}
             onChangeText={setName}
@@ -80,7 +86,7 @@ const SignupScreen: React.FC = () => {
           <Text style={styles.inputLabel}>Email</Text>
           <TextInput
             placeholder="you@example.com"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={theme.colors.textMuted}
             style={styles.input}
             value={email}
             onChangeText={setEmail}
@@ -91,7 +97,7 @@ const SignupScreen: React.FC = () => {
           <Text style={styles.inputLabel}>Password</Text>
           <TextInput
             placeholder="Minimum 6 characters"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={theme.colors.textMuted}
             secureTextEntry
             style={styles.input}
             value={password}
@@ -120,59 +126,65 @@ const SignupScreen: React.FC = () => {
 
 export default SignupScreen;
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  container: {
-    flexGrow: 1,
-    padding: 24,
-    backgroundColor: "#fff",
-  },
-  backText: {
-    marginBottom: 20,
-    fontSize: 14,
-    color: "#555",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  subtitle: {
-    color: "#777",
-    marginBottom: 24,
-  },
-  inputLabel: {
-    marginBottom: 8,
-    color: "#444",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  input: {
-    backgroundColor: "#f2f2f2",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: "#A7C4E8",
-    padding: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  buttonText: {
-    fontWeight: "600",
-  },
-  footerText: {
-    marginTop: 18,
-    textAlign: "center",
-    color: "#666",
-  },
-  loginLink: {
-    color: "#000",
-    fontWeight: "600",
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    container: {
+      flexGrow: 1,
+      padding: 24,
+      backgroundColor: theme.colors.background,
+    },
+    backText: {
+      marginBottom: 20,
+      fontSize: 14,
+      color: theme.colors.textMuted,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "600",
+      marginBottom: 10,
+      color: theme.colors.text,
+    },
+    subtitle: {
+      color: theme.colors.textMuted,
+      marginBottom: 24,
+    },
+    inputLabel: {
+      marginBottom: 8,
+      color: theme.colors.text,
+      fontSize: 13,
+      fontWeight: "500",
+    },
+    input: {
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 16,
+      color: theme.colors.text,
+    },
+    button: {
+      backgroundColor: AUTH_BUTTON_COLOR,
+      padding: 18,
+      borderRadius: 12,
+      alignItems: "center",
+      marginTop: 16,
+    },
+    buttonText: {
+      fontWeight: "600",
+      color: theme.colors.primaryForeground,
+    },
+    footerText: {
+      marginTop: 18,
+      textAlign: "center",
+      color: theme.colors.textMuted,
+    },
+    loginLink: {
+      color: theme.colors.text,
+      fontWeight: "600",
+    },
+  });
