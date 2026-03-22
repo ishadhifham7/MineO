@@ -422,7 +422,7 @@ export default function JournalScreen() {
           style={{
             flex: 1,
             marginTop: 2,
-            marginBottom: 0,
+            marginBottom: Math.max(tabBarHeight + 0, 24),
             marginHorizontal: 2,
             borderRadius: 16,
             overflow: "hidden",
@@ -489,25 +489,25 @@ export default function JournalScreen() {
               return null;
             })}
           </Canvas>
+
+          <FloatingAddMenu
+            visible={addMenuVisible}
+            onAddText={() => {
+              addTextBlock();
+              setAddMenuVisible(false);
+            }}
+            onAddImage={async () => {
+              await addImageBlock();
+              setAddMenuVisible(false);
+            }}
+          />
+
+          {/* Add Block Button — rotates to × when menu is open */}
+          <AddButton
+            open={addMenuVisible}
+            onPress={() => setAddMenuVisible(!addMenuVisible)}
+          />
         </View>
-
-        <FloatingAddMenu
-          visible={addMenuVisible}
-          onAddText={() => {
-            addTextBlock();
-            setAddMenuVisible(false);
-          }}
-          onAddImage={async () => {
-            await addImageBlock();
-            setAddMenuVisible(false);
-          }}
-        />
-
-        {/* Add Block Button — rotates to × when menu is open */}
-        <AddButton
-          open={addMenuVisible}
-          onPress={() => setAddMenuVisible(!addMenuVisible)}
-        />
 
         <ChapterSlider
           visible={chapterSliderVisible}

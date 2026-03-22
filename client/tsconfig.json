@@ -4,7 +4,16 @@
     "strict": true,
     "module": "ESNext",
     "forceConsistentCasingInFileNames": true,
-    "types": ["jest", "react", "react-native"]
+    "types": [
+      "jest",
+      "react",
+      "react-native"
+    ]
   },
-  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts",".expo/types/**/*.ts","expo-env.d.ts", "jest.config.js"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "nativewind-env.d.ts",
+    "jest.config.js"
+  ]
 }
