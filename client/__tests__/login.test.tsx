@@ -3,6 +3,21 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import { Alert } from "react-native";
 import LoginScreen from "../app/auth/login";
 
+jest.mock("../src/design-system/ThemeProvider", () => ({
+  useAppTheme: () => ({
+    theme: {
+      colors: {
+        background: "#ffffff",
+        text: "#000000",
+        primary: "#4F46E5",
+        card: "#F5F5F5",
+        border: "#E5E7EB",
+      },
+    },
+  }),
+  AppThemeProvider: ({ children }: any) => children,
+}));
+
 jest.mock("expo-router", () => require("../test-utils/mocks/expo-router"));
 
 const mockRefreshAuth = jest.fn();
