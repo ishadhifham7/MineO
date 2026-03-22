@@ -1,4 +1,4 @@
-name: Test & Build MineO APK
+name: Backend Tests Only
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test-and-build:
+  test-backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,29 +26,7 @@ jobs:
 
       # 4️⃣ Run backend tests
       - name: Run backend tests
-        working-directory: ./server   # adjust if your test file is in a different folder
+        working-directory: ./server # adjust if your test file is in a different folder
         run: |
           echo "Running backend tests..."
           npm test   # or the command you use for backend tests
-          
-      # 5️⃣ Install EAS CLI
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      # 6️⃣ Build APK with EAS
-      - name: Build APK with EAS
-        id: build
-        run: |
-          echo "Starting EAS build..."
-          eas build -p android --profile preview --non-interactive --json > build-output.json
-          echo "EAS build finished."
-          # Extract the APK URL
-          APK_URL=$(jq -r '.artifacts.buildUrl' build-output.json)
-          echo "APK Download URL: $APK_URL"
-          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      # 7️⃣ Show APK URL
-      - name: Show APK URL
-        run: echo "Your APK is ready! Download it here: $APK_URL"

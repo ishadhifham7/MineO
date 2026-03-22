@@ -30,6 +30,12 @@ jobs:
         working-directory: ./client
         run: npm ci
 
+      # 4.5️⃣ Workaround npm optional dependency bug (rolldown native binding)
+      - name: Ensure rolldown Linux binding is present
+        if: runner.os == 'Linux'
+        working-directory: ./server
+        run: npm i --no-save @rolldown/binding-linux-x64-gnu
+
       # 5️⃣ Run backend tests
       - name: Run backend tests
         working-directory: ./server
