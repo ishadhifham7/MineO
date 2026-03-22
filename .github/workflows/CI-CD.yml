@@ -18,31 +18,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
 
       # 3️⃣ Install backend dependencies
       - name: Install backend dependencies
         working-directory: ./server
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci || (echo "npm ci failed, regenerating lockfile..." && npm install --package-lock-only && npm ci)
-          else
-            echo "No package-lock.json found, generating one..."
-            npm install --package-lock-only
-            npm ci
-          fi
+          test -f package-lock.json || (echo "Missing server/package-lock.json. Commit the lockfile and re-run CI." && exit 1)
+          npm ci --no-audit --no-fund
 
       # 4️⃣ Install client dependencies
       - name: Install client dependencies
         working-directory: ./client
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci || (echo "npm ci failed, regenerating lockfile..." && npm install --package-lock-only && npm ci)
-          else
-            echo "No package-lock.json found, generating one..."
-            npm install --package-lock-only
-            npm ci
-          fi
+          test -f package-lock.json || (echo "Missing client/package-lock.json. Commit the lockfile and re-run CI." && exit 1)
+          npm ci --no-audit --no-fund
 
       # 4.5️⃣ Workaround npm optional dependency bug (rolldown native binding)
       - name: Ensure rolldown Linux binding is present

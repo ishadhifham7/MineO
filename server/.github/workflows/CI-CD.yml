@@ -16,13 +16,16 @@ jobs:
 
       # 2️⃣ Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: npm install
+        working-directory: ./server
+        run: |
+          test -f package-lock.json || (echo "Missing server/package-lock.json. Commit the lockfile and re-run CI." && exit 1)
+          npm ci --no-audit --no-fund
 
       # 4️⃣ Run backend tests
       - name: Run backend tests
