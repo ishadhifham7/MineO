@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,13 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useGoal, DraftGoal } from "../../../src/features/goal/goal.context";
 import { generateGoalApi } from "../../../src/features/goal/goal.api";
 import httpClient from "../../../src/lib/http";
@@ -53,6 +56,9 @@ const sendMessageToAI = async (
 };
 
 const GoalChatScreen = () => {
+  const navigation = useNavigation();
+  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
   const { setDraftGoal, setCurrentGoal, setGoals } = useGoal();
   const chatListRef = useRef<FlatList<Message> | null>(null);
 
@@ -68,7 +74,39 @@ const GoalChatScreen = () => {
   const [loading, setLoading] = useState(false);
   const [currentDraft, setCurrentDraft] = useState<DraftGoal | null>(null);
   const [savingGoal, setSavingGoal] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const canSend = inputText.trim().length > 0 && !loading;
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardOpen(true);
+    });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardOpen(false);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const parent = navigation.getParent();
+    if (!parent) {
+      return;
+    }
+
+    parent.setOptions({
+      tabBarStyle: { display: "none" },
+    });
+
+    return () => {
+      parent.setOptions({
+        tabBarStyle: undefined,
+      });
+    };
+  }, [navigation]);
 
   const scrollToLatestMessage = useCallback((animated = true) => {
     requestAnimationFrame(() => {
@@ -192,7 +230,8 @@ const GoalChatScreen = () => {
     <SafeAreaView style={styles.safe} edges={["left", "right"]}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 6 : 0}
       >
         <View style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
@@ -255,7 +294,16 @@ const GoalChatScreen = () => {
               showsVerticalScrollIndicator={false}
             />
 
-            <View style={styles.inputWrapper}>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  paddingBottom: keyboardOpen
+                    ? Math.max(insets.bottom, 8)
+                    : Math.max(tabBarHeight - insets.bottom, 12),
+                },
+              ]}
+            >
               <TextInput
                 placeholder="Type your message..."
                 placeholderTextColor="#8C7F6A"
@@ -448,7 +496,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 14,
     paddingTop: 10,
-    paddingBottom: 14,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
     borderTopColor: "#E5DFD3",
@@ -466,20 +513,20 @@ const styles = StyleSheet.create({
     color: "#2E2A26",
   },
   sendButton: {
-    backgroundColor: "#63D1E6",
+    backgroundColor: "#111111",
     width: 46,
     height: 46,
     borderRadius: 23,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#63D1E6",
+    shadowColor: "#111111",
     shadowOpacity: 0.28,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
   sendButtonDisabled: {
-    backgroundColor: "#B3E8F2",
+    backgroundColor: "#8E8E8E",
     shadowOpacity: 0,
     elevation: 0,
   },

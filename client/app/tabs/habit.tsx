@@ -50,9 +50,9 @@ function HabitsContent() {
     setIsRefreshing(true);
     try {
       await Promise.all([refreshCalendar(), refreshRadar()]);
-      console.log('Data refreshed successfully');
+      console.log("Data refreshed successfully");
     } catch (err) {
-      console.error('Error refreshing data:', err);
+      console.error("Error refreshing data:", err);
     } finally {
       setIsRefreshing(false);
     }
@@ -62,11 +62,9 @@ function HabitsContent() {
     try {
       await updateDailyHabit(today, activeTab, value);
     } catch (err) {
-      Alert.alert(
-        "Error",
-        "Failed to update habit. Please try again.",
-        [{ text: "OK" }]
-      );
+      Alert.alert("Error", "Failed to update habit. Please try again.", [
+        { text: "OK" },
+      ]);
     }
   };
 
@@ -76,9 +74,17 @@ function HabitsContent() {
         kicker="Daily Rhythm"
         title="Habit Studio"
         subtitle="Track your mind, body, and spirit every day"
+        hideHero
         scrollable={false}
       >
-        <SectionCard style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 10 }}>
+        <SectionCard
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          }}
+        >
           <ActivityIndicator size="large" color="#6B645C" />
           <Text className="text-gray-600">Loading habits...</Text>
         </SectionCard>
@@ -92,9 +98,17 @@ function HabitsContent() {
         kicker="Daily Rhythm"
         title="Habit Studio"
         subtitle="Track your mind, body, and spirit every day"
+        hideHero
         scrollable={false}
       >
-        <SectionCard style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <SectionCard
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
           <Text className="text-red-600 text-center">Error loading habits</Text>
           <Text className="text-gray-600 text-center">{error}</Text>
         </SectionCard>
@@ -107,6 +121,7 @@ function HabitsContent() {
       kicker="Daily Rhythm"
       title="Habit Studio"
       subtitle="Track your mind, body, and spirit every day"
+      hideHero
       stats={[
         { value: activeTab, label: "Focus" },
         { value: today, label: "Today" },
@@ -120,7 +135,11 @@ function HabitsContent() {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 116, paddingHorizontal: 16, gap: 12 }}
+          contentContainerStyle={{
+            paddingBottom: 116,
+            paddingHorizontal: 16,
+            gap: 12,
+          }}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -136,14 +155,18 @@ function HabitsContent() {
 
           <SectionCard>
             <View>
-              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Calendar</Text>
+              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">
+                Calendar
+              </Text>
               <HabitCalendar category={activeTab} data={visibleCalendar} />
             </View>
           </SectionCard>
 
           <SectionCard>
             <View>
-              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Daily Check In</Text>
+              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">
+                Daily Check In
+              </Text>
               <HabitStatusCard
                 title={activeTab}
                 onSelect={handleStatusSelect}
@@ -152,7 +175,9 @@ function HabitsContent() {
               {isSaving && (
                 <View className="mt-2 flex-row items-center justify-center">
                   <ActivityIndicator size="small" color="#8C7F6A" />
-                  <Text className="ml-2 text-[12px] text-[#6B645C]">Saving...</Text>
+                  <Text className="ml-2 text-[12px] text-[#6B645C]">
+                    Saving...
+                  </Text>
                 </View>
               )}
             </View>
@@ -160,12 +185,14 @@ function HabitsContent() {
 
           <SectionCard>
             <View>
-              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">Weekly Analysis</Text>
+              <Text className="text-[#2E2A26] text-[17px] font-semibold mb-3 px-1">
+                Weekly Analysis
+              </Text>
               <HabitRadarChart values={radarValues} />
               <View className="items-center mt-3">
                 <Pressable
                   onPress={async () => {
-                    console.log('Manual radar refresh triggered');
+                    console.log("Manual radar refresh triggered");
                     await refreshRadar();
                   }}
                   className="bg-[#EEE7DB] active:bg-[#E3DBCD] px-5 py-2 rounded-full"

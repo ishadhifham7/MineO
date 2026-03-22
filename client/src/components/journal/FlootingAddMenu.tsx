@@ -53,8 +53,9 @@ export function FloatingAddMenu({
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    bottom: 116, // vertically centres 44 px buttons with the 56 px + button (bottom: 24)
-    right: 92, // sits just to the left of the + button (56 wide + 12 gap + 24 inset)
+    // Align action buttons on the same row as the main + button.
+    bottom: 18,
+    right: 80,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,

@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { loginUser } from "../../src/services/auth.service";
 import { useAuth } from "../../src/hooks/useAuth";
+import { useAppTheme } from "../../src/design-system";
+import type { AppTheme } from "../../src/design-system";
+
+const AUTH_BUTTON_COLOR = "#8C7F6A";
 
 import {
   View,
@@ -20,6 +24,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const LoginScreen: React.FC = () => {
   const router = useRouter();
   const { refreshAuth } = useAuth();
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,7 +79,7 @@ const LoginScreen: React.FC = () => {
             <Text style={styles.inputLabel}>Email</Text>
             <TextInput
               placeholder="you@example.com"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={theme.colors.textMuted}
               style={styles.input}
               value={email}
               onChangeText={setEmail}
@@ -84,7 +90,7 @@ const LoginScreen: React.FC = () => {
             <Text style={styles.inputLabel}>Password</Text>
             <TextInput
               placeholder="Enter your password"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={theme.colors.textMuted}
               secureTextEntry
               style={styles.input}
               value={password}
@@ -97,7 +103,7 @@ const LoginScreen: React.FC = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={theme.colors.primaryForeground} />
               ) : (
                 <Text style={styles.buttonText}>Log In</Text>
               )}
@@ -120,92 +126,93 @@ const LoginScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F6F1E7",
-  },
-  keyboardContainer: {
-    flex: 1,
-  },
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: 54,
-    paddingBottom: 28,
-    justifyContent: "center",
-  },
-  heroSection: {
-    marginBottom: 22,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: "800",
-    color: "#2E2A26",
-    letterSpacing: -0.6,
-  },
-  subtitle: {
-    marginTop: 10,
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#6B645C",
-  },
-  formCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#E9E2D6",
-    shadowColor: "#2E2A26",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#5E564D",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#F8F5EF",
-    borderWidth: 1,
-    borderColor: "#E6DDCF",
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    borderRadius: 12,
-    marginBottom: 14,
-    color: "#2E2A26",
-    fontSize: 15,
-  },
-  button: {
-    backgroundColor: "#A7C4E8",
-    padding: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 6,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    fontWeight: "700",
-    color: "#FFFFFF",
-    fontSize: 16,
-    letterSpacing: 0.3,
-  },
-  footerText: {
-    marginTop: 16,
-    textAlign: "center",
-    color: "#6B645C",
-    fontSize: 14,
-  },
-  createNew: {
-    color: "#2E2A26",
-    fontWeight: "700",
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    keyboardContainer: {
+      flex: 1,
+    },
+    container: {
+      flexGrow: 1,
+      paddingHorizontal: 22,
+      paddingTop: 54,
+      paddingBottom: 28,
+      justifyContent: "center",
+    },
+    heroSection: {
+      marginBottom: 22,
+    },
+    title: {
+      fontSize: 36,
+      fontWeight: "800",
+      color: theme.colors.text,
+      letterSpacing: -0.6,
+    },
+    subtitle: {
+      marginTop: 10,
+      fontSize: 15,
+      lineHeight: 22,
+      color: theme.colors.textMuted,
+    },
+    formCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 18,
+      padding: 18,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      shadowColor: theme.colors.text,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.08,
+      shadowRadius: 14,
+      elevation: 3,
+    },
+    inputLabel: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.colors.textMuted,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: theme.colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      paddingHorizontal: 14,
+      paddingVertical: 13,
+      borderRadius: 12,
+      marginBottom: 14,
+      color: theme.colors.text,
+      fontSize: 15,
+    },
+    button: {
+      backgroundColor: AUTH_BUTTON_COLOR,
+      padding: 18,
+      borderRadius: 12,
+      alignItems: "center",
+      marginTop: 6,
+    },
+    buttonDisabled: {
+      opacity: 0.7,
+    },
+    buttonText: {
+      fontWeight: "700",
+      color: theme.colors.primaryForeground,
+      fontSize: 16,
+      letterSpacing: 0.3,
+    },
+    footerText: {
+      marginTop: 16,
+      textAlign: "center",
+      color: theme.colors.textMuted,
+      fontSize: 14,
+    },
+    createNew: {
+      color: theme.colors.text,
+      fontWeight: "700",
+    },
+  });
 
 export default LoginScreen;
 

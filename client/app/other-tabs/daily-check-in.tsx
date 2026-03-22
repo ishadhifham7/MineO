@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -12,6 +11,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Mood = "good" | "okay" | "nope";
 
@@ -23,7 +23,7 @@ export default function DailyCheckIn() {
       { id: "2", title: "Gym", sub: "Fitness & Health" },
       { id: "3", title: "Reading", sub: "Knowledge & Growth" },
     ],
-    []
+    [],
   );
 
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export default function DailyCheckIn() {
   const canSubmit = Boolean(selectedGoalId) && Boolean(mood);
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
       <KeyboardAvoidingView
         style={styles.safe}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -193,18 +193,20 @@ function MoodCard({
       ]}
     >
       <Text style={styles.moodEmoji}>{emoji}</Text>
-      <Text style={[styles.moodLabel, active && { color: "#fff" }]}>{label}</Text>
+      <Text style={[styles.moodLabel, active && { color: "#fff" }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
+  safe: { flex: 1, backgroundColor: "#F6F1E7" },
 
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingTop: 14,
+    paddingTop: 4,
     paddingHorizontal: 18,
   },
 
@@ -276,7 +278,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 4,
@@ -349,5 +351,3 @@ const styles = StyleSheet.create({
 
   ctaText: { fontSize: 16, fontWeight: "900", color: "#FFFFFF" },
 });
-
-

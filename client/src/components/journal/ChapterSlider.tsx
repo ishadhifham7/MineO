@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  Modal,
 } from "react-native";
 import { BlurView } from "expo-blur";
 
@@ -51,45 +52,66 @@ export function ChapterSlider({ visible, onClose, onSave }: Props) {
   /* ---------------- render ---------------- */
 
   return (
-    <View style={StyleSheet.absoluteFill}>
-      {/* Background Blur */}
-      <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
-        <BlurView intensity={35} tint="dark" style={StyleSheet.absoluteFill} />
-      </Pressable>
-
-      {/* Slider */}
-      <Animated.View style={[styles.slider, { transform: [{ translateY }] }]}>
-        {/* Subject label */}
-        <Text style={styles.sectionLabel}>Subject</Text>
-
-        {/* Subject Input */}
-        <TextInput
-          placeholder="Enter subject"
-          value={subject}
-          onChangeText={setSubject}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-
-        {/* Save button */}
-        <Pressable style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <View style={styles.modalRoot}>
+        {/* Full-screen subtle blur/tint backdrop */}
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
+          <BlurView
+            intensity={16}
+            tint="light"
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.backdropTint} />
         </Pressable>
-      </Animated.View>
-    </View>
+
+        {/* Slider */}
+        <Animated.View style={[styles.slider, { transform: [{ translateY }] }]}>
+          {/* Subject label */}
+          <Text style={styles.sectionLabel}>Subject</Text>
+
+          {/* Subject Input */}
+          <TextInput
+            placeholder="Enter subject"
+            value={subject}
+            onChangeText={setSubject}
+            style={styles.input}
+            placeholderTextColor="#7A7267"
+          />
+
+          {/* Save button */}
+          <Pressable style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </Pressable>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 }
 
 /* ---------------- styles ---------------- */
 
 const styles = StyleSheet.create({
+  modalRoot: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  backdropTint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(46, 42, 38, 0.14)",
+  },
   slider: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: SLIDER_HEIGHT,
-    backgroundColor: "#fff",
+    backgroundColor: "#F6F1E7",
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     padding: 16,
@@ -98,7 +120,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#444",
+    color: "#2E2A26",
     marginBottom: 6,
   },
 
@@ -106,15 +128,15 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 10,
     paddingHorizontal: 12,
-    backgroundColor: "#f2f2f4",
-    color: "#000",
+    backgroundColor: "#EFE7DA",
+    color: "#2E2A26",
     marginBottom: 18,
   },
 
   saveButton: {
     height: 46,
     borderRadius: 12,
-    backgroundColor: "#4A90E2",
+    backgroundColor: "#111111",
     justifyContent: "center",
     alignItems: "center",
   },

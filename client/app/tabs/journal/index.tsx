@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -27,10 +28,7 @@ import type {
   ImageBlock as ImageBlockType,
 } from "../../../types/journal";
 import * as ImagePicker from "expo-image-picker";
-import {
-  HomeStyleScreen,
-  SectionCard,
-} from "../../../src/components/ui/HomeStyleScreen";
+import { HomeStyleScreen } from "../../../src/components/ui/HomeStyleScreen";
 
 /* ---------------- Add Button with rotation ---------------- */
 
@@ -56,8 +54,8 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
       onPress={onPress}
       style={{
         position: "absolute",
-        bottom: 110,
-        right: 24,
+        bottom: 12,
+        right: 12,
         width: 56,
         height: 56,
         borderRadius: 28,
@@ -76,6 +74,8 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
 /* ---------------- SCREEN ---------------- */
 
 export default function JournalScreen() {
+  const tabBarHeight = useBottomTabBarHeight();
+
   const {
     blocks,
     selectedBlockId,
@@ -332,8 +332,12 @@ export default function JournalScreen() {
       kicker="Daily Journal"
       title="Journal Canvas"
       subtitle="Write freely, save your story"
+      hideHero
       scrollable={false}
-      contentContainerStyle={{ flex: 1, paddingBottom: 86 }}
+      contentContainerStyle={{
+        flex: 1,
+        paddingBottom: Math.max(tabBarHeight - 20, 8),
+      }}
       stats={[
         {
           value: typeof formattedDate === "object" ? formattedDate.weekday : "",
@@ -343,7 +347,14 @@ export default function JournalScreen() {
     >
       <View style={{ flex: 1 }}>
         {/* Date Header + Save Button */}
-        <SectionCard style={{ marginHorizontal: 16, marginBottom: 10 }}>
+        <View
+          style={{
+            marginHorizontal: 16,
+            marginBottom: 12,
+            paddingTop: 20,
+            paddingBottom: 8,
+          }}
+        >
           <View
             style={{
               flexDirection: "row",
@@ -404,15 +415,15 @@ export default function JournalScreen() {
               </Text>
             </Pressable>
           </View>
-        </SectionCard>
+        </View>
 
         {/* Canvas container with margins — Toolbar sits inside here */}
         <View
           style={{
             flex: 1,
             marginTop: 2,
-            marginBottom: 100,
-            marginHorizontal: 16,
+            marginBottom: 0,
+            marginHorizontal: 2,
             borderRadius: 16,
             overflow: "hidden",
           }}

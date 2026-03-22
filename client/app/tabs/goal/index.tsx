@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-} from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -81,17 +76,48 @@ export default function GoalsHome() {
       kicker="Goal Plan"
       title="Your Goals"
       subtitle="Keep moving forward, one milestone at a time"
+      hideHero
       stats={[
         { value: goals.length, label: "Total" },
         { value: activeCount, label: "Active" },
         { value: completedCount, label: "Done" },
       ]}
     >
+      <LinearGradient
+        colors={["#2E2A26", "#6B645C", "#B5A993"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.flowHero}
+      >
+        <Text style={styles.flowHeroKicker}>Goal Plan</Text>
+        <Text style={styles.flowHeroTitle}>Your Goals</Text>
+        <Text style={styles.flowHeroSubtitle}>
+          Keep moving forward, one milestone at a time
+        </Text>
+
+        <View style={styles.flowHeroStats}>
+          <View style={styles.flowHeroStatPill}>
+            <Text style={styles.flowHeroStatValue}>{goals.length}</Text>
+            <Text style={styles.flowHeroStatLabel}>Total</Text>
+          </View>
+          <View style={styles.flowHeroStatPill}>
+            <Text style={styles.flowHeroStatValue}>{activeCount}</Text>
+            <Text style={styles.flowHeroStatLabel}>Active</Text>
+          </View>
+          <View style={styles.flowHeroStatPill}>
+            <Text style={styles.flowHeroStatValue}>{completedCount}</Text>
+            <Text style={styles.flowHeroStatLabel}>Done</Text>
+          </View>
+        </View>
+      </LinearGradient>
+
       <SectionCard>
         <View style={styles.sectionHeader}>
           <View>
             <Text style={styles.sectionTitle}>Goal Progress</Text>
-            <Text style={styles.sectionSubtitle}>Tap any goal to open roadmap</Text>
+            <Text style={styles.sectionSubtitle}>
+              Tap any goal to open roadmap
+            </Text>
           </View>
           <View style={styles.countPill}>
             <Text style={styles.countPillText}>{goals.length}</Text>
@@ -214,6 +240,60 @@ function GoalListCard({
 }
 
 const styles = StyleSheet.create({
+  flowHero: {
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+    marginBottom: 12,
+  },
+  flowHeroKicker: {
+    fontSize: 11,
+    color: "rgba(255,255,255,0.82)",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    fontFamily: "Roboto_500Medium",
+  },
+  flowHeroTitle: {
+    marginTop: 6,
+    fontSize: 28,
+    color: "#FFFFFF",
+    fontFamily: "Roboto_500Medium",
+    lineHeight: 34,
+  },
+  flowHeroSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    color: "rgba(255,255,255,0.9)",
+    fontFamily: "Roboto_400Regular",
+  },
+  flowHeroStats: {
+    marginTop: 16,
+    flexDirection: "row",
+    gap: 8,
+  },
+  flowHeroStatPill: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.28)",
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+  },
+  flowHeroStatValue: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    fontFamily: "Roboto_500Medium",
+  },
+  flowHeroStatLabel: {
+    marginTop: 2,
+    fontSize: 11,
+    color: "rgba(255,255,255,0.84)",
+    fontFamily: "Roboto_400Regular",
+  },
   sectionHeader: {
     marginTop: 4,
     flexDirection: "row",
@@ -268,7 +348,7 @@ const styles = StyleSheet.create({
   hSub: { marginTop: 6, fontSize: 14, color: "#6B6B6B" },
 
   /* Goals list */
-  listWrap: { marginTop: 14 },
+  listWrap: { marginTop: 14, gap: 12 },
   goalCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,

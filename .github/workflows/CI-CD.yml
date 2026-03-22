@@ -1,4 +1,4 @@
-name: Test & Build MineO APK
+name: MineO Automated Tests
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test-and-build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,12 +23,26 @@ jobs:
       # 3️⃣ Install backend dependencies
       - name: Install backend dependencies
         working-directory: ./server
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci || (echo "npm ci failed, regenerating lockfile..." && npm install --package-lock-only && npm ci)
+          else
+            echo "No package-lock.json found, generating one..."
+            npm install --package-lock-only
+            npm ci
+          fi
 
       # 4️⃣ Install client dependencies
       - name: Install client dependencies
         working-directory: ./client
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci || (echo "npm ci failed, regenerating lockfile..." && npm install --package-lock-only && npm ci)
+          else
+            echo "No package-lock.json found, generating one..."
+            npm install --package-lock-only
+            npm ci
+          fi
 
       # 4.5️⃣ Workaround npm optional dependency bug (rolldown native binding)
       - name: Ensure rolldown Linux binding is present
@@ -42,32 +56,3 @@ jobs:
         run: |
           echo "Running backend tests..."
           npm test
-
-      # 6️⃣ Install EAS CLI
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      # 7️⃣ Verify Expo authentication
-      - name: Verify Expo authentication
-        run: |
-          if [ -z "${EXPO_TOKEN}" ]; then
-            echo "::error::Missing EXPO_TOKEN secret. Add it in GitHub: Settings > Secrets and variables > Actions."
-            exit 1
-          fi
-          echo "EXPO_TOKEN is present. Verifying account..."
-          eas whoami --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      # 8️⃣ Build APK with EAS
-      - name: Build APK with EAS
-        id: build
-        working-directory: ./client
-        run: |
-          echo "Starting EAS build..."
-          eas build -p android --profile preview --non-interactive --json > build-output.json
-          echo "EAS build finished."
-          APK_URL=$(jq -r '.artifacts.buildUrl' build-output.json)
-          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

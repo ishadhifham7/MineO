@@ -1,13 +1,7 @@
 import React from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type HeroStat = {
   value: string | number;
@@ -23,6 +17,9 @@ type HomeStyleScreenProps = {
   children: React.ReactNode;
   scrollable?: boolean;
   contentContainerStyle?: ViewStyle;
+  hideHero?: boolean;
+  floatingAction?: React.ReactNode;
+  floatingActionContainerStyle?: ViewStyle;
 };
 
 export function HomeStyleScreen({
@@ -34,42 +31,47 @@ export function HomeStyleScreen({
   children,
   scrollable = true,
   contentContainerStyle,
+  hideHero = false,
+  floatingAction,
+  floatingActionContainerStyle,
 }: HomeStyleScreenProps) {
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.heroShell}>
-        <LinearGradient
-          colors={["#2E2A26", "#6B645C", "#B5A993"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.hero}
-        >
-          <View style={styles.orbOne} />
-          <View style={styles.orbTwo} />
+    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
+      {!hideHero ? (
+        <View style={styles.heroShell}>
+          <LinearGradient
+            colors={["#2E2A26", "#6B645C", "#B5A993"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.hero}
+          >
+            <View style={styles.orbOne} />
+            <View style={styles.orbTwo} />
 
-          <View style={styles.topRow}>
-            <View style={styles.titleWrap}>
-              {kicker ? <Text style={styles.kicker}>{kicker}</Text> : null}
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.subtitle}>{subtitle}</Text>
+            <View style={styles.topRow}>
+              <View style={styles.titleWrap}>
+                {kicker ? <Text style={styles.kicker}>{kicker}</Text> : null}
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.subtitle}>{subtitle}</Text>
+              </View>
+              {rightAccessory ? (
+                <View style={styles.accessoryWrap}>{rightAccessory}</View>
+              ) : null}
             </View>
-            {rightAccessory ? (
-              <View style={styles.accessoryWrap}>{rightAccessory}</View>
+
+            {stats && stats.length > 0 ? (
+              <View style={styles.statRow}>
+                {stats.slice(0, 3).map((stat) => (
+                  <View key={stat.label} style={styles.statPill}>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
+                  </View>
+                ))}
+              </View>
             ) : null}
-          </View>
-
-          {stats && stats.length > 0 ? (
-            <View style={styles.statRow}>
-              {stats.slice(0, 3).map((stat) => (
-                <View key={stat.label} style={styles.statPill}>
-                  <Text style={styles.statValue}>{stat.value}</Text>
-                  <Text style={styles.statLabel}>{stat.label}</Text>
-                </View>
-              ))}
-            </View>
-          ) : null}
-        </LinearGradient>
-      </View>
+          </LinearGradient>
+        </View>
+      ) : null}
 
       {scrollable ? (
         <ScrollView
@@ -81,6 +83,14 @@ export function HomeStyleScreen({
       ) : (
         <View style={[styles.content, contentContainerStyle]}>{children}</View>
       )}
+
+      {floatingAction ? (
+        <View
+          style={[styles.floatingActionContainer, floatingActionContainerStyle]}
+        >
+          {floatingAction}
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -97,11 +107,11 @@ export function SectionCard({ children, style }: SectionCardProps) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#F6F1E7",
   },
   heroShell: {
     paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingTop: 0,
     marginBottom: 10,
   },
   hero: {
@@ -210,5 +220,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
+  },
+  floatingActionContainer: {
+    position: "absolute",
+    right: 16,
+    bottom: 88,
+    zIndex: 50,
+    elevation: 50,
   },
 });

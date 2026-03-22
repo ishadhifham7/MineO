@@ -161,6 +161,7 @@ export default function JourneyScreen() {
         kicker="Progress Path"
         title="Journey Map"
         subtitle="Every step tells a story"
+        hideHero
         scrollable={false}
       >
         <SectionCard style={styles.centerCard}>
@@ -178,6 +179,7 @@ export default function JourneyScreen() {
         kicker="Progress Path"
         title="Journey Map"
         subtitle="Every step tells a story"
+        hideHero
         scrollable={false}
       >
         <SectionCard style={styles.centerCard}>
@@ -206,6 +208,7 @@ export default function JourneyScreen() {
         kicker="Progress Path"
         title="Journey Map"
         subtitle="Every step tells a story"
+        hideHero
         scrollable={false}
       >
         <SectionCard style={styles.centerCard}>
@@ -228,6 +231,7 @@ export default function JourneyScreen() {
         kicker="Progress Path"
         title="Journey Map"
         subtitle="Every step tells a story"
+        hideHero
         scrollable={false}
       >
         <SectionCard style={styles.centerCard}>
@@ -248,10 +252,18 @@ export default function JourneyScreen() {
       kicker="Progress Path"
       title="Journey Map"
       subtitle="Every step tells a story"
+      hideHero
       stats={[{ value: journals.length, label: "Entries" }]}
       scrollable={false}
       contentContainerStyle={styles.screenContent}
     >
+      <View style={styles.mapIntroContainer}>
+        <Text style={styles.mapIntroLineOne}>
+          Tap into moments. Explore your growth.
+        </Text>
+        <Text style={styles.mapIntroLineTwo}>Keep moving forward.</Text>
+      </View>
+
       <SectionCard style={styles.canvasCard}>
         <JourneyCanvas
           contentHeight={contentHeight}
@@ -298,6 +310,25 @@ const styles = StyleSheet.create({
   screenContent: {
     flex: 1,
     paddingBottom: 94,
+  },
+  mapIntroContainer: {
+    paddingHorizontal: 4,
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  mapIntroLineOne: {
+    fontSize: 18,
+    lineHeight: 24,
+    color: "#2E2A26",
+    fontWeight: "700",
+  },
+  mapIntroLineTwo: {
+    marginTop: 4,
+    marginBottom: 10,
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#6B645C",
+    fontWeight: "500",
   },
   canvasCard: {
     flex: 1,
@@ -368,4 +399,3 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
-
