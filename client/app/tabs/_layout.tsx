@@ -80,6 +80,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="goal"
         options={{
+          popToTopOnBlur: true,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="flag-outline" size={size} color={color} />
           ),

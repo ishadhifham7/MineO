@@ -148,7 +148,18 @@ export default function HomeScreen() {
     }, [fetchGoals, user]),
   );
 
-  const displayGoals = useMemo(() => (goals ?? []).slice(0, 5), [goals]);
+  const inProgressGoals = useMemo(() => {
+    return (goals ?? []).filter((g) => {
+      const total = g.stages?.length ?? 0;
+      const completed = g.stages?.filter((s) => s.completed).length ?? 0;
+      return !(total > 0 && completed === total);
+    });
+  }, [goals]);
+
+  const displayGoals = useMemo(
+    () => inProgressGoals.slice(0, 5),
+    [inProgressGoals],
+  );
   const greetingName =
     (user as any)?.name ||
     (user as any)?.fullName ||
@@ -587,14 +598,14 @@ export default function HomeScreen() {
           )}
 
           {/* all completed */}
-          {goals && goals.length > 0 && allGoalsCompleted && (
+          {goals && goals.length > 0 && inProgressGoals.length === 0 && (
             <Text style={styles.goalEmptyText}>
               All Goals completed - create a new Goal
             </Text>
           )}
 
           {/* list (max 5) */}
-          {goals && goals.length > 0 && !allGoalsCompleted && (
+          {inProgressGoals.length > 0 && (
             <View style={{ gap: 10 }}>
               {displayGoals.map((g) => {
                 const total = g.stages?.length ?? 0;
@@ -615,7 +626,7 @@ export default function HomeScreen() {
                     onPress={() => {
                       router.push({
                         pathname: "/tabs/goal/roadmap",
-                        params: { goalId: g.id },
+                        params: { id: g.id },
                       });
                     }}
                   >

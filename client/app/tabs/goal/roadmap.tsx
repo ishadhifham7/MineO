@@ -115,50 +115,53 @@ const GoalRoadmapScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safe} edges={["left", "right"]}>
       <View style={styles.screen}>
-        <LinearGradient
-          colors={["#B5A993", "#8C7F6A"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.hero}
-        >
-          <View style={styles.heroTopRow}>
-            <Pressable style={styles.heroAction} onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={16} color="#FFFFFF" />
-              <Text style={styles.heroActionText}>Back</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.heroAction}
-              onPress={() => router.push("/tabs/goal")}
-            >
-              <Ionicons name="checkmark-done" size={16} color="#FFFFFF" />
-              <Text style={styles.heroActionText}>Save</Text>
-            </Pressable>
-          </View>
-
-          <Text style={styles.heroTitle}>Goal Roadmap</Text>
-          <Text style={styles.heroSubtitle}>{displayGoal.title}</Text>
-
-          <View style={styles.heroProgressWrap}>
-            <View style={styles.heroProgressTopRow}>
-              <Text style={styles.heroProgressLabel}>Progress</Text>
-              <Text style={styles.heroProgressValue}>{progressPercent}%</Text>
-            </View>
-            <View style={styles.heroProgressTrack}>
-              <View
-                style={[
-                  styles.heroProgressFill,
-                  { width: `${progressPercent}%` },
-                ]}
-              />
-            </View>
-            <Text style={styles.heroProgressMeta}>
-              {completedCount}/{localStages.length} stages completed
-            </Text>
-          </View>
-        </LinearGradient>
-
         <ScrollView contentContainerStyle={styles.contentContainer}>
+          <LinearGradient
+            colors={["#B5A993", "#8C7F6A"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.hero}
+          >
+            <View style={styles.heroTopRow}>
+              <Pressable
+                style={styles.heroAction}
+                onPress={() => router.back()}
+              >
+                <Ionicons name="chevron-back" size={16} color="#FFFFFF" />
+                <Text style={styles.heroActionText}>Back</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.heroAction}
+                onPress={() => router.push("/tabs/goal")}
+              >
+                <Ionicons name="checkmark-done" size={16} color="#FFFFFF" />
+                <Text style={styles.heroActionText}>Save</Text>
+              </Pressable>
+            </View>
+
+            <Text style={styles.heroTitle}>Goal Roadmap</Text>
+            <Text style={styles.heroSubtitle}>{displayGoal.title}</Text>
+
+            <View style={styles.heroProgressWrap}>
+              <View style={styles.heroProgressTopRow}>
+                <Text style={styles.heroProgressLabel}>Progress</Text>
+                <Text style={styles.heroProgressValue}>{progressPercent}%</Text>
+              </View>
+              <View style={styles.heroProgressTrack}>
+                <View
+                  style={[
+                    styles.heroProgressFill,
+                    { width: `${progressPercent}%` },
+                  ]}
+                />
+              </View>
+              <Text style={styles.heroProgressMeta}>
+                {completedCount}/{localStages.length} stages completed
+              </Text>
+            </View>
+          </LinearGradient>
+
           <View style={styles.descriptionCard}>
             <Text style={styles.descriptionTitle}>Description</Text>
             <Text style={styles.descriptionText}>
@@ -255,6 +258,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingTop: 16,
     paddingBottom: 20,
+    borderRadius: 20,
+    overflow: "hidden",
   },
   heroTopRow: {
     flexDirection: "row",
@@ -280,14 +285,17 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: "#FFFFFF",
-    fontSize: 30,
-    fontWeight: "700",
-    letterSpacing: -0.3,
+    fontSize: 14,
+    fontWeight: "600",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
   },
   heroSubtitle: {
     color: "rgba(255,255,255,0.95)",
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: 30,
+    fontWeight: "700",
+    letterSpacing: -0.3,
+    marginTop: 6,
   },
   heroProgressWrap: {
     marginTop: 14,
