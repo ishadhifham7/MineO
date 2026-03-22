@@ -50,9 +50,9 @@ describe("Goal Tracker", () => {
         fetchGoals: mockFetchGoals,
         });
 
-        const { getByText } = render(<GoalsHome />);
+        const { getAllByText, getByText } = render(<GoalsHome />);
 
-        expect(getByText("Your Goals")).toBeTruthy();
+        expect(getAllByText("Your Goals").length).toBeGreaterThan(0);
         expect(getByText("No goals yet")).toBeTruthy();
         expect(
         getByText("Create your first goal and start tracking your progress.")
