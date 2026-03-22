@@ -17,16 +17,16 @@ import {
   Roboto_500Medium,
   Roboto_700Bold,
 } from "@expo-google-fonts/roboto";
-import { View, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-function AppShell({ horizontalPadding }: { horizontalPadding: number }) {
+function AppShell() {
   const { theme } = useAppTheme();
 
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: theme.colors.background }}
-      edges={["top", "left", "right"]}
+      edges={["left", "right"]}
     >
       <AuthProvider>
         <JourneyProvider>
@@ -37,7 +37,7 @@ function AppShell({ horizontalPadding }: { horizontalPadding: number }) {
                   headerShown: false,
                   contentStyle: {
                     backgroundColor: theme.colors.background,
-                    paddingHorizontal: horizontalPadding,
+                    paddingTop: 40,
                   },
                 }}
               />
@@ -50,9 +50,6 @@ function AppShell({ horizontalPadding }: { horizontalPadding: number }) {
 }
 
 export default function RootLayout() {
-  const { width } = useWindowDimensions();
-  const horizontalPadding = width >= 430 ? 20 : 14;
-
   const [fontsLoaded] = useFonts({
     DancingScript_400Regular,
     DancingScript_700Bold,
@@ -63,7 +60,7 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator />
       </View>
     );
@@ -73,7 +70,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AppThemeProvider>
-          <AppShell horizontalPadding={horizontalPadding} />
+          <AppShell />
         </AppThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

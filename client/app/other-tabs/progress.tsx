@@ -16,9 +16,15 @@ export default function ProgressScreen() {
   // Replace this with your real goals from store/db
   const goals: Goal[] = useMemo(
     () => [
-      { id: "1", title: "dsc", category: "Physical", stagesTotal: 4, stagesDone: 0 },
+      {
+        id: "1",
+        title: "dsc",
+        category: "Physical",
+        stagesTotal: 4,
+        stagesDone: 0,
+      },
     ],
-    []
+    [],
   );
 
   const activeGoals = goals.length;
@@ -40,7 +46,7 @@ export default function ProgressScreen() {
       : 0;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backFab}>
@@ -56,26 +62,14 @@ export default function ProgressScreen() {
       <View style={styles.content}>
         {/* Stats grid */}
         <View style={styles.statsGrid}>
-          <StatCard
-            value={activeGoals}
-            label="Active Goals"
-            tone="blue"
-          />
-          <StatCard
-            value={totalXP}
-            label="Total XP"
-            tone="purple"
-          />
+          <StatCard value={activeGoals} label="Active Goals" tone="blue" />
+          <StatCard value={totalXP} label="Total XP" tone="purple" />
           <StatCard
             value={stagesComplete}
             label="Stages Complete"
             tone="green"
           />
-          <StatCard
-            value={stagesAhead}
-            label="Stages Ahead"
-            tone="orange"
-          />
+          <StatCard value={stagesAhead} label="Stages Ahead" tone="orange" />
         </View>
 
         {/* By Category */}
@@ -91,7 +85,9 @@ export default function ProgressScreen() {
         {/* Your Journey */}
         <Text style={styles.sectionTitle}>Your Journey</Text>
         <View style={styles.journeyCard}>
-          <Text style={styles.journeyTitle}>{journeyGoal?.title ?? "No goal"}</Text>
+          <Text style={styles.journeyTitle}>
+            {journeyGoal?.title ?? "No goal"}
+          </Text>
 
           {/* progress bar */}
           <View style={styles.progressTrack}>
@@ -100,11 +96,11 @@ export default function ProgressScreen() {
 
           <View style={styles.journeyBottomRow}>
             <Text style={styles.journeyMeta}>
-              {journeyGoal ? `${journeyGoal.stagesDone} of ${journeyGoal.stagesTotal} stages` : "-"}
+              {journeyGoal
+                ? `${journeyGoal.stagesDone} of ${journeyGoal.stagesTotal} stages`
+                : "-"}
             </Text>
-            <Text style={styles.journeyMeta}>
-              {progressPct}% complete
-            </Text>
+            <Text style={styles.journeyMeta}>{progressPct}% complete</Text>
           </View>
         </View>
 
@@ -145,12 +141,12 @@ const toneStyles = StyleSheet.create({
   orange: { borderColor: "#F1E2C9" },
 });
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F4F6FA" },
+  safe: { flex: 1, backgroundColor: "#F6F1E7" },
 
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingTop: 14,
+    paddingTop: 4,
     paddingHorizontal: 18,
   },
 
@@ -193,7 +189,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
 
     shadowColor: "#000",
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 7 },
     elevation: 5,
@@ -328,4 +324,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-

@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G } from "react-native-svg";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useGoal } from "../../src/features/goal/goal.context";
 import { useAuth } from "../../src/hooks/useAuth";
@@ -47,9 +47,23 @@ function DonutChart({
   let cumulativePercent = 0;
 
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Svg width={size} height={size}>
-        <Circle cx={center} cy={center} r={radius} stroke="#af0000" strokeWidth={strokeWidth} fill="none" />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke="#af0000"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
         <G rotation="-90" origin={`${center}, ${center}`}>
           {data.map((segment, i) => {
             const segmentLength = (segment.percentage / 100) * circumference;
@@ -103,24 +117,53 @@ export default function WinTrackerScreen() {
   const winCategories = useMemo<WinCategory[]>(() => {
     const now = new Date();
     const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const monthDays = Object.entries(habitCalendar).filter(([d]) => d.startsWith(prefix));
+    const monthDays = Object.entries(habitCalendar).filter(([d]) =>
+      d.startsWith(prefix),
+    );
     const dayCount = Math.max(monthDays.length, 1);
 
     const catScore = (cat: "spiritual" | "mental" | "physical") => {
-      const total = monthDays.reduce((s, [, scores]) => s + (scores?.[cat] ?? 0), 0);
+      const total = monthDays.reduce(
+        (s, [, scores]) => s + (scores?.[cat] ?? 0),
+        0,
+      );
       return Math.round((total / dayCount) * 100);
     };
 
     const allStages = (goals ?? []).flatMap((g) => g.stages ?? []);
-    const goalPct = allStages.length > 0
-      ? Math.round((allStages.filter((s) => s.completed).length / allStages.length) * 100)
-      : 0;
+    const goalPct =
+      allStages.length > 0
+        ? Math.round(
+            (allStages.filter((s) => s.completed).length / allStages.length) *
+              100,
+          )
+        : 0;
 
     return [
-      { name: "Mental", percentage: catScore("mental"), color: "#FF8A80", icon: "bulb-outline" },
-      { name: "Physical", percentage: catScore("physical"), color: "#82B1FF", icon: "fitness-outline" },
-      { name: "Spiritual", percentage: catScore("spiritual"), color: "#B9F6CA", icon: "leaf-outline" },
-      { name: "Goal Path", percentage: goalPct, color: "#FFE0B2", icon: "flag-outline" },
+      {
+        name: "Mental",
+        percentage: catScore("mental"),
+        color: "#FF8A80",
+        icon: "bulb-outline",
+      },
+      {
+        name: "Physical",
+        percentage: catScore("physical"),
+        color: "#82B1FF",
+        icon: "fitness-outline",
+      },
+      {
+        name: "Spiritual",
+        percentage: catScore("spiritual"),
+        color: "#B9F6CA",
+        icon: "leaf-outline",
+      },
+      {
+        name: "Goal Path",
+        percentage: goalPct,
+        color: "#FFE0B2",
+        icon: "flag-outline",
+      },
     ];
   }, [habitCalendar, goals]);
 
@@ -149,7 +192,7 @@ export default function WinTrackerScreen() {
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["left", "right"]}>
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backFab}>
@@ -166,7 +209,10 @@ export default function WinTrackerScreen() {
         <View style={styles.card}>
           <View style={{ alignItems: "center", marginBottom: 20 }}>
             <DonutChart
-              data={winCategories.map((c) => ({ percentage: c.percentage, color: c.color }))}
+              data={winCategories.map((c) => ({
+                percentage: c.percentage,
+                color: c.color,
+              }))}
               centerLabel={`${totalWinPct}%`}
               centerSub="TOTAL"
             />
@@ -176,7 +222,12 @@ export default function WinTrackerScreen() {
           <View style={styles.legendGrid}>
             {winCategories.map((cat) => (
               <View key={cat.name} style={styles.legendCard}>
-                <View style={[styles.legendIconBg, { backgroundColor: cat.color + "30" }]}>
+                <View
+                  style={[
+                    styles.legendIconBg,
+                    { backgroundColor: cat.color + "30" },
+                  ]}
+                >
                   <Ionicons name={cat.icon} size={18} color={cat.color} />
                 </View>
                 <Text style={styles.legendName}>{cat.name}</Text>
@@ -199,11 +250,31 @@ export default function WinTrackerScreen() {
             <View key={day.date} style={styles.dayRow}>
               <Text style={styles.dayDate}>{day.date.slice(8)}</Text>
               <View style={styles.dayBars}>
-                <View style={[styles.dayBarSegment, { flex: day.spiritual, backgroundColor: "#B9F6CA" }]} />
-                <View style={[styles.dayBarSegment, { flex: day.mental, backgroundColor: "#FF8A80" }]} />
-                <View style={[styles.dayBarSegment, { flex: day.physical, backgroundColor: "#82B1FF" }]} />
+                <View
+                  style={[
+                    styles.dayBarSegment,
+                    { flex: day.spiritual, backgroundColor: "#B9F6CA" },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.dayBarSegment,
+                    { flex: day.mental, backgroundColor: "#FF8A80" },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.dayBarSegment,
+                    { flex: day.physical, backgroundColor: "#82B1FF" },
+                  ]}
+                />
                 {day.spiritual + day.mental + day.physical === 0 && (
-                  <View style={[styles.dayBarSegment, { flex: 1, backgroundColor: "#f0f0f0" }]} />
+                  <View
+                    style={[
+                      styles.dayBarSegment,
+                      { flex: 1, backgroundColor: "#f0f0f0" },
+                    ]}
+                  />
                 )}
               </View>
               <Text style={styles.dayAvg}>{day.avg}%</Text>
@@ -219,12 +290,12 @@ export default function WinTrackerScreen() {
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F5F5F5" },
+  safe: { flex: 1, backgroundColor: "#F6F1E7" },
 
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingTop: 14,
+    paddingTop: 4,
     paddingHorizontal: 18,
     paddingBottom: 10,
   },
@@ -258,7 +329,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   donutCenterLabel: { fontSize: 32, fontWeight: "700", color: "#333" },
-  donutCenterSub: { fontSize: 12, color: "#999", fontWeight: "600", letterSpacing: 1 },
+  donutCenterSub: {
+    fontSize: 12,
+    color: "#999",
+    fontWeight: "600",
+    letterSpacing: 1,
+  },
 
   legendGrid: {
     flexDirection: "row",
@@ -312,5 +388,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
   },
   dayBarSegment: { height: "100%" },
-  dayAvg: { fontSize: 13, fontWeight: "700", color: "#333", width: 36, textAlign: "right" },
+  dayAvg: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#333",
+    width: 36,
+    textAlign: "right",
+  },
 });

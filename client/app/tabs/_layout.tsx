@@ -7,10 +7,33 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const { theme } = useAppTheme();
 
+  const sharedTabBarStyle = {
+    position: "absolute" as const,
+    left: 0,
+    right: 0,
+    bottom: Math.max(insets.bottom, 10),
+    height: 58 + Math.max(insets.bottom, 6),
+    borderTopWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: 18,
+    backgroundColor: theme.colors.surface,
+    paddingTop: 8,
+    paddingBottom: Math.max(insets.bottom, 8),
+    shadowColor: theme.colors.text,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 12,
+    elevation: 8,
+  };
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        sceneStyle: {
+          backgroundColor: theme.colors.background,
+        },
+        tabBarHideOnKeyboard: false,
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontFamily: "Roboto_500Medium",
@@ -18,24 +41,7 @@ export default function TabsLayout() {
           letterSpacing: 0.2,
           marginTop: 2,
         },
-        tabBarStyle: {
-          position: "absolute",
-          left: 12,
-          right: 12,
-          bottom: Math.max(insets.bottom, 10),
-          height: 58 + Math.max(insets.bottom, 6),
-          borderTopWidth: 1,
-          borderColor: theme.colors.border,
-          borderRadius: 18,
-          backgroundColor: theme.colors.surface,
-          paddingTop: 8,
-          paddingBottom: Math.max(insets.bottom, 8),
-          shadowColor: theme.colors.text,
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.14,
-          shadowRadius: 12,
-          elevation: 8,
-        },
+        tabBarStyle: sharedTabBarStyle,
         tabBarItemStyle: {
           borderRadius: 12,
           marginHorizontal: 2,

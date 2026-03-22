@@ -651,13 +651,13 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#F6F1E7",
   },
 
   /* ---- Header ---- */
   heroShell: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 0,
     marginBottom: 6,
   },
   headerBg: {
