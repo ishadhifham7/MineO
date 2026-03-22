@@ -21,13 +21,8 @@
     "@fastify/multipart": "^9.4.0",
     "@fastify/swagger": "^9.6.1",
     "@fastify/swagger-ui": "^5.2.4",
-    "@react-native-community/datetimepicker": "8.4.4",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
-    "expo": "^54.0.33",
-    "expo-crypto": "~15.0.8",
-    "express": "^5.2.1",
     "fastify": "^5.7.1",
     "fastify-plugin": "^5.0.1",
     "firebase-admin": "^13.6.0",
@@ -38,9 +33,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.2.3",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
