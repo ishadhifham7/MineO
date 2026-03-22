@@ -1,8 +1,12 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAppTheme } from '../../src/design-system';
+import type { AppTheme } from '../../src/design-system';
 
 export default function Step1() {
   const router = useRouter();
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -35,19 +39,20 @@ export default function Step1() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F6FA', padding: 30 },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background, padding: 30 },
+    content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
-  logo: { fontSize: 42, fontWeight: '300', marginBottom: 40 },
-  title: { fontSize: 22, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
-  description: { fontSize: 16, textAlign: 'center', color: '#444', lineHeight: 24 },
+    logo: { fontSize: 42, fontWeight: '300', marginBottom: 40, color: theme.colors.text },
+    title: { fontSize: 22, fontWeight: '600', textAlign: 'center', marginBottom: 20, color: theme.colors.text },
+    description: { fontSize: 16, textAlign: 'center', color: theme.colors.textMuted, lineHeight: 24 },
 
-  footer: { marginBottom: 40 },
-  progressContainer: { flexDirection: 'row', gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: '#D9E3F1' },
-  activeBar: { backgroundColor: '#000' },
+    footer: { marginBottom: 40 },
+    progressContainer: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+    progressBar: { height: 2, flex: 1, backgroundColor: theme.colors.border },
+    activeBar: { backgroundColor: theme.colors.text },
 
-  button: { backgroundColor: '#000', padding: 18, borderRadius: 4, alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '500' }
-});
+    button: { backgroundColor: theme.colors.primary, padding: 18, borderRadius: 8, alignItems: 'center' },
+    buttonText: { color: theme.colors.primaryForeground, fontSize: 16, fontWeight: '500' }
+  });

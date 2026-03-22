@@ -1,8 +1,12 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useAppTheme } from "../../src/design-system";
+import type { AppTheme } from "../../src/design-system";
 
 export default function Step3() {
   const router = useRouter();
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -48,33 +52,34 @@ export default function Step3() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F6FA", padding: 30 },
-  content: { flex: 1, justifyContent: "center", alignItems: "center" },
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background, padding: 30 },
+    content: { flex: 1, justifyContent: "center", alignItems: "center" },
 
-  headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start" },
-  subHeaderText: { fontSize: 16, color: "#666", alignSelf: "flex-start", marginBottom: 30 },
+    headerText: { fontSize: 24, fontWeight: "bold", alignSelf: "flex-start", color: theme.colors.text },
+    subHeaderText: { fontSize: 16, color: theme.colors.textMuted, alignSelf: "flex-start", marginBottom: 30 },
 
-  description: { fontSize: 16, textAlign: "center", color: "#444", lineHeight: 24 },
+    description: { fontSize: 16, textAlign: "center", color: theme.colors.textMuted, lineHeight: 24 },
 
-  timeline: { flexDirection: "row", alignItems: "center", marginVertical: 40 },
-  line: { height: 2, flex: 1, backgroundColor: "#000" },
+    timeline: { flexDirection: "row", alignItems: "center", marginVertical: 40 },
+    line: { height: 2, flex: 1, backgroundColor: theme.colors.text },
 
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#D9E3F1",
-    marginHorizontal: 15
-  },
+    dot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      backgroundColor: theme.colors.border,
+      marginHorizontal: 15,
+    },
 
-  activeDot: { backgroundColor: "#000" },
+    activeDot: { backgroundColor: theme.colors.primary },
 
-  footer: { marginBottom: 40 },
-  progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  progressBar: { height: 2, flex: 1, backgroundColor: "#D9E3F1" },
-  activeBar: { backgroundColor: "#000" },
+    footer: { marginBottom: 40 },
+    progressContainer: { flexDirection: "row", gap: 8, marginBottom: 20 },
+    progressBar: { height: 2, flex: 1, backgroundColor: theme.colors.border },
+    activeBar: { backgroundColor: theme.colors.text },
 
-  button: { backgroundColor: "#000", padding: 18, borderRadius: 4, alignItems: "center" },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" }
-});
+    button: { backgroundColor: theme.colors.primary, padding: 18, borderRadius: 8, alignItems: "center" },
+    buttonText: { color: theme.colors.primaryForeground, fontSize: 16, fontWeight: "500" },
+  });
