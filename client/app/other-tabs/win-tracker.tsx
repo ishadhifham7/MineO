@@ -19,6 +19,14 @@ import type { CalendarData } from "../../src/features/habit/habit.types";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
+const TRACKER_COLORS = {
+  ringBg: "#FFFFFF", // White
+  mental: "#2F4156", // Navy
+  physical: "#567C8D", // Teal
+  spiritual: "#C8D9E6", // Sky Blue
+  goalPath: "#F5EFEB", // Beige
+};
+
 // ---------- Types ----------
 interface WinCategory {
   name: string;
@@ -41,6 +49,7 @@ function DonutChart({
   centerLabel: string;
   centerSub: string;
 }) {
+  const visibleData = data.filter((segment) => segment.percentage > 0);
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const center = size / 2;
@@ -60,12 +69,12 @@ function DonutChart({
           cx={center}
           cy={center}
           r={radius}
-          stroke="#af0000"
+          stroke={TRACKER_COLORS.ringBg}
           strokeWidth={strokeWidth}
           fill="none"
         />
         <G rotation="-90" origin={`${center}, ${center}`}>
-          {data.map((segment, i) => {
+          {visibleData.map((segment, i) => {
             const segmentLength = (segment.percentage / 100) * circumference;
             const offset = circumference - segmentLength;
             const rotation = (cumulativePercent / 100) * 360;
@@ -143,25 +152,25 @@ export default function WinTrackerScreen() {
       {
         name: "Mental",
         percentage: catScore("mental"),
-        color: "#FF8A80",
+        color: TRACKER_COLORS.mental,
         icon: "bulb-outline",
       },
       {
         name: "Physical",
         percentage: catScore("physical"),
-        color: "#82B1FF",
+        color: TRACKER_COLORS.physical,
         icon: "fitness-outline",
       },
       {
         name: "Spiritual",
         percentage: catScore("spiritual"),
-        color: "#B9F6CA",
+        color: TRACKER_COLORS.spiritual,
         icon: "leaf-outline",
       },
       {
         name: "Goal Path",
         percentage: goalPct,
-        color: "#FFE0B2",
+        color: TRACKER_COLORS.goalPath,
         icon: "flag-outline",
       },
     ];
@@ -253,19 +262,28 @@ export default function WinTrackerScreen() {
                 <View
                   style={[
                     styles.dayBarSegment,
-                    { flex: day.spiritual, backgroundColor: "#B9F6CA" },
+                    {
+                      flex: day.spiritual,
+                      backgroundColor: TRACKER_COLORS.spiritual,
+                    },
                   ]}
                 />
                 <View
                   style={[
                     styles.dayBarSegment,
-                    { flex: day.mental, backgroundColor: "#FF8A80" },
+                    {
+                      flex: day.mental,
+                      backgroundColor: TRACKER_COLORS.mental,
+                    },
                   ]}
                 />
                 <View
                   style={[
                     styles.dayBarSegment,
-                    { flex: day.physical, backgroundColor: "#82B1FF" },
+                    {
+                      flex: day.physical,
+                      backgroundColor: TRACKER_COLORS.physical,
+                    },
                   ]}
                 />
                 {day.spiritual + day.mental + day.physical === 0 && (
@@ -343,11 +361,13 @@ const styles = StyleSheet.create({
   },
   legendCard: {
     width: (SCREEN_WIDTH - 76) / 2,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#FBF8F2",
     borderRadius: 14,
     padding: 12,
     alignItems: "center",
     gap: 4,
+    borderWidth: 1,
+    borderColor: "#EFE7DA",
   },
   legendIconBg: {
     width: 36,
@@ -385,7 +405,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     overflow: "hidden",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#EFE7DA",
   },
   dayBarSegment: { height: "100%" },
   dayAvg: {

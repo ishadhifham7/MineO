@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Svg, { Circle, G } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
@@ -39,77 +38,6 @@ interface WinCategory {
   name: string;
   percentage: number;
   color: string;
-}
-
-// ---------- Donut Chart Component ----------
-function DonutChart({
-  data,
-  size = 140,
-  strokeWidth = 18,
-  centerLabel,
-  centerSub,
-}: {
-  data: { percentage: number; color: string }[];
-  size?: number;
-  strokeWidth?: number;
-  centerLabel: string;
-  centerSub: string;
-}) {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const center = size / 2;
-
-  let cumulativePercent = 0;
-
-  return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Svg width={size} height={size}>
-        {/* Background circle */}
-        <Circle
-          cx={center}
-          cy={center}
-          r={radius}
-          stroke="#F6F1E7"
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        <G rotation="-90" origin={`${center}, ${center}`}>
-          {data.map((segment, i) => {
-            const segmentLength = (segment.percentage / 100) * circumference;
-            const offset = circumference - segmentLength;
-            const rotation = (cumulativePercent / 100) * 360;
-            cumulativePercent += segment.percentage;
-            return (
-              <Circle
-                key={i}
-                cx={center}
-                cy={center}
-                r={radius}
-                stroke={segment.color}
-                strokeWidth={strokeWidth}
-                fill="none"
-                strokeDasharray={`${segmentLength} ${offset}`}
-                strokeLinecap="round"
-                rotation={rotation}
-                origin={`${center}, ${center}`}
-              />
-            );
-          })}
-        </G>
-      </Svg>
-      <View style={styles.donutCenter}>
-        <Text style={styles.donutCenterLabel}>{centerLabel}</Text>
-        <Text style={styles.donutCenterSub}>{centerSub}</Text>
-      </View>
-    </View>
-  );
 }
 
 // ---------- Main Screen ----------
@@ -541,25 +469,35 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward" size={18} color="#aaa" />
           </View>
           <View style={styles.trackerBody}>
-            <DonutChart
-              data={winCategories.map((c) => ({
-                percentage: c.percentage,
-                color: c.color,
-              }))}
-              centerLabel={`${totalWinPct}%`}
-              centerSub="TOTAL"
-            />
+            <View style={styles.trackerTotalWrap}>
+              <View style={styles.trackerTotalTopRow}>
+                <Text style={styles.trackerTotalLabel}>Monthly score</Text>
+                <Text style={styles.trackerTotalPct}>{totalWinPct}%</Text>
+              </View>
+              <View style={styles.trackerTotalBarBg}>
+                <View
+                  style={[
+                    styles.trackerTotalBarFill,
+                    { width: `${totalWinPct}%` as any },
+                  ]}
+                />
+              </View>
+            </View>
+
             <View style={styles.legendList}>
               {winCategories.map((cat) => (
                 <View key={cat.name} style={styles.trackerCategoryRow}>
-                  <View style={styles.trackerCategoryLabel}>
-                    <View
-                      style={[
-                        styles.trackerCategoryDot,
-                        { backgroundColor: cat.color },
-                      ]}
-                    />
-                    <Text style={styles.trackerCategoryName}>{cat.name}</Text>
+                  <View style={styles.trackerCategoryTopRow}>
+                    <View style={styles.trackerCategoryLabel}>
+                      <View
+                        style={[
+                          styles.trackerCategoryDot,
+                          { backgroundColor: cat.color },
+                        ]}
+                      />
+                      <Text style={styles.trackerCategoryName}>{cat.name}</Text>
+                    </View>
+                    <Text style={styles.trackerCategoryPct}>{cat.percentage}%</Text>
                   </View>
                   <View style={styles.progressBarContainer}>
                     <View
@@ -572,9 +510,6 @@ export default function HomeScreen() {
                       ]}
                     />
                   </View>
-                  <Text style={styles.trackerCategoryPct}>
-                    {cat.percentage}%
-                  </Text>
                 </View>
               ))}
             </View>
@@ -1027,8 +962,43 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   trackerBody: {
+    gap: 14,
+  },
+  trackerTotalWrap: {
+    backgroundColor: "#FBF8F2",
+    borderWidth: 1,
+    borderColor: "#EFE7DA",
+    borderRadius: 14,
+    padding: 12,
+  },
+  trackerTotalTopRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 8,
+  },
+  trackerTotalLabel: {
+    fontSize: 12,
+    fontFamily: "Roboto_500Medium",
+    color: "#6B645C",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
+  trackerTotalPct: {
+    fontSize: 22,
+    fontFamily: "Roboto_500Medium",
+    color: "#2E2A26",
+  },
+  trackerTotalBarBg: {
+    height: 10,
+    borderRadius: 6,
+    backgroundColor: "#E8DFCF",
+    overflow: "hidden",
+  },
+  trackerTotalBarFill: {
+    height: "100%",
+    borderRadius: 6,
+    backgroundColor: "#8C7F6A",
   },
   trackerCardTitle: {
     fontSize: 20,
@@ -1061,15 +1031,19 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   trackerCategoryRow: {
+    gap: 8,
+  },
+  trackerCategoryTopRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 12,
   },
   trackerCategoryLabel: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    width: 100,
+    flex: 1,
   },
   trackerCategoryDot: {
     width: 12,
@@ -1083,21 +1057,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   progressBarContainer: {
-    flex: 1,
-    height: 8,
-    backgroundColor: "#E5DFD3",
-    borderRadius: 4,
+    height: 9,
+    backgroundColor: "#EEE5D9",
+    borderRadius: 5,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: 5,
   },
   trackerCategoryPct: {
     fontSize: 13,
     fontFamily: "Roboto_600SemiBold",
     color: "#2E2A26",
-    width: 45,
+    width: 42,
     textAlign: "right",
   },
   trackerFooter: {
@@ -1114,25 +1087,8 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto_500Medium",
     color: "#B5A993",
   },
-  donutCenter: {
-    position: "absolute",
-    alignItems: "center",
-  },
-  donutCenterLabel: {
-    fontSize: 26,
-    fontFamily: "Roboto_500Medium",
-    color: "#2E2A26",
-  },
-  donutCenterSub: {
-    fontSize: 11,
-    fontFamily: "Roboto_500Medium",
-    color: "#6B645C",
-    letterSpacing: 1,
-  },
   legendList: {
-    flex: 1,
-    marginLeft: 20,
-    gap: 12,
+    gap: 10,
   },
   legendItem: {
     flexDirection: "row",
