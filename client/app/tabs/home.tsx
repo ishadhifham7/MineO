@@ -497,7 +497,9 @@ export default function HomeScreen() {
                       />
                       <Text style={styles.trackerCategoryName}>{cat.name}</Text>
                     </View>
-                    <Text style={styles.trackerCategoryPct}>{cat.percentage}%</Text>
+                    <Text style={styles.trackerCategoryPct}>
+                      {cat.percentage}%
+                    </Text>
                   </View>
                   <View style={styles.progressBarContainer}>
                     <View
