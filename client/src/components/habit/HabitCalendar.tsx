@@ -8,6 +8,35 @@ export default function HabitCalendar({
   category: "spiritual" | "mental" | "physical";
   data: Record<string, number | undefined>;
 }) {
+  const calendarTheme: any = {
+    backgroundColor: "#FFFFFF",
+    calendarBackground: "#FFFFFF",
+    textSectionTitleColor: "#8C7F6A",
+    selectedDayBackgroundColor: "#B5A993",
+    selectedDayTextColor: "#FFFFFF",
+    todayTextColor: "#1E5BFF",
+    dayTextColor: "#2E2A26",
+    textDisabledColor: "#D4CEC2",
+    monthTextColor: "#2E2A26",
+    textMonthFontWeight: "700",
+    textMonthFontSize: 18,
+    textDayFontSize: 14,
+    textDayHeaderFontSize: 12,
+    arrowColor: "#8C7F6A",
+    "stylesheet.day.basic": {
+      today: {
+        borderRadius: 999,
+        borderWidth: 1.5,
+        borderColor: "#1E5BFF",
+        backgroundColor: "#EAF1FF",
+      },
+      todayText: {
+        color: "#1E5BFF",
+        fontWeight: "700",
+      },
+    },
+  };
+
   // Convert habit data to marked dates format
   const markedDates = Object.entries(data).reduce((acc, [date, value]) => {
     if (value === undefined || value === null) {
@@ -15,8 +44,10 @@ export default function HabitCalendar({
     }
 
     let color = "#E0E0E0"; // Default gray
-    if (value === 1) color = "#4CAF50"; // Good - green
-    else if (value === 0.5) color = "#2196F3"; // Average - blue
+    if (value === 1)
+      color = "#4CAF50"; // Good - green
+    else if (value === 0.5)
+      color = "#2196F3"; // Average - blue
     else if (value === 0) color = "#E53935"; // Bad - red
 
     acc[date] = {
@@ -32,22 +63,7 @@ export default function HabitCalendar({
     <View style={styles.card}>
       <Calendar
         markedDates={markedDates}
-        theme={{
-          backgroundColor: "#FFFFFF",
-          calendarBackground: "#FFFFFF",
-          textSectionTitleColor: "#8C7F6A",
-          selectedDayBackgroundColor: "#B5A993",
-          selectedDayTextColor: "#FFFFFF",
-          todayTextColor: "#8C7F6A",
-          dayTextColor: "#2E2A26",
-          textDisabledColor: "#D4CEC2",
-          monthTextColor: "#2E2A26",
-          textMonthFontWeight: "700",
-          textMonthFontSize: 18,
-          textDayFontSize: 14,
-          textDayHeaderFontSize: 12,
-          arrowColor: "#8C7F6A",
-        }}
+        theme={calendarTheme}
         style={styles.calendar}
       />
     </View>

@@ -65,7 +65,7 @@ const getApiUrl = (): string => {
 
       // Method 3: Get from Metro bundler URL
       const scriptURL =
-        (global as any).location?.href ||
+        (globalThis as any).location?.href ||
         (Platform as any).__constants?.serverURL ||
         (Constants as any).linkingUri;
 
