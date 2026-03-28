@@ -61,27 +61,26 @@ export function ImageBlockComponent({
   const resolvedUri = useMemo(() => {
     if (!imageUri) return null;
 
-    // Old entries stored raw device file paths — these are ephemeral and lost
-    if (imageUri.startsWith('file://')) {
-      return null; // will show placeholder
-    }
-
-    // If it's already a full URL, extract the /uploads/... path and rebuild
-    if (imageUri.startsWith('http://') || imageUri.startsWith('https://')) {
-      const uploadsIdx = imageUri.indexOf('/uploads/');
-      if (uploadsIdx !== -1) {
-        return `${env.API_URL}${imageUri.substring(uploadsIdx)}`;
+    // Keep any explicit URI scheme (file://, content://, ph://, data:, etc.) as-is.
+    // If inaccessible on this device/session, React Native Image onError will handle fallback.
+    if (/^[a-z][a-z0-9+.-]*:/i.test(imageUri)) {
+      // For remote HTTP(S), keep the existing upload-path normalization logic.
+      if (imageUri.startsWith("http://") || imageUri.startsWith("https://")) {
+        const uploadsIdx = imageUri.indexOf("/uploads/");
+        if (uploadsIdx !== -1) {
+          return `${env.API_URL}${imageUri.substring(uploadsIdx)}`;
+        }
       }
       return imageUri;
     }
 
     // Relative path — prepend current server URL
-    return `${env.API_URL}${imageUri}`;
+    return `${env.API_URL}${imageUri.startsWith("/") ? imageUri : `/${imageUri}`}`;
   }, [imageUri]);
 
-  // If resolvedUri is null, mark as broken
+  // Reset broken state when image URI changes.
   useEffect(() => {
-    if (!resolvedUri) setIsBroken(true);
+    setIsBroken(false);
   }, [resolvedUri]);
 
   const posX = useSharedValue(x);

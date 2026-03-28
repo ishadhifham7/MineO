@@ -1,5 +1,12 @@
-import { View, Text, Pressable } from "react-native";
-import { useEffect } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  Alert,
+  ActivityIndicator,
+  Platform,
+} from "react-native";
+import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -22,6 +29,7 @@ import {
   isImageBlock,
 } from "../../../src/features/journal/journal.context";
 import { useJourney } from "../../../src/providers/JourneyProvider";
+import { API_BASE_URL } from "../../../src/services/api";
 import type {
   JournalBlock,
   TextBlock as TextBlockType,
@@ -75,6 +83,7 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
 
 export default function JournalScreen() {
   const tabBarHeight = useBottomTabBarHeight();
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const {
     blocks,
@@ -162,7 +171,10 @@ export default function JournalScreen() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      alert("Permission Required");
+      Alert.alert(
+        "Permission Required",
+        "Allow access to your photo library to add images.",
+      );
       return;
     }
 
@@ -174,7 +186,50 @@ export default function JournalScreen() {
 
     if (result.canceled || !result.assets || result.assets.length === 0) return;
 
-    const imageUri = result.assets[0].uri;
+    const asset = result.assets[0];
+    let imageUri = asset.uri;
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      const filename = asset.fileName || `image_${Date.now()}.jpg`;
+      const mimeType = asset.mimeType || "image/jpeg";
+
+      if (Platform.OS === "web") {
+        const response = await fetch(asset.uri);
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: mimeType });
+        formData.append("image", file);
+      } else {
+        formData.append("image", {
+          uri: asset.uri,
+          type: mimeType,
+          name: filename,
+        } as any);
+      }
+
+      const uploadRes = await fetch(`${API_BASE_URL}/journal/upload-image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}));
+        throw new Error(err.message || `Upload failed (${uploadRes.status})`);
+      }
+
+      const { url } = await uploadRes.json();
+      if (typeof url === "string" && url.length > 0) {
+        imageUri = url;
+      }
+    } catch (err: any) {
+      console.warn(
+        "Image upload failed, using local URI fallback:",
+        err?.message,
+      );
+    } finally {
+      setUploadingImage(false);
+    }
 
     const id = Date.now().toString();
 
@@ -514,6 +569,31 @@ export default function JournalScreen() {
           onClose={() => setChapterSliderVisible(false)}
           onSave={handleSaveWithMetadata}
         />
+
+        {uploadingImage && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              left: 16,
+              right: 16,
+              bottom: Math.max(tabBarHeight + 72, 108),
+              backgroundColor: "rgba(0,0,0,0.65)",
+              borderRadius: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 12,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            <ActivityIndicator color="#fff" size="small" />
+            <Text style={{ color: "#fff", fontSize: 13, fontWeight: "500" }}>
+              Uploading image...
+            </Text>
+          </View>
+        )}
 
         {contextMenu.visible && (
           <ContextMenu
