@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -13,7 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Checkbox from "expo-checkbox";
 import { useGoal } from "../../../src/features/goal/goal.context";
-import { toggleStageCompletionApi } from "../../../src/features/goal/goal.api";
+import {
+  deleteGoalApi,
+  toggleStageCompletionApi,
+} from "../../../src/features/goal/goal.api";
 
 type GoalStage = {
   id: string;
@@ -24,7 +28,8 @@ type GoalStage = {
 };
 
 const GoalRoadmapScreen: React.FC = () => {
-  const { currentGoal, goals, upsertGoal } = useGoal();
+  const { currentGoal, goals, setGoals, setCurrentGoal, upsertGoal } =
+    useGoal();
   const params = useLocalSearchParams();
 
   const goalId = params.id as string | undefined;
@@ -36,6 +41,7 @@ const GoalRoadmapScreen: React.FC = () => {
     displayGoal ? displayGoal.stages.map((stage) => ({ ...stage })) : [],
   );
   const [isSavingStage, setIsSavingStage] = useState(false);
+  const [isDeletingGoal, setIsDeletingGoal] = useState(false);
 
   React.useEffect(() => {
     if (displayGoal) {
@@ -110,6 +116,49 @@ const GoalRoadmapScreen: React.FC = () => {
     } finally {
       setIsSavingStage(false);
     }
+  };
+
+  const confirmDeleteGoal = async () => {
+    if (!displayGoal || isDeletingGoal) {
+      return;
+    }
+
+    setIsDeletingGoal(true);
+    try {
+      await deleteGoalApi(displayGoal.id);
+
+      setGoals((prev) => prev.filter((goal) => goal.id !== displayGoal.id));
+      if (currentGoal?.id === displayGoal.id) {
+        setCurrentGoal(null);
+      }
+
+      router.replace("/tabs/goal");
+    } catch (error: any) {
+      Alert.alert("Delete Failed", error?.message || "Failed to delete goal.");
+    } finally {
+      setIsDeletingGoal(false);
+    }
+  };
+
+  const handleDeleteGoalPress = () => {
+    if (!displayGoal || isDeletingGoal) {
+      return;
+    }
+
+    Alert.alert(
+      "Delete Goal",
+      "Are you sure you want to permanently delete this goal? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            void confirmDeleteGoal();
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -231,11 +280,21 @@ const GoalRoadmapScreen: React.FC = () => {
           </View>
 
           <Pressable
-            style={styles.createAnotherButton}
-            onPress={() => router.push("/tabs/goal/chat")}
+            style={[
+              styles.deleteGoalButton,
+              isDeletingGoal && styles.deleteGoalButtonDisabled,
+            ]}
+            onPress={handleDeleteGoalPress}
+            disabled={isDeletingGoal}
           >
-            <Ionicons name="add-circle-outline" size={18} color="#2E2A26" />
-            <Text style={styles.createAnotherText}>Create Another Goal</Text>
+            {isDeletingGoal ? (
+              <ActivityIndicator size="small" color="#7A1E20" />
+            ) : (
+              <Ionicons name="trash-outline" size={18} color="#7A1E20" />
+            )}
+            <Text style={styles.deleteGoalText}>
+              {isDeletingGoal ? "Deleting..." : "Delete Goal"}
+            </Text>
           </Pressable>
         </ScrollView>
       </View>
@@ -455,22 +514,25 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 6,
   },
-  createAnotherButton: {
+  deleteGoalButton: {
     marginTop: 6,
     height: 50,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#D9D2C5",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#F1C6CC",
+    backgroundColor: "#FFF7F8",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 8,
   },
-  createAnotherText: {
+  deleteGoalButtonDisabled: {
+    opacity: 0.7,
+  },
+  deleteGoalText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#2E2A26",
+    color: "#7A1E20",
   },
   emptyRoot: {
     flex: 1,

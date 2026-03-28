@@ -111,6 +111,23 @@ export default function GoalsHome() {
         </View>
       </LinearGradient>
 
+      <View style={styles.ctaWrap}>
+        <Pressable
+          onPress={() => router.push("/tabs/goal/chat")}
+          style={({ pressed }) => [pressed && { opacity: 0.9 }]}
+        >
+          <LinearGradient
+            colors={["#2E2A26", "#4A433A"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.createBtn}
+          >
+            <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.createText}>Create New Goal</Text>
+          </LinearGradient>
+        </Pressable>
+      </View>
+
       <SectionCard>
         <View style={styles.sectionHeader}>
           <View>
@@ -146,23 +163,6 @@ export default function GoalsHome() {
           )}
         </View>
       </SectionCard>
-
-      <View style={styles.ctaWrap}>
-        <Pressable
-          onPress={() => router.push("/tabs/goal/chat")}
-          style={({ pressed }) => [pressed && { opacity: 0.9 }]}
-        >
-          <LinearGradient
-            colors={["#2E2A26", "#4A433A"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.createBtn}
-          >
-            <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
-            <Text style={styles.createText}>Create New Goal</Text>
-          </LinearGradient>
-        </Pressable>
-      </View>
     </HomeStyleScreen>
   );
 }
@@ -246,7 +246,6 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.2)",
-    marginBottom: 12,
   },
   flowHeroKicker: {
     fontSize: 11,
@@ -463,7 +462,7 @@ const styles = StyleSheet.create({
     color: "#6B645C",
   },
   ctaWrap: {
-    marginTop: 18,
+    marginTop: 0,
     marginHorizontal: 8,
   },
   createBtn: {
