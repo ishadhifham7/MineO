@@ -86,9 +86,7 @@ export default function JourneyScreen() {
     setIsRefreshing(true);
     try {
       await refreshJourneys();
-      console.log("Journey refreshed successfully");
     } catch (err) {
-      console.error("Error refreshing journey:", err);
     } finally {
       setIsRefreshing(false);
     }
@@ -98,19 +96,10 @@ export default function JourneyScreen() {
     try {
       setLoadingJournal(true);
       setModalVisible(true);
-      console.log("Fetching journal:", journalId);
 
       const response = await JournalApi.getById(journalId);
-      console.log("Journal fetched:", response.data);
       setSelectedJournal(response.data);
     } catch (error: any) {
-      console.error("Failed to fetch journal:", error);
-      console.error("Error details:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
-
       // Show error alert to user
       const errorMsg =
         error.response?.data?.message ||

@@ -22,22 +22,13 @@ const journeyApi = axios.create({
 // Add auth token to requests
 journeyApi.interceptors.request.use(
   async (config) => {
-    console.log(
-      "🔵 Journey API Request:",
-      config.method?.toUpperCase(),
-      config.url,
-    );
     const token = await getToken();
     if (token) {
-      console.log("🔑 Token found, adding to Authorization header");
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.warn("⚠️ No token found in storage!");
     }
     return config;
   },
   (error) => {
-    console.error("❌ Request Error:", error);
     return Promise.reject(error);
   },
 );
@@ -45,28 +36,9 @@ journeyApi.interceptors.request.use(
 // Response interceptor for debugging
 journeyApi.interceptors.response.use(
   (response) => {
-    console.log(
-      "✅ Journey API Response:",
-      response.status,
-      response.config.url,
-    );
     return response;
   },
   (error) => {
-    if (error.response) {
-      console.error(
-        "❌ Response Error:",
-        error.response.status,
-        error.response.data,
-      );
-    } else if (error.request) {
-      console.error(
-        "❌ No response from backend:",
-        `${env.API_BASE_URL}/journey`,
-      );
-    } else {
-      console.error("❌ Request Setup Error:", error.message);
-    }
     return Promise.reject(error);
   },
 );

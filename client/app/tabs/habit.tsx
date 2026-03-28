@@ -50,9 +50,7 @@ function HabitsContent() {
     setIsRefreshing(true);
     try {
       await Promise.all([refreshCalendar(), refreshRadar()]);
-      console.log("Data refreshed successfully");
-    } catch (err) {
-      console.error("Error refreshing data:", err);
+    } catch {
     } finally {
       setIsRefreshing(false);
     }
@@ -192,7 +190,6 @@ function HabitsContent() {
               <View className="items-center mt-3">
                 <Pressable
                   onPress={async () => {
-                    console.log("Manual radar refresh triggered");
                     await refreshRadar();
                   }}
                   className="bg-[#EEE7DB] active:bg-[#E3DBCD] px-5 py-2 rounded-full"

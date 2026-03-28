@@ -48,18 +48,15 @@ export const JourneyProvider: React.FC<{ children: ReactNode }> = ({
     try {
       setIsLoading(true);
       setError(null);
-      
-      console.log('📍 [JourneyProvider] Loading journey timeline...');
+
       const data = await JourneyApi.getTimeline();
-      console.log('✅ [JourneyProvider] Journey loaded:', data.length, 'journals');
-      
+
       setJournals(data);
     } catch (error: any) {
-      console.error('❌ [JourneyProvider] Failed to load journey:', error);
-      const errorMessage = 
-        error.response?.data?.message || 
-        error.message || 
-        'Failed to load journey';
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to load journey";
       setError(errorMessage);
       setJournals([]);
     } finally {
@@ -98,9 +95,7 @@ export const JourneyProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <JourneyContext.Provider value={value}>
-      {children}
-    </JourneyContext.Provider>
+    <JourneyContext.Provider value={value}>{children}</JourneyContext.Provider>
   );
 };
 
@@ -114,10 +109,10 @@ export const JourneyProvider: React.FC<{ children: ReactNode }> = ({
  */
 export const useJourney = (): JourneyContextType => {
   const context = useContext(JourneyContext);
-  
+
   if (!context) {
     throw new Error("useJourney must be used within a JourneyProvider");
   }
-  
+
   return context;
 };

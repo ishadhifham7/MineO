@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { apiFetch } from "../api/http";
-import { useAuth } from "./AuthProvider"; 
+import { useAuth } from "./AuthProvider";
 
 export type UserProfile = {
   uid: string;
@@ -48,7 +54,9 @@ type ProfileContextValue = {
   clearProfile: () => void;
 };
 
-const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
+const ProfileContext = createContext<ProfileContextValue | undefined>(
+  undefined,
+);
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth(); // should become true after login
@@ -60,8 +68,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiFetch<{ profile: UserProfile }>("/users/me", { method: "GET" });
-      console.log("PROFILE RES:", res);
+      const res = await apiFetch<{ profile: UserProfile }>("/users/me", {
+        method: "GET",
+      });
       setProfile(res.profile);
     } catch (e: any) {
       setError(e.message || "Failed to load profile");
@@ -101,15 +110,23 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     } else {
       clearProfile();
     }
-    
   }, [isAuthenticated]);
 
   const value = useMemo(
-    () => ({ profile, loading, error, refreshProfile, updateProfile, clearProfile }),
-    [profile, loading, error]
+    () => ({
+      profile,
+      loading,
+      error,
+      refreshProfile,
+      updateProfile,
+      clearProfile,
+    }),
+    [profile, loading, error],
   );
 
-  return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
+  return (
+    <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
+  );
 }
 
 export function useProfile() {

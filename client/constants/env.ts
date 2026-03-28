@@ -17,32 +17,23 @@ const getApiUrl = (): string => {
 
   // Check if manually overridden in .env
   if (configuredApiUrl) {
-    console.log("📡 Using configured API URL from .env:", configuredApiUrl);
     return configuredApiUrl;
   }
 
   // Standalone EAS builds should default to deployed backend, not emulator localhost.
   if (!__DEV__) {
-    console.log(
-      "📡 No EXPO_PUBLIC_API_URL found, using deployed backend:",
-      DEPLOYED_API_URL,
-    );
     return DEPLOYED_API_URL;
   }
 
   // Auto-detect IP from Expo development server
   if (__DEV__) {
     try {
-      console.log("🔍 Starting IP auto-detection...");
-
       // Method 1: Expo Config hostUri (Most reliable in Expo SDK 50+)
       const hostUri = Constants.expoConfig?.hostUri;
       if (hostUri) {
         const ip = hostUri.split(":")[0];
         if (ip && ip !== "localhost" && ip !== "127.0.0.1") {
           const apiUrl = `http://${ip}:${BACKEND_PORT}`;
-          console.log("✅ Method 1: Detected IP from expoConfig.hostUri:", ip);
-          console.log("📡 API URL:", apiUrl);
           return apiUrl;
         }
       }
@@ -57,8 +48,6 @@ const getApiUrl = (): string => {
         const ip = debuggerHost.split(":")[0];
         if (ip && ip !== "localhost" && ip !== "127.0.0.1") {
           const apiUrl = `http://${ip}:${BACKEND_PORT}`;
-          console.log("✅ Method 2: Detected IP from debuggerHost:", ip);
-          console.log("📡 API URL:", apiUrl);
           return apiUrl;
         }
       }
@@ -75,8 +64,6 @@ const getApiUrl = (): string => {
           const ip = match[1];
           if (ip !== "localhost" && ip !== "127.0.0.1") {
             const apiUrl = `http://${ip}:${BACKEND_PORT}`;
-            console.log("✅ Method 3: Detected IP from Metro bundler:", ip);
-            console.log("📡 API URL:", apiUrl);
             return apiUrl;
           }
         }
@@ -94,35 +81,17 @@ const getApiUrl = (): string => {
           const ip = match[1];
           if (ip !== "localhost" && ip !== "127.0.0.1") {
             const apiUrl = `http://${ip}:${BACKEND_PORT}`;
-            console.log("✅ Method 4: Detected IP from bundleUrl:", ip);
-            console.log("📡 API URL:", apiUrl);
             return apiUrl;
           }
         }
       }
-
-      console.log("📋 Debug info:");
-      console.log("  - hostUri:", Constants.expoConfig?.hostUri);
-      console.log(
-        "  - debuggerHost:",
-        (Constants as any).manifest?.debuggerHost,
-      );
-      console.log("  - scriptURL:", scriptURL);
-      console.log("  - sourceUrl:", sourceUrl);
-    } catch (error) {
-      console.warn("⚠️ Error during IP auto-detection:", error);
-    }
+    } catch {}
     return `http://localhost:${BACKEND_PORT}`;
   }
 
   // Fallback for when auto-detection fails
   const fallbackIp = Platform.OS === "android" ? "10.0.2.2" : "localhost";
   const fallbackUrl = `http://${fallbackIp}:${BACKEND_PORT}`;
-  console.warn("⚠️ Auto-detection failed, using fallback:", fallbackUrl);
-  console.warn("💡 To use a deployed backend, set in client/.env:");
-  console.warn(`   EXPO_PUBLIC_API_URL=${DEPLOYED_API_URL}`);
-  console.warn("💡 To manually set local IP, create client/.env with:");
-  console.warn("   EXPO_PUBLIC_API_URL=http://YOUR_IP:3001");
   return fallbackUrl;
 };
 
@@ -136,12 +105,3 @@ export const env = {
 // Export as named constants for backward compatibility
 export const API_URL_EXPORT = env.API_URL;
 export const API_BASE_URL = env.API_BASE_URL;
-
-console.log("\n========================================");
-console.log("📡 API CONFIGURATION");
-console.log("========================================");
-console.log("Platform:", Platform.OS);
-console.log("Using EXPO_PUBLIC_API_URL:", Boolean(API_URL_FROM_ENV));
-console.log("API_URL:", env.API_URL);
-console.log("API_BASE_URL:", env.API_BASE_URL);
-console.log("========================================\n");

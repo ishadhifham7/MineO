@@ -130,8 +130,6 @@ export default function SignupDetailsScreen() {
 
       // Prevent UI from getting stuck if auth refresh is slow.
       await Promise.race([refreshAuth().catch(() => {}), wait(2500)]);
-
-      Alert.alert("Success", "Account created successfully");
       router.replace("/onboarding/step1");
     } catch (error: any) {
       Alert.alert("Sign Up Failed", error.message);

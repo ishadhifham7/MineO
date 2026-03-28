@@ -46,8 +46,6 @@ const LoginScreen: React.FC = () => {
       // Refresh auth context to load user data
       await refreshAuth();
 
-      Alert.alert("Success", "Logged in successfully");
-
       // navigate to main app
       router.replace("/tabs/home");
     } catch (error: any) {
@@ -215,4 +213,3 @@ const createStyles = (theme: AppTheme) =>
   });
 
 export default LoginScreen;
-

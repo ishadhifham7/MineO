@@ -79,7 +79,6 @@ export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setGoals(data);
     } catch (error) {
-      console.log("Failed to fetch goals:", error);
     } finally {
       setLoading(false);
     }

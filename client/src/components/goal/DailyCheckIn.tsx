@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -10,6 +9,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -82,7 +82,9 @@ export default function DailyCheckIn({ goals, onComplete, onBack }: Props) {
               >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.goalTitle}>{g.title}</Text>
-                  <Text style={styles.goalSub}>{g.sub || g.stageName || ""}</Text>
+                  <Text style={styles.goalSub}>
+                    {g.sub || g.stageName || ""}
+                  </Text>
                 </View>
 
                 {active ? (
@@ -194,7 +196,9 @@ function MoodCard({
       ]}
     >
       <Text style={styles.moodEmoji}>{emoji}</Text>
-      <Text style={[styles.moodLabel, active && { color: "#fff" }]}>{label}</Text>
+      <Text style={[styles.moodLabel, active && { color: "#fff" }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -277,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 4,

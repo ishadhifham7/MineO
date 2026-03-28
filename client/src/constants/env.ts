@@ -11,7 +11,3 @@ export {
   API_BASE_URL,
   API_URL_EXPORT as API_URL,
 } from "../../constants/env";
-
-console.warn(
-  "⚠️ WARNING: You are importing from src/constants/env.ts - use ../../constants/env instead!",
-);
