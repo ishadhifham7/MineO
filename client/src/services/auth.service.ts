@@ -14,8 +14,6 @@ const authClient = axios.create({
   },
 });
 
-console.log("🔧 Auth Service initialized with:", env.API_BASE_URL);
-
 // Sends user data to the backend - user signup
 export const signupUser = async (data: {
   name: string;
@@ -28,32 +26,19 @@ export const signupUser = async (data: {
   profilePhoto?: string;
 }) => {
   try {
-    console.log("🔵 Attempting signup to:", `${env.API_BASE_URL}/auth/signup`);
     const response = await authClient.post("/auth/signup", data);
-
-    console.log("Signup successful:", response.data);
 
     //auto-login after signup
     if (response.data?.token) {
       await saveToken(response.data.token);
-      console.log("Token saved after signup");
     }
     return response.data;
   } catch (error: any) {
-    console.error("❌ Signup error:", error.message);
-    console.error("📡 Backend URL:", env.API_BASE_URL);
-
     if (error.response) {
       // Server responded with an error
-      console.error("❌ Server responded with error:", error.response.status);
       throw new Error(error.response.data?.message || "Signup failed");
     } else if (error.request) {
       // Request was made but no response received
-      console.error("❌ No response from backend:", env.API_BASE_URL);
-      console.error("💡 Solution:");
-      console.error("   1. Verify EXPO_PUBLIC_API_URL in client/.env");
-      console.error("   2. Confirm deployed backend is up and healthy");
-      console.error("   3. Check mobile network connectivity");
       throw new Error(
         `Cannot connect to backend at ${env.API_URL}.\nPlease ensure:\n` +
           "1. EXPO_PUBLIC_API_URL points to a reachable backend\n" +
@@ -69,15 +54,10 @@ export const signupUser = async (data: {
 // ======================= user login =============================
 export const loginUser = async (email: string, password: string) => {
   try {
-    const url = `${env.API_BASE_URL}/auth/login`;
-    console.log("🔵 Attempting login to:", url);
-
     const response = await authClient.post("/auth/login", {
       email,
       password,
     });
-
-    console.log("✅ Login successful:", response.data);
 
     // save JWT token locally
     if (response.data.token) {
@@ -86,27 +66,11 @@ export const loginUser = async (email: string, password: string) => {
 
     return response.data;
   } catch (error: any) {
-    console.error("❌ Login error:", error);
-    console.error("📡 Backend URL:", env.API_BASE_URL);
-
     if (error.response) {
       // Server responded with error
-      console.error(
-        "❌ Server error:",
-        error.response.status,
-        error.response.data,
-      );
       throw new Error(error.response.data?.message || "Login failed");
     } else if (error.request) {
       // No response received
-      console.error(
-        "❌ No response from server. Backend URL:",
-        env.API_BASE_URL,
-      );
-      console.error("💡 Solution:");
-      console.error("   1. Verify EXPO_PUBLIC_API_URL in client/.env");
-      console.error("   2. Confirm deployed backend is up and healthy");
-      console.error("   3. Check mobile network connectivity");
       throw new Error(
         `Cannot connect to backend at ${env.API_URL}.\nPlease ensure:\n` +
           "1. EXPO_PUBLIC_API_URL points to a reachable backend\n" +
@@ -115,7 +79,6 @@ export const loginUser = async (email: string, password: string) => {
       );
     } else {
       // Request setup error
-      console.error("❌ Request error:", error.message);
       throw new Error(error.message || "Login failed");
     }
   }

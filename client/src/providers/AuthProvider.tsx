@@ -80,7 +80,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       // Check if token is expired
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        console.warn("⚠️ Token expired, clearing storage");
         await removeToken();
         setUser(null);
         setError("Session expired. Please login again.");
@@ -92,10 +91,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         userId: decoded.userId,
         email: decoded.email,
       });
-
-      console.log("✅ User authenticated:", decoded.userId);
     } catch (err) {
-      console.error("❌ Auth error:", err);
       setError("Failed to authenticate. Please login again.");
       setUser(null);
       // Clear invalid token
@@ -119,7 +115,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     await removeToken();
     setUser(null);
     setError(null);
-    console.log("🔓 User logged out");
   };
 
   // Load user on mount

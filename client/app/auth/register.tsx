@@ -126,22 +126,14 @@ export default function SignupDetailsScreen() {
       if (country && country.trim()) signupData.country = country.trim();
       if (profilePhoto) signupData.profilePhoto = profilePhoto;
 
-      console.log("Sending signup data:", { ...signupData, password: "***" });
-
       await signupUser(signupData);
 
       // Prevent UI from getting stuck if auth refresh is slow.
-      await Promise.race([
-        refreshAuth().catch((err) => {
-          console.warn("Auth refresh after signup failed:", err);
-        }),
-        wait(2500),
-      ]);
+      await Promise.race([refreshAuth().catch(() => {}), wait(2500)]);
 
       Alert.alert("Success", "Account created successfully");
       router.replace("/onboarding/step1");
     } catch (error: any) {
-      console.error("Signup failed:", error);
       Alert.alert("Sign Up Failed", error.message);
     } finally {
       setLoading(false);
@@ -353,4 +345,3 @@ const createStyles = (theme: AppTheme) =>
       color: theme.colors.textMuted,
     },
   });
-

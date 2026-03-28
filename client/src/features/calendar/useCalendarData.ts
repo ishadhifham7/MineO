@@ -1,7 +1,12 @@
 // src/features/calendar/useCalendarData.ts
 import { useState, useEffect, useCallback } from "react";
 import { getJournalsByRange } from "./calendar.api";
-import type { JournalEntry, JournalsByDate, MarkedDatesType, UseCalendarDataReturn } from "./types";
+import type {
+  JournalEntry,
+  JournalsByDate,
+  MarkedDatesType,
+  UseCalendarDataReturn,
+} from "./types";
 
 /**
  * Custom hook to fetch and transform journal data for calendar display
@@ -9,7 +14,10 @@ import type { JournalEntry, JournalsByDate, MarkedDatesType, UseCalendarDataRetu
  * @param month - The month to fetch journals for (1-12)
  * @returns Journal entries, marked dates, loading state, error, and refetch function
  */
-export const useCalendarData = (year: number, month: number): UseCalendarDataReturn => {
+export const useCalendarData = (
+  year: number,
+  month: number,
+): UseCalendarDataReturn => {
   const [journals, setJournals] = useState<JournalEntry[]>([]);
   const [journalsByDate, setJournalsByDate] = useState<JournalsByDate>({});
   const [markedDates, setMarkedDates] = useState<MarkedDatesType>({});
@@ -22,25 +30,19 @@ export const useCalendarData = (year: number, month: number): UseCalendarDataRet
       setError(null);
 
       const { startDate, endDate } = getMonthDateRange(year, month);
-      console.log(`📅 Fetching calendar: ${startDate} → ${endDate}`);
 
       const fetchedJournals = await getJournalsByRange(startDate, endDate);
-      console.log(`📅 Calendar fetched: ${fetchedJournals.length} entries`);
 
       const grouped = groupByDate(fetchedJournals);
       const marked = transformToMarkedDates(grouped);
-
-      // Debug: log entry count per date
-      Object.entries(grouped).forEach(([date, entries]) =>
-        console.log(`📅 ${date}: ${entries.length} journal(s)`)
-      );
 
       setJournals(fetchedJournals);
       setJournalsByDate(grouped);
       setMarkedDates(marked);
     } catch (err) {
-      console.error("❌ Calendar fetch failed:", err);
-      setError(err instanceof Error ? err : new Error("Failed to fetch journals"));
+      setError(
+        err instanceof Error ? err : new Error("Failed to fetch journals"),
+      );
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,10 @@ export const useCalendarData = (year: number, month: number): UseCalendarDataRet
  * @param month - Month (1-12)
  * @returns Object with startDate and endDate
  */
-const getMonthDateRange = (year: number, month: number): { startDate: string; endDate: string } => {
+const getMonthDateRange = (
+  year: number,
+  month: number,
+): { startDate: string; endDate: string } => {
   // Ensure month is zero-padded
   const monthStr = month.toString().padStart(2, "0");
   const startDate = `${year}-${monthStr}-01`;
@@ -90,7 +95,7 @@ const groupByDate = (journals: JournalEntry[]): JournalsByDate => {
   });
   // Sort each group newest first
   Object.values(grouped).forEach((entries) =>
-    entries.sort((a, b) => b.createdAt - a.createdAt)
+    entries.sort((a, b) => b.createdAt - a.createdAt),
   );
   return grouped;
 };
@@ -105,11 +110,13 @@ const transformToMarkedDates = (grouped: JournalsByDate): MarkedDatesType => {
   Object.entries(grouped).forEach(([date, entries]) => {
     // Only show 1 dot per date (latest entry)
     const latest = entries[0];
-    const dots = [{
-      key: latest.id,
-      color: latest.isPinnedToTimeline ? "#E6A817" : "#C4956A",
-      selectedDotColor: "#FFFFFF",
-    }];
+    const dots = [
+      {
+        key: latest.id,
+        color: latest.isPinnedToTimeline ? "#E6A817" : "#C4956A",
+        selectedDotColor: "#FFFFFF",
+      },
+    ];
     marked[date] = { marked: true, dots };
   });
 

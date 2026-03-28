@@ -4,6 +4,7 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
+  Keyboard,
   Platform,
 } from "react-native";
 import { useEffect, useState } from "react";
@@ -43,11 +44,9 @@ import { HomeStyleScreen } from "../../../src/components/ui/HomeStyleScreen";
 function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
   const rotation = useSharedValue(0);
 
-  if (open) {
-    rotation.value = withTiming(1, { duration: 200 });
-  } else {
-    rotation.value = withTiming(0, { duration: 200 });
-  }
+  useEffect(() => {
+    rotation.value = withTiming(open ? 1 : 0, { duration: 200 });
+  }, [open, rotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -344,6 +343,7 @@ export default function JournalScreen() {
 
   const handleCanvasPress = () => {
     deselectBlock();
+    Keyboard.dismiss();
   };
 
   const handleCanvasLongPress = (x: number, y: number) => {

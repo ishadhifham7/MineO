@@ -90,6 +90,8 @@ export function ImageBlockComponent({
   const rotate = useSharedValue(rotation);
 
   const isResizing = useSharedValue(false);
+  // Mirror resize state for Gesture.enabled() to avoid reading shared values in render.
+  const [isResizingState, setIsResizingState] = useState(false);
 
   const startPosX = useSharedValue(0);
   const startPosY = useSharedValue(0);
@@ -117,7 +119,7 @@ export function ImageBlockComponent({
 
   // Move gesture
   const panGesture = Gesture.Pan()
-    .enabled(!isResizing.value)
+    .enabled(!isResizingState)
     .minDistance(10)
     .onBegin(() => runOnJS(onSelect)(id))
     .onUpdate((e) => {
@@ -132,7 +134,7 @@ export function ImageBlockComponent({
   const longPressGesture = Gesture.LongPress()
     .minDuration(250)
     .maxDistance(10)
-    .enabled(!isResizing.value)
+    .enabled(!isResizingState)
     .onStart((e) => {
       runOnJS(onSelect)(id);
       runOnJS(onLongPress)(id, e.absoluteX, e.absoluteY);
@@ -148,6 +150,7 @@ export function ImageBlockComponent({
   // Resize helpers
   const startResize = () => {
     isResizing.value = true;
+    setIsResizingState(true);
     startPosX.value = posX.value;
     startPosY.value = posY.value;
     startWidth.value = blockWidth.value;
@@ -157,6 +160,7 @@ export function ImageBlockComponent({
 
   const finishResize = () => {
     isResizing.value = false;
+    setIsResizingState(false);
     runOnJS(onResize)(
       id,
       blockWidth.value,

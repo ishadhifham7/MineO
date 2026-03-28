@@ -5,6 +5,7 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
+  Keyboard,
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -287,7 +288,10 @@ export default function JournalDateView() {
 
   /* ---------- RENDER ---------- */
   const sortedBlocks = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
-  const handleCanvasPress = () => deselectBlock();
+  const handleCanvasPress = () => {
+    deselectBlock();
+    Keyboard.dismiss();
+  };
 
   const selectedBlock = blocks.find(
     (b: JournalBlock) => b.id === selectedBlockId && isTextBlock(b),

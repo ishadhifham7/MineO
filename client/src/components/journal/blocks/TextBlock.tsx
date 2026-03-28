@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TextInput, TextStyle, View } from "react-native";
+import {
+  Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextStyle,
+  View,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -114,6 +121,14 @@ export function TextBlock({
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isEditing]);
+
+  // If block is deselected by tapping canvas, exit edit mode and close keyboard.
+  useEffect(() => {
+    if (!isSelected && isEditing) {
+      inputRef.current?.blur();
+      Keyboard.dismiss();
+    }
+  }, [isSelected, isEditing]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     left: posX.value,

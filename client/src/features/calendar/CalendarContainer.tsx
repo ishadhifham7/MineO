@@ -9,7 +9,6 @@ import { getLocalToday } from "../../utils/date";
 import type { CalendarState, JournalEntry } from "./types";
 import { colors } from "../../constants/colors";
 
-
 /**
  * Calendar Container - Logic orchestrator between data and UI
  * Manages calendar state and handles user interactions
@@ -30,16 +29,14 @@ export const CalendarContainer: React.FC = () => {
   const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false);
 
   // Fetch journal data for current month
-  const { journalsByDate, markedDates, loading, error, refetch } = useCalendarData(
-    calendarState.currentYear,
-    calendarState.currentMonth,
-  );
+  const { journalsByDate, markedDates, loading, error, refetch } =
+    useCalendarData(calendarState.currentYear, calendarState.currentMonth);
 
   // Re-fetch whenever this screen gains focus (e.g. coming back from journal tab)
   useFocusEffect(
     useCallback(() => {
       refetch();
-    }, [refetch])
+    }, [refetch]),
   );
 
   /**
@@ -60,16 +57,13 @@ export const CalendarContainer: React.FC = () => {
       const entries = allEntries.slice(0, 1);
 
       if (entries.length > 0) {
-        console.log(`📅 Journal entry found for:`, day.dateString);
         setSelectedJournals(entries);
         setIsPreviewVisible(true);
       } else if (day.dateString === getLocalToday()) {
         // Today with no entry → just switch to the journal tab (its index already shows today)
-        console.log("📅 Today tapped — switching to journal tab");
         router.push("/tabs/journal" as any);
       } else {
         // Past/future day with no entry — open root-level editor so back returns here
-        console.log("📅 No journal entry for:", day.dateString, "— opening editor");
         router.push(`/journal/${day.dateString}` as any);
       }
     },
@@ -80,13 +74,16 @@ export const CalendarContainer: React.FC = () => {
    * Handle month change event
    * Triggers new data fetch for the selected month
    */
-  const handleMonthChange = useCallback((month: { year: number; month: number }) => {
-    setCalendarState({
-      currentYear: month.year,
-      currentMonth: month.month,
-      selectedDate: null, // Reset selection on month change
-    });
-  }, []);
+  const handleMonthChange = useCallback(
+    (month: { year: number; month: number }) => {
+      setCalendarState({
+        currentYear: month.year,
+        currentMonth: month.month,
+        selectedDate: null, // Reset selection on month change
+      });
+    },
+    [],
+  );
 
   /**
    * Handle preview sheet close
@@ -114,7 +111,7 @@ export const CalendarContainer: React.FC = () => {
   );
 
   // Format current month for calendar (YYYY-MM-DD format)
-  const currentMonthString = `${calendarState.currentYear}-${String(calendarState.currentMonth).padStart(2, '0')}-01`;
+  const currentMonthString = `${calendarState.currentYear}-${String(calendarState.currentMonth).padStart(2, "0")}-01`;
 
   return (
     <View style={styles.container}>

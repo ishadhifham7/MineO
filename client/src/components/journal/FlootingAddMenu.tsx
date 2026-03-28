@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import Animated, {
@@ -21,13 +22,14 @@ export function FloatingAddMenu({
   const translateX = useSharedValue(20);
 
   // animate in / out — slide in from right
-  if (visible) {
-    opacity.value = withTiming(1, { duration: 180 });
-    translateX.value = withTiming(0, { duration: 180 });
-  } else {
-    opacity.value = withTiming(0, { duration: 150 });
-    translateX.value = withTiming(20, { duration: 150 });
-  }
+  useEffect(() => {
+    opacity.value = withTiming(visible ? 1 : 0, {
+      duration: visible ? 180 : 150,
+    });
+    translateX.value = withTiming(visible ? 0 : 20, {
+      duration: visible ? 180 : 150,
+    });
+  }, [visible, opacity, translateX]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

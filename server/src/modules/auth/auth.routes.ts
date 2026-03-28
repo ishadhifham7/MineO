@@ -5,19 +5,16 @@ export async function authRoutes(app: FastifyInstance) {
   //  signup
   app.post('/signup', async (request, reply) => {
     try {
-      console.log('📥 Signup request received:', request.body);
       const { name, email, password, dob, bio, gender, country, profilePhoto } =
-      request.body as any;
+        request.body as any;
 
       // Validate required fields
       if (!name || !email || !password || !dob) {
-        console.log('❌ Missing required fields:', { name: !!name, email: !!email, password: !!password, dob: !!dob });
         return reply.status(400).send({
           message: 'Name, email, password, and date of birth are required',
         });
       }
 
-      console.log('🔵 Calling signupUser service...');
       const result = await signupUser({
         name,
         email,
@@ -29,8 +26,6 @@ export async function authRoutes(app: FastifyInstance) {
         profilePhoto,
       });
 
-      console.log('✅ Signup successful:', result.id);
-      
       // Generate JWT token for auto-login
       const jwt = require('jsonwebtoken');
       const token = jwt.sign(
@@ -45,9 +40,6 @@ export async function authRoutes(app: FastifyInstance) {
         token, // Return token for auto-login
       });
     } catch (error: any) {
-      console.error('❌ Signup route error:', error);
-      console.error('❌ Error message:', error.message);
-      console.error('❌ Error stack:', error.stack);
       return reply.status(400).send({
         message: error.message,
       });
@@ -57,23 +49,18 @@ export async function authRoutes(app: FastifyInstance) {
   // login
   app.post('/login', async (request, reply) => {
     try {
-      console.log('📥 Login request received:', request.body);
       const { email, password } = request.body as any;
 
       if (!email || !password) {
-        console.log('❌ Missing email or password');
         return reply.status(400).send({
           message: 'Email and password are required',
         });
       }
 
-      console.log('🔵 Calling loginUser service...');
       const result = await loginUser(email, password);
-      console.log('✅ Login successful, sending response');
 
       return reply.send(result);
     } catch (error: any) {
-      console.error('❌ Login route error:', error);
       return reply.status(401).send({
         message: error.message,
       });

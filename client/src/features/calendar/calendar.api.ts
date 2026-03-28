@@ -12,10 +12,6 @@ export const getJournalsByRange = async (
   startDate: string,
   endDate: string,
 ): Promise<JournalEntry[]> => {
-  console.log("🌐 API Call: getJournalsByRange");
-  console.log("🌐 Start date:", startDate);
-  console.log("🌐 End date:", endDate);
-
   try {
     // 1. Get all dates that have journal entries
     const datesRes = await api.get<{ dates: string[] }>("/dates");
@@ -25,7 +21,6 @@ export const getJournalsByRange = async (
     const datesInRange = allDates.filter((d) => d >= startDate && d <= endDate);
 
     if (datesInRange.length === 0) {
-      console.log("📅 No journal dates in range");
       return [];
     }
 
@@ -38,11 +33,8 @@ export const getJournalsByRange = async (
     );
 
     const entries = results.flat();
-    console.log(`✅ Calendar: ${entries.length} entries in range`);
     return entries;
   } catch (error: any) {
-    console.error("❌ API Error:", error.message);
-    console.error("❌ Error details:", error.response?.data);
     throw error;
   }
 };
