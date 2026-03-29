@@ -176,7 +176,7 @@ export function TextBlock({
   /* ---- resize helpers (UNCHANGED) ---- */
   const startResize = () => {
     isResizing.value = true;
-    setIsResizingState(true);
+    runOnJS(setIsResizingState)(true);
     startPosX.value = posX.value;
     startPosY.value = posY.value;
     startWidth.value = blockWidth.value;
@@ -186,7 +186,7 @@ export function TextBlock({
 
   const finishResize = () => {
     isResizing.value = false;
-    setIsResizingState(false);
+    runOnJS(setIsResizingState)(false);
     runOnJS(onResize)(
       id,
       blockWidth.value,

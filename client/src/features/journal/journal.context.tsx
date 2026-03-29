@@ -102,7 +102,11 @@ export type JournalAction =
   | { type: "SET_JOURNAL"; payload: Partial<JournalState> }
   | {
       type: "SET_META";
-      payload: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean };
+      payload: {
+        title?: string;
+        chapters?: string[];
+        isPinnedToTimeline?: boolean;
+      };
     };
 
 // -------------------- Initial State --------------------
@@ -126,6 +130,16 @@ const initialState: JournalState = {
   isLoading: false,
   error: null,
 };
+
+function toSafeDimension(value: number, min: number): number {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, value);
+}
+
+function toSafeCoordinate(value: number, fallback: number): number {
+  if (!Number.isFinite(value)) return fallback;
+  return value;
+}
 
 // -------------------- Reducer --------------------
 export function journalReducer(
@@ -178,10 +192,10 @@ export function journalReducer(
           block.id === action.payload.id
             ? {
                 ...block,
-                width: action.payload.width,
-                height: action.payload.height,
-                x: action.payload.x,
-                y: action.payload.y,
+                width: toSafeDimension(action.payload.width, 40),
+                height: toSafeDimension(action.payload.height, 40),
+                x: toSafeCoordinate(action.payload.x, block.x),
+                y: toSafeCoordinate(action.payload.y, block.y),
               }
             : block,
         ),
@@ -412,7 +426,11 @@ interface JournalContextValue extends JournalState {
   pasteBlock: () => void;
 
   // -------------------- New helpers --------------------
-  setMeta: (meta: { title?: string; chapters?: string[]; isPinnedToTimeline?: boolean }) => void;
+  setMeta: (meta: {
+    title?: string;
+    chapters?: string[];
+    isPinnedToTimeline?: boolean;
+  }) => void;
   loadJournal: (date: string) => Promise<void>;
   saveJournal: (metadata?: {
     title?: string;

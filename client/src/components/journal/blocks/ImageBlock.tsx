@@ -150,7 +150,7 @@ export function ImageBlockComponent({
   // Resize helpers
   const startResize = () => {
     isResizing.value = true;
-    setIsResizingState(true);
+    runOnJS(setIsResizingState)(true);
     startPosX.value = posX.value;
     startPosY.value = posY.value;
     startWidth.value = blockWidth.value;
@@ -160,7 +160,7 @@ export function ImageBlockComponent({
 
   const finishResize = () => {
     isResizing.value = false;
-    setIsResizingState(false);
+    runOnJS(setIsResizingState)(false);
     runOnJS(onResize)(
       id,
       blockWidth.value,
