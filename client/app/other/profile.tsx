@@ -16,11 +16,13 @@ import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useProfile } from "../../src/providers/ProfileProvider"; // ✅ adjust if your path differs
+import { useAuth } from "../../src/hooks/useAuth";
 
 type ActivityStatus = "Active" | "Away" | "Offline";
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
 
   // Context profile
   const {
@@ -109,6 +111,8 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     setShowLogoutModal(false);
+
+    await logout();
 
     // Prevent old user info showing after logout
     clearProfile();
