@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../src/design-system';
 import type { AppTheme } from '../../src/design-system';
 
+const AUTH_BUTTON_COLOR = '#8C7F6A';
+
 export default function Step2() {
   const router = useRouter();
   const { theme } = useAppTheme();
@@ -75,6 +77,6 @@ const createStyles = (theme: AppTheme) =>
     progressBar: { height: 2, flex: 1, backgroundColor: theme.colors.border },
     activeBar: { backgroundColor: theme.colors.text },
 
-    button: { backgroundColor: theme.colors.primary, padding: 18, borderRadius: 8, alignItems: 'center' },
+    button: { backgroundColor: AUTH_BUTTON_COLOR, padding: 18, borderRadius: 8, alignItems: 'center' },
     buttonText: { color: theme.colors.primaryForeground, fontSize: 16, fontWeight: '500' }
   }); 
