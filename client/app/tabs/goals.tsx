@@ -1,11 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  Platform,
-} from "react-native";
+import { StyleSheet, Text, View, Pressable, Platform } from "react-native";
 
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,6 +9,7 @@ import {
   HomeStyleScreen,
   SectionCard,
 } from "../../src/components/ui/HomeStyleScreen";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Goal = {
   id: string;
@@ -29,6 +24,9 @@ type Goal = {
 };
 
 export default function GoalsRoute() {
+  const scrollRef = React.useRef<import("react-native").ScrollView | null>(
+    null,
+  );
   const goals: Goal[] = useMemo(
     () => [
       {
@@ -80,6 +78,14 @@ export default function GoalsRoute() {
   };
   const handleBack = () => setScreen("home");
 
+  useFocusEffect(
+    React.useCallback(() => {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+      });
+    }, []),
+  );
+
   if (screen === "create") {
     return <CreateGoal onBack={handleBack} />;
   }
@@ -89,6 +95,7 @@ export default function GoalsRoute() {
   // Home screen (default)
   return (
     <HomeStyleScreen
+      scrollRef={scrollRef}
       kicker="Goal Plan"
       title="Your Goals"
       subtitle="Small steps create big change"
@@ -245,4 +252,3 @@ const styles = StyleSheet.create({
   },
   createText: { fontSize: 17, fontWeight: "900", color: "#fff" },
 });
-

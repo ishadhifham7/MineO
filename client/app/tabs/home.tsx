@@ -11,10 +11,12 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useGoal } from "../../src/features/goal/goal.context"; // adjust path
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useAuth } from "../../src/hooks/useAuth";
 import { getCalendar } from "../../src/services/habit.service";
 import type { CalendarData } from "../../src/features/habit/habit.types";
@@ -43,6 +45,9 @@ interface WinCategory {
 // ---------- Main Screen ----------
 export default function HomeScreen() {
   const router = useRouter();
+  const scrollRef = useRef<ScrollView | null>(null);
+  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const [sheetDate, setSheetDate] = useState<string | null>(null);
   const [selectedEntry, setSelectedEntry] =
@@ -63,6 +68,10 @@ export default function HomeScreen() {
   const { goals, fetchGoals } = useGoal();
   useFocusEffect(
     useCallback(() => {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+      });
+
       fetchGoals();
       // Fetch habit calendar + journal entries on focus
       if (user) {
@@ -229,7 +238,14 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={styles.scrollView}
+      contentContainerStyle={[
+        styles.scrollContent,
+        {
+          paddingBottom: Math.max(tabBarHeight - insets.bottom + 24, 98),
+        },
+      ]}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
@@ -520,7 +536,7 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* ===== Goal Path ===== */}
-      <View style={[styles.sectionPadding, { marginBottom: 100 }]}>
+      <View style={styles.sectionPadding}>
         <View style={styles.card}>
           <View style={styles.goalHeader}>
             <View>
@@ -600,6 +616,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: "#F6F1E7",
+  },
+  scrollContent: {
+    paddingBottom: 16,
   },
 
   /* ---- Header ---- */

@@ -9,6 +9,7 @@ import {
   HomeStyleScreen,
   SectionCard,
 } from "../../../src/components/ui/HomeStyleScreen";
+import { useFocusEffect } from "@react-navigation/native";
 
 type GoalItem = {
   id: string;
@@ -50,11 +51,22 @@ function getStatusMeta(progressPct: number) {
 }
 
 export default function GoalsHome() {
+  const scrollRef = React.useRef<import("react-native").ScrollView | null>(
+    null,
+  );
   const { goals, fetchGoals } = useGoal();
 
   useEffect(() => {
     fetchGoals();
   }, [fetchGoals]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+      });
+    }, []),
+  );
 
   const { completedCount, activeCount } = useMemo(() => {
     const completed = goals.filter((goal: GoalItem) => {
@@ -73,6 +85,7 @@ export default function GoalsHome() {
 
   return (
     <HomeStyleScreen
+      scrollRef={scrollRef}
       kicker="Goal Plan"
       title="Your Goals"
       subtitle="Keep moving forward, one milestone at a time"

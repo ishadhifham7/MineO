@@ -20,6 +20,8 @@ import {
   HomeStyleScreen,
   SectionCard,
 } from "../../src/components/ui/HomeStyleScreen";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useRef } from "react";
 
 // Get local date in YYYY-MM-DD format (not UTC)
 const getLocalDate = () => {
@@ -31,6 +33,7 @@ const getLocalDate = () => {
 };
 
 function HabitsContent() {
+  const scrollRef = useRef<ScrollView | null>(null);
   const {
     activeTab,
     setActiveTab,
@@ -45,6 +48,14 @@ function HabitsContent() {
   } = useHabit();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const today = getLocalDate();
+
+  useFocusEffect(
+    useCallback(() => {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+      });
+    }, []),
+  );
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -125,16 +136,17 @@ function HabitsContent() {
         { value: today, label: "Today" },
       ]}
       scrollable={false}
-      contentContainerStyle={{ flex: 1, paddingBottom: 90 }}
+      contentContainerStyle={{ flex: 1, paddingBottom: 8 }}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <ScrollView
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingBottom: 116,
+            paddingBottom: 16,
             paddingHorizontal: 16,
             gap: 12,
           }}

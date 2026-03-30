@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   userBubble: {
-    backgroundColor: "#8C7F6A",
+    backgroundColor: "#A39178",
     borderBottomRightRadius: 4,
   },
   aiBubble: {

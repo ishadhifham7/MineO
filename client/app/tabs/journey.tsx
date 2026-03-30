@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { JourneyCanvas } from "../../src/components/journey/JourneyCanvas";
 import { JourneyNode } from "../../src/components/journey/JourneyNode";
 import { TimelinePath } from "../../src/components/journey/TimelinePath";
@@ -74,6 +75,9 @@ const generatePositions = (count: number) => {
 };
 
 export default function JourneyScreen() {
+  const journeyScrollRef = React.useRef<
+    import("react-native").ScrollView | null
+  >(null);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { journals, isLoading, error, refreshJourneys } = useJourney();
   const [selectedJournal, setSelectedJournal] =
@@ -81,6 +85,14 @@ export default function JourneyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingJournal, setLoadingJournal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      requestAnimationFrame(() => {
+        journeyScrollRef.current?.scrollTo({ y: 0, animated: false });
+      });
+    }, []),
+  );
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -255,6 +267,7 @@ export default function JourneyScreen() {
 
       <SectionCard style={styles.canvasCard}>
         <JourneyCanvas
+          scrollRef={journeyScrollRef}
           contentHeight={contentHeight}
           refreshControl={
             <RefreshControl
@@ -298,7 +311,7 @@ export default function JourneyScreen() {
 const styles = StyleSheet.create({
   screenContent: {
     flex: 1,
-    paddingBottom: 94,
+    paddingBottom: 8,
   },
   mapIntroContainer: {
     paddingHorizontal: 4,

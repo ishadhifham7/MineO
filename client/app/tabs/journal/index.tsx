@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -81,7 +80,6 @@ function AddButton({ open, onPress }: { open: boolean; onPress: () => void }) {
 /* ---------------- SCREEN ---------------- */
 
 export default function JournalScreen() {
-  const tabBarHeight = useBottomTabBarHeight();
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const {
@@ -391,7 +389,7 @@ export default function JournalScreen() {
       scrollable={false}
       contentContainerStyle={{
         flex: 1,
-        paddingBottom: Math.max(tabBarHeight - 20, 8),
+        paddingBottom: 8,
       }}
       stats={[
         {
@@ -477,7 +475,7 @@ export default function JournalScreen() {
           style={{
             flex: 1,
             marginTop: 2,
-            marginBottom: Math.max(tabBarHeight + 0, 24),
+            marginBottom: 8,
             marginHorizontal: 2,
             borderRadius: 16,
             overflow: "hidden",
@@ -577,7 +575,7 @@ export default function JournalScreen() {
               position: "absolute",
               left: 16,
               right: 16,
-              bottom: Math.max(tabBarHeight + 72, 108),
+              bottom: 16,
               backgroundColor: "rgba(0,0,0,0.65)",
               borderRadius: 12,
               paddingVertical: 10,

@@ -8,22 +8,12 @@ export default function TabsLayout() {
   const { theme } = useAppTheme();
 
   const sharedTabBarStyle = {
-    position: "absolute" as const,
-    left: 0,
-    right: 0,
-    bottom: Math.max(insets.bottom, 10),
     height: 58 + Math.max(insets.bottom, 6),
     borderTopWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: 18,
+    borderTopColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
-    paddingTop: 8,
+    paddingTop: 6,
     paddingBottom: Math.max(insets.bottom, 8),
-    shadowColor: theme.colors.text,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 12,
-    elevation: 8,
   };
 
   return (

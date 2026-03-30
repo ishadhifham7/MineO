@@ -20,6 +20,7 @@ type HomeStyleScreenProps = {
   hideHero?: boolean;
   floatingAction?: React.ReactNode;
   floatingActionContainerStyle?: ViewStyle;
+  scrollRef?: React.RefObject<ScrollView | null>;
 };
 
 export function HomeStyleScreen({
@@ -34,6 +35,7 @@ export function HomeStyleScreen({
   hideHero = false,
   floatingAction,
   floatingActionContainerStyle,
+  scrollRef,
 }: HomeStyleScreenProps) {
   return (
     <SafeAreaView style={styles.safe} edges={["left", "right"]}>
@@ -75,6 +77,7 @@ export function HomeStyleScreen({
 
       {scrollable ? (
         <ScrollView
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
         >

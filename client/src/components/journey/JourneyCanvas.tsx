@@ -13,15 +13,18 @@ type JourneyCanvasProps = {
   children: React.ReactNode;
   contentHeight: number;
   refreshControl?: React.ReactElement<RefreshControlProps>;
+  scrollRef?: React.RefObject<ScrollView | null>;
 };
 
 export const JourneyCanvas: React.FC<JourneyCanvasProps> = ({
   children,
   contentHeight,
   refreshControl,
+  scrollRef,
 }) => {
   return (
     <ScrollView
+      ref={scrollRef}
       style={styles.container}
       contentContainerStyle={[
         styles.contentContainer,
