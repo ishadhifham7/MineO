@@ -44,7 +44,7 @@ export const env = {
   FIREBASE_PRIVATE_KEY: (process.env.FIREBASE_PRIVATE_KEY || 'dev-key').replace(/\\n/g, '\n'),
 
   JWT_SECRET:
-    process.env.JWT_SECRET || 'super-secret-jwt-key-change-this-in-production-use-random-string',
+    process.env.JWT_SECRET!,
   GROQ_API_KEY: process.env.GROQ_API_KEY || '',
 } as const;
 

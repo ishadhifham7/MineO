@@ -9,7 +9,7 @@ export interface JwtPayload {
 // creates login token
 export function signToken(payload: JwtPayload) {
     return jwt.sign(payload, env.JWT_SECRET, {
-        expiresIn: '7d',
+        expiresIn: '3d',
     });
 }
 
